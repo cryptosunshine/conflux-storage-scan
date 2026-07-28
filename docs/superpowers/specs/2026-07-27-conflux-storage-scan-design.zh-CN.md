@@ -457,7 +457,7 @@ interface StorageSubmission {
   sectorCount: bigint
   endSectorExclusive: bigint
   nodeRoots: readonly Hex[]
-  tags: readonly Hex[]
+  tags: Hex
 
   blockNumber: bigint
   blockHash: Hex
