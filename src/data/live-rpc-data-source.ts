@@ -25,6 +25,52 @@ export interface CreateLiveRpcDataSourceOptions {
 	readonly transport: StorageSyncTransport
 }
 
+export class LocalIndexError extends Error {
+	readonly code = "CACHE_CORRUPT"
+
+	constructor(cause: unknown) {
+		super("The local storage index could not be read. Rebuild the browser index to recover.", { cause })
+		this.name = "LocalIndexError"
+	}
+}
+
+function isLocalIndexCorruption(error: unknown): boolean {
+	if (error instanceof SyntaxError) {
+		return true
+	}
+	return (
+		error instanceof DOMException &&
+		["ConstraintError", "DataError", "InvalidStateError", "NotFoundError", "VersionError"].includes(error.name)
+	)
+}
+
+async function guardLocalIndex<Result>(operation: () => Promise<Result>): Promise<Result> {
+	try {
+		return await operation()
+	} catch (error) {
+		if (isLocalIndexCorruption(error)) {
+			throw new LocalIndexError(error)
+		}
+		throw error
+	}
+}
+
+function guardedRepository(repository: StorageRepository): StorageRepository {
+	return {
+		namespace: repository.namespace,
+		applyChunk: (chunk) => guardLocalIndex(() => repository.applyChunk(chunk)),
+		clearCurrentNamespace: () => repository.clearCurrentNamespace(),
+		getByCanonicalKey: (canonicalKey) => guardLocalIndex(() => repository.getByCanonicalKey(canonicalKey)),
+		getBySequence: (sequence) => guardLocalIndex(() => repository.getBySequence(sequence)),
+		getCheckpoint: () => guardLocalIndex(() => repository.getCheckpoint()),
+		getSubmitterSummary: (submitter) => guardLocalIndex(() => repository.getSubmitterSummary(submitter)),
+		getSummary: () => guardLocalIndex(() => repository.getSummary()),
+		list: (query) => guardLocalIndex(() => repository.list(query)),
+		listBySubmitter: (query) => guardLocalIndex(() => repository.listBySubmitter(query)),
+		reconcileWindow: (chunk) => guardLocalIndex(() => repository.reconcileWindow(chunk)),
+	}
+}
+
 function assertActive(signal?: AbortSignal): void {
 	if (signal?.aborted) {
 		throw new DOMException("The operation was aborted", "AbortError")
@@ -113,7 +159,7 @@ class LiveRpcStorageDataSource implements StorageDataSource {
 
 	#createSyncService(): SubmissionSyncService {
 		return createSubmissionSyncService({
-			repository: this.#options.repository,
+			repository: guardedRepository(this.#options.repository),
 			transport: this.#options.transport,
 		})
 	}
@@ -128,7 +174,7 @@ class LiveRpcStorageDataSource implements StorageDataSource {
 
 	async getSummary(): Promise<StorageSummary> {
 		const [indexed, contractSubmissionCount, tree] = await Promise.all([
-			this.#options.repository.getSummary(),
+			guardLocalIndex(() => this.#options.repository.getSummary()),
 			this.#options.client.readContract({
 				abi: fixedPriceFlowAbi,
 				address: FIXED_PRICE_FLOW_PROXY,
@@ -152,19 +198,25 @@ class LiveRpcStorageDataSource implements StorageDataSource {
 		}
 	}
 
+	getSubmitterSummary(submitter: string) {
+		return guardLocalIndex(() => this.#options.repository.getSubmitterSummary(normalizeSubmitterAddress(submitter)))
+	}
+
 	listSubmissions(query: ListSubmissionsQuery = {}): Promise<Page<StorageSubmission>> {
-		return this.#options.repository.list(query)
+		return guardLocalIndex(() => this.#options.repository.list(query))
 	}
 
 	getSubmission(sequence: bigint): Promise<StorageSubmission | undefined> {
-		return this.#options.repository.getBySequence(sequence)
+		return guardLocalIndex(() => this.#options.repository.getBySequence(sequence))
 	}
 
 	listBySubmitter(query: AddressListSubmissionsQuery): Promise<Page<StorageSubmission>> {
-		return this.#options.repository.listBySubmitter({
-			...query,
-			submitter: normalizeSubmitterAddress(query.submitter),
-		})
+		return guardLocalIndex(() =>
+			this.#options.repository.listBySubmitter({
+				...query,
+				submitter: normalizeSubmitterAddress(query.submitter),
+			}),
+		)
 	}
 
 	async rebuildLocalIndex(): Promise<void> {

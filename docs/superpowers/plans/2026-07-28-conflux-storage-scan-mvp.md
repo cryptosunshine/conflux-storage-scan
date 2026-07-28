@@ -1160,7 +1160,7 @@ git commit -m "feat: expose storage data source"
 - Create: `src/components/components.test.tsx`
 - Create: `src/test/render.tsx`
 
-- [ ] **Step 1: 加载 UI 相关 Skills**
+- [x] **Step 1: 加载 UI 相关 Skills**
 
 实施者必须加载：
 
@@ -1171,7 +1171,7 @@ git commit -m "feat: expose storage data source"
 
 页面完成后使用 `web-design-guidelines` 做检查。
 
-- [ ] **Step 2: 写共享组件失败测试**
+- [x] **Step 2: 写共享组件失败测试**
 
 断言：
 
@@ -1191,13 +1191,13 @@ git commit -m "feat: expose storage data source"
 - 多个 EIP-6963 provider 不折叠成一个 Browser Wallet；
 - 配置中不存在 write contract helper。
 
-- [ ] **Step 3: 运行并确认失败**
+- [x] **Step 3: 运行并确认失败**
 
 Run: `pnpm test src/components/components.test.tsx src/wallet/config.test.ts`
 
 Expected: FAIL，共享组件不存在。
 
-- [ ] **Step 4: 写精确 Light Theme tokens**
+- [x] **Step 4: 写精确 Light Theme tokens**
 
 ```css
 @import "tailwindcss";
@@ -1228,7 +1228,7 @@ Expected: FAIL，共享组件不存在。
 同时定义 focus ring、最大内容宽度、响应式 gutters、表格密度、skeleton animation，
 并支持 `prefers-reduced-motion`。
 
-- [ ] **Step 5: 实现钱包配置、Providers 和状态组件**
+- [x] **Step 5: 实现钱包配置、Providers 和状态组件**
 
 链定义：
 
@@ -1264,13 +1264,13 @@ Provider 顺序：
 
 公开数据源始终使用配置的 viem public client，不能从 wagmi connector 获取 transport。
 
-- [ ] **Step 6: 运行测试和键盘检查**
+- [x] **Step 6: 运行测试和键盘检查**
 
 Run: `pnpm test src/components src/wallet && pnpm lint && pnpm typecheck`
 
 Expected: PASS，无 Biome a11y 错误。
 
-- [ ] **Step 7: 提交**
+- [x] **Step 7: 提交**
 
 ```bash
 git add src/styles src/app src/components src/wallet
@@ -1291,7 +1291,7 @@ git commit -m "feat: add Conflux light design foundation"
 - Create: `src/features/search/global-search.test.tsx`
 - Modify: `src/app/app.tsx`
 
-- [ ] **Step 1: 写搜索失败测试**
+- [x] **Step 1: 写搜索失败测试**
 
 ```tsx
 it.each([
@@ -1308,13 +1308,13 @@ it.each([
 
 另断言交易哈希、负数、浮点数和短地址只显示本地错误，data source 未调用。
 
-- [ ] **Step 2: 运行并确认失败**
+- [x] **Step 2: 运行并确认失败**
 
 Run: `pnpm test src/features/search/global-search.test.tsx`
 
 Expected: FAIL，搜索组件不存在。
 
-- [ ] **Step 3: 实现 file-based routes**
+- [x] **Step 3: 实现 file-based routes**
 
 支持且仅支持：
 
@@ -1328,7 +1328,7 @@ Expected: FAIL，搜索组件不存在。
 route loader/search validator 在进入页面前规范化 page、sequence 和 address。
 404 页面保留搜索和返回首页操作。`/history` 由 Task 13 在钱包历史页面可用时一并加入。
 
-- [ ] **Step 4: 实现 Header**
+- [x] **Step 4: 实现 Header**
 
 Header 包含：
 
@@ -1340,13 +1340,13 @@ Header 包含：
 
 不得出现 Mining、Rewards、Upload、Download 或主题切换。
 
-- [ ] **Step 5: 运行路由测试**
+- [x] **Step 5: 运行路由测试**
 
 Run: `pnpm test src/features/search && pnpm typecheck`
 
 Expected: PASS，TanStack Router 生成 `src/routeTree.gen.ts`。
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
 ```bash
 git add src/routes src/features/search src/components/app-header.tsx src/app src/routeTree.gen.ts
@@ -1364,7 +1364,7 @@ git commit -m "feat: add explorer routes and search"
 - Create: `src/components/submission-table.tsx`
 - Create: `src/components/address-link.tsx`
 
-- [ ] **Step 1: 写页面失败测试**
+- [x] **Step 1: 写页面失败测试**
 
 Dashboard 断言：
 
@@ -1377,13 +1377,13 @@ Dashboard 断言：
 列表断言桌面列为 sequence、submitter、transaction、logical size、sectors、fee、age，
 且不存在 download 列。
 
-- [ ] **Step 2: 运行并确认失败**
+- [x] **Step 2: 运行并确认失败**
 
 Run: `pnpm test src/features/dashboard src/features/submissions`
 
 Expected: FAIL，页面尚不存在。
 
-- [ ] **Step 3: 实现格式化函数和 SubmissionTable**
+- [x] **Step 3: 实现格式化函数和 SubmissionTable**
 
 字节数采用 IEC 单位，保留原始值 tooltip；地址和哈希中间截断但复制完整值；
 时间使用 `<time dateTime>`；交易链接为：
@@ -1396,18 +1396,18 @@ export function confluxScanTransactionUrl(hash: `0x${string}`) {
 
 外链添加 `target="_blank"` 和 `rel="noopener noreferrer"`。
 
-- [ ] **Step 4: 实现 Dashboard 和列表**
+- [x] **Step 4: 实现 Dashboard 和列表**
 
 Dashboard 只请求 summary 和 page 1。Submissions 页通过 URL page 参数请求 20 条，
 缓存旧页时使用 placeholder data，后台刷新时保留表格并显示 refresh 状态。
 
-- [ ] **Step 5: 运行页面测试**
+- [x] **Step 5: 运行页面测试**
 
 Run: `pnpm test src/features/dashboard src/features/submissions src/components && pnpm typecheck`
 
 Expected: PASS。
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
 ```bash
 git add src/features/dashboard src/features/submissions src/components
@@ -1423,7 +1423,7 @@ git commit -m "feat: add storage dashboard and submissions"
 - Create: `src/features/address/address-page.tsx`
 - Create: `src/features/address/address-page.test.tsx`
 
-- [ ] **Step 1: 写详情失败测试**
+- [x] **Step 1: 写详情失败测试**
 
 提交详情断言：
 
@@ -1441,29 +1441,29 @@ git commit -m "feat: add storage dashboard and submissions"
 - 按 event submitter 过滤，而不是 transaction sender；
 - URL 分页稳定。
 
-- [ ] **Step 2: 运行并确认失败**
+- [x] **Step 2: 运行并确认失败**
 
 Run: `pnpm test src/features/submission-detail src/features/address`
 
 Expected: FAIL。
 
-- [ ] **Step 3: 实现详情页面**
+- [x] **Step 3: 实现详情页面**
 
 不存在 sequence 时显示明确空状态，RPC 故障但缓存有记录时显示 stale record。
 可选 `getFlowRootByTxSeq` 失败不能阻塞事件字段。
 
-- [ ] **Step 4: 实现地址页面**
+- [x] **Step 4: 实现地址页面**
 
 使用 viem `getAddress()` 规范化输入。非法地址由 route error component 处理，
 不发 RPC。分页表格复用 `SubmissionTable`。
 
-- [ ] **Step 5: 运行测试**
+- [x] **Step 5: 运行测试**
 
 Run: `pnpm test src/features/submission-detail src/features/address && pnpm lint`
 
 Expected: PASS。
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
 ```bash
 git add src/features/submission-detail src/features/address
@@ -1480,22 +1480,22 @@ git commit -m "feat: add submission and address details"
 - Modify: `src/app/providers.tsx`
 - Modify: `src/components/app-header.tsx`
 
-- [ ] **Step 1: 加载钱包 Skill**
+- [x] **Step 1: 加载钱包 Skill**
 
 实施者必须加载 `integrate-rainbowkit-wallets` 和 `vercel-react-best-practices`。
 
-- [ ] **Step 2: 写钱包历史失败测试**
+- [x] **Step 2: 写钱包历史失败测试**
 
 断言未连接、连接到链 71、连接到其他链、切换账户四种状态。模拟两个 EIP-6963 provider，
 确认 ConnectButton 能分别展示它们。
 
-- [ ] **Step 3: 运行并确认失败**
+- [x] **Step 3: 运行并确认失败**
 
 Run: `pnpm test src/features/wallet-history/wallet-history-page.test.tsx`
 
 Expected: FAIL，钱包历史页面不存在。
 
-- [ ] **Step 4: 实现 `/history`**
+- [x] **Step 4: 实现 `/history`**
 
 状态：
 
@@ -1507,13 +1507,13 @@ Expected: FAIL，钱包历史页面不存在。
 页面文案为“My Submissions / 我的提交”，不能写“My Files”。
 同时在 Header 增加 My Submissions 导航。
 
-- [ ] **Step 5: 运行钱包和页面测试**
+- [x] **Step 5: 运行钱包和页面测试**
 
 Run: `pnpm test src/wallet src/features/wallet-history && pnpm typecheck`
 
 Expected: PASS。
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
 ```bash
 git add src/features/wallet-history src/routes/history.tsx src/components/app-header.tsx src/app/providers.tsx

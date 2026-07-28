@@ -22,10 +22,16 @@ export interface StorageSummary {
 	readonly latestBlock?: bigint
 }
 
+export interface SubmitterSummary {
+	readonly indexedSubmissionCount: bigint
+	readonly indexedLogicalBytes: bigint
+}
+
 export interface StorageDataSource {
 	sync(signal?: AbortSignal): Promise<SyncState>
 	getSyncState(): SyncState
 	getSummary(): Promise<StorageSummary>
+	getSubmitterSummary(submitter: string): Promise<SubmitterSummary>
 	listSubmissions(query?: ListSubmissionsQuery): Promise<Page<StorageSubmission>>
 	getSubmission(sequence: bigint): Promise<StorageSubmission | undefined>
 	listBySubmitter(query: AddressListSubmissionsQuery): Promise<Page<StorageSubmission>>

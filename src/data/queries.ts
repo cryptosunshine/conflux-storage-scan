@@ -3,12 +3,15 @@ import type { StorageDataSource } from "./storage-data-source"
 
 export const storageKeys = {
 	all: ["storage"] as const,
+	sync: () => [...storageKeys.all, "sync"] as const,
 	summary: () => [...storageKeys.all, "summary"] as const,
 	submissionsRoot: () => [...storageKeys.all, "submissions"] as const,
-	submissions: (page: number) => [...storageKeys.submissionsRoot(), page] as const,
+	submissions: (page: number, pageSize = 20) => [...storageKeys.submissionsRoot(), page, pageSize] as const,
+	submissionRoot: () => [...storageKeys.all, "submission"] as const,
 	submission: (sequence: string) => [...storageKeys.all, "submission", sequence] as const,
 	addressRoot: () => [...storageKeys.all, "address"] as const,
 	address: (address: string, page: number) => [...storageKeys.addressRoot(), address.toLowerCase(), page] as const,
+	addressSummary: (address: string) => [...storageKeys.addressRoot(), address.toLowerCase(), "summary"] as const,
 }
 
 export function createStorageQueries(dataSource: StorageDataSource) {
@@ -18,15 +21,20 @@ export function createStorageQueries(dataSource: StorageDataSource) {
 				queryKey: storageKeys.summary(),
 				queryFn: () => dataSource.getSummary(),
 			}),
-		submissions: (page: number) =>
+		submissions: (page: number, pageSize = 20) =>
 			queryOptions({
-				queryKey: storageKeys.submissions(page),
-				queryFn: () => dataSource.listSubmissions({ page }),
+				queryKey: storageKeys.submissions(page, pageSize),
+				queryFn: () => dataSource.listSubmissions({ page, pageSize }),
 			}),
 		submission: (sequence: string) =>
 			queryOptions({
 				queryKey: storageKeys.submission(sequence),
 				queryFn: () => dataSource.getSubmission(BigInt(sequence)),
+			}),
+		addressSummary: (address: string) =>
+			queryOptions({
+				queryKey: storageKeys.addressSummary(address),
+				queryFn: () => dataSource.getSubmitterSummary(address),
 			}),
 		address: (address: string, page: number) =>
 			queryOptions({
@@ -34,6 +42,7 @@ export function createStorageQueries(dataSource: StorageDataSource) {
 				queryFn: () =>
 					dataSource.listBySubmitter({
 						page,
+						pageSize: 20,
 						submitter: address,
 					}),
 			}),
@@ -48,6 +57,9 @@ export async function invalidateStorageAfterSync(
 		queryClient.invalidateQueries({ queryKey: storageKeys.summary() }),
 		queryClient.invalidateQueries({
 			queryKey: storageKeys.submissionsRoot(),
+		}),
+		queryClient.invalidateQueries({
+			queryKey: storageKeys.submissionRoot(),
 		}),
 		...affectedSubmitters.map((address) =>
 			queryClient.invalidateQueries({

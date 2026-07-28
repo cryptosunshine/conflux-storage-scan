@@ -185,6 +185,10 @@ function storageDataSourceContract(name: string, createHarness: () => Promise<Da
 				indexedSubmissionCount: 3n,
 				storageFeeCfx: 0n,
 			})
+			await expect(harness.source.getSubmitterSummary(submitter)).resolves.toEqual({
+				indexedLogicalBytes: 303n,
+				indexedSubmissionCount: 3n,
+			})
 		})
 
 		it("paginates by descending sequence and supports sequence and submitter queries", async () => {
@@ -238,7 +242,7 @@ describe("fixture parsing and query keys", () => {
 
 	it("keeps query keys stable and serializable", () => {
 		expect(storageKeys.summary()).toEqual(["storage", "summary"])
-		expect(storageKeys.submissions(2)).toEqual(["storage", "submissions", 2])
+		expect(storageKeys.submissions(2)).toEqual(["storage", "submissions", 2, 20])
 		expect(storageKeys.submission("7")).toEqual(["storage", "submission", "7"])
 		expect(storageKeys.address("0x1111111111111111111111111111111111111111", 3)).toEqual([
 			"storage",

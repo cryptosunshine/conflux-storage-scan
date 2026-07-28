@@ -7,4 +7,3 @@ test-results/
 .env.*.local
 .DS_Store
 .superpowers/
-src/routeTree.gen.ts
