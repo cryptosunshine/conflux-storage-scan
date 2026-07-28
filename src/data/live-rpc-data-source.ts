@@ -1,4 +1,5 @@
 import { type Hex, hexToNumber, type PublicClient } from "viem"
+import { buildStorageTimeline } from "../analytics/build-storage-timeline"
 import { fixedPriceFlowAbi } from "../chain/abi/fixed-price-flow"
 import { FIXED_PRICE_FLOW_PROXY, STORAGE_FEE_CFX, STORAGE_SECTOR_BYTES } from "../chain/config"
 import { verifyDeployment } from "../chain/proxy/verify-deployment"
@@ -66,6 +67,7 @@ function guardedRepository(repository: StorageRepository): StorageRepository {
 		getCheckpoint: () => guardLocalIndex(() => repository.getCheckpoint()),
 		getSubmitterSummary: (submitter) => guardLocalIndex(() => repository.getSubmitterSummary(submitter)),
 		getSummary: () => guardLocalIndex(() => repository.getSummary()),
+		listAll: () => guardLocalIndex(() => repository.listAll()),
 		list: (query) => guardLocalIndex(() => repository.list(query)),
 		listBySubmitter: (query) => guardLocalIndex(() => repository.listBySubmitter(query)),
 		reconcileWindow: (chunk) => guardLocalIndex(() => repository.reconcileWindow(chunk)),
@@ -177,6 +179,11 @@ class LiveRpcStorageDataSource implements StorageDataSource {
 
 	getSyncState(): SyncState {
 		return this.#syncService.getState()
+	}
+
+	async getAnalyticsTimeline(asOfTimestamp?: number) {
+		const submissions = await guardLocalIndex(() => this.#options.repository.listAll())
+		return buildStorageTimeline(submissions, asOfTimestamp)
 	}
 
 	async getSummary(): Promise<StorageSummary> {

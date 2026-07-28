@@ -87,6 +87,7 @@ function syncLog(item: StorageSubmission): SyncSubmitLog {
 interface DataSourceHarness {
 	readonly source: StorageDataSource
 	readonly cleanup: () => Promise<void>
+	readonly analyticsRpcReadCount: () => number
 }
 
 async function fixtureHarness(): Promise<DataSourceHarness> {
@@ -96,7 +97,7 @@ async function fixtureHarness(): Promise<DataSourceHarness> {
 		headBlock: FIXED_PRICE_FLOW_DEPLOYMENT_BLOCK + 3n,
 		submissions: [submission(0n), submission(1n), submission(2n)],
 	})
-	return { source, cleanup: async () => {} }
+	return { source, cleanup: async () => {}, analyticsRpcReadCount: () => 0 }
 }
 
 async function liveHarness(): Promise<DataSourceHarness> {
@@ -113,6 +114,11 @@ async function liveHarness(): Promise<DataSourceHarness> {
 	if (!head) {
 		throw new Error("Missing test head")
 	}
+	const getSubmitLogs = vi.fn(async (range: { readonly fromBlock: bigint; readonly toBlock: bigint }) =>
+		submissions
+			.filter((item) => item.blockNumber >= range.fromBlock && item.blockNumber <= range.toBlock)
+			.map(syncLog),
+	)
 	const transport: StorageSyncTransport = {
 		getBlock: async (blockNumber) => {
 			const item = submissions.find((candidate) => candidate.blockNumber === blockNumber)
@@ -129,10 +135,7 @@ async function liveHarness(): Promise<DataSourceHarness> {
 			hash: head.blockHash,
 			number: head.blockNumber,
 		}),
-		getSubmitLogs: async (range) =>
-			submissions
-				.filter((item) => item.blockNumber >= range.fromBlock && item.blockNumber <= range.toBlock)
-				.map(syncLog),
+		getSubmitLogs,
 		verifyDeployment: async () => ({
 			beacon: FIXED_PRICE_FLOW_BEACON,
 			chainId: 71,
@@ -158,6 +161,7 @@ async function liveHarness(): Promise<DataSourceHarness> {
 		transport,
 	})
 	return {
+		analyticsRpcReadCount: () => getSubmitLogs.mock.calls.length + vi.mocked(client.readContract).mock.calls.length,
 		source,
 		cleanup: () => repository.clearCurrentNamespace(),
 	}
@@ -211,6 +215,19 @@ function storageDataSourceContract(name: string, createHarness: () => Promise<Da
 			})
 		})
 
+		it("returns a complete UTC timeline without additional RPC reads", async () => {
+			const rpcReadsBefore = harness.analyticsRpcReadCount()
+			const timeline = await harness.source.getAnalyticsTimeline(Date.UTC(2023, 10, 16) / 1_000)
+
+			expect(timeline.points.at(-1)).toMatchObject({
+				allocatedBytes: 768n,
+				allocatedSectorCount: 3n,
+				cumulativeLogicalBytes: 303n,
+				cumulativeSubmissionCount: 3n,
+			})
+			expect(harness.analyticsRpcReadCount()).toBe(rpcReadsBefore)
+		})
+
 		it("clears only its local index and can repopulate it", async () => {
 			await harness.source.rebuildLocalIndex()
 			expect((await harness.source.getSummary()).indexedSubmissionCount).toBe(0n)
@@ -242,6 +259,7 @@ describe("fixture parsing and query keys", () => {
 
 	it("keeps query keys stable and serializable", () => {
 		expect(storageKeys.summary()).toEqual(["storage", "summary"])
+		expect(storageKeys.analytics()).toEqual(["storage", "analytics"])
 		expect(storageKeys.submissions(2)).toEqual(["storage", "submissions", 2, 20])
 		expect(storageKeys.submission("7")).toEqual(["storage", "submission", "7"])
 		expect(storageKeys.address("0x1111111111111111111111111111111111111111", 3)).toEqual([

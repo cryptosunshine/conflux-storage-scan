@@ -18,6 +18,7 @@ import { RebuildIndexButton } from "./rebuild-index-button"
 
 function dataSourceMock(): StorageDataSource {
 	return {
+		getAnalyticsTimeline: vi.fn(),
 		getSubmission: vi.fn(),
 		getSubmitterSummary: vi.fn(),
 		getSummary: vi.fn(),

@@ -1,4 +1,5 @@
 import { type Address, getAddress, isAddress } from "viem"
+import type { StorageAnalyticsTimeline } from "../analytics/types"
 import type { SyncState } from "../chain/sync/sync-submissions"
 import type { StorageSubmission } from "../chain/types"
 import type { Page } from "./indexed-db/storage-db"
@@ -30,6 +31,7 @@ export interface SubmitterSummary {
 export interface StorageDataSource {
 	sync(signal?: AbortSignal): Promise<SyncState>
 	getSyncState(): SyncState
+	getAnalyticsTimeline(asOfTimestamp?: number): Promise<StorageAnalyticsTimeline>
 	getSummary(): Promise<StorageSummary>
 	getSubmitterSummary(submitter: string): Promise<SubmitterSummary>
 	listSubmissions(query?: ListSubmissionsQuery): Promise<Page<StorageSubmission>>
