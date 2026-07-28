@@ -1069,7 +1069,7 @@ git commit -m "feat: sync storage logs with reorg recovery"
 - Create: `src/data/storage-data-source.test.ts`
 - Create: `src/app/query-client.ts`
 
-- [ ] **Step 1: 写数据源 contract tests**
+- [x] **Step 1: 写数据源 contract tests**
 
 同一组 contract tests 分别运行于 `FixtureDataSource` 和基于 mock RPC + fake IndexedDB 的
 `LiveRpcDataSource`，断言：
@@ -1088,13 +1088,13 @@ export interface StorageDataSource {
 
 分页固定按 sequence 降序。页码从 1 开始，默认每页 20 条。
 
-- [ ] **Step 2: 运行并确认失败**
+- [x] **Step 2: 运行并确认失败**
 
 Run: `pnpm test src/data/storage-data-source.test.ts`
 
 Expected: FAIL，接口和实现不存在。
 
-- [ ] **Step 3: 实现数据源**
+- [x] **Step 3: 实现数据源**
 
 `LiveRpcDataSource` 组合 public client、repository 和 sync service。
 `FixtureDataSource` 读取已标准化的 fixture JSON，不访问 IndexedDB 或网络。
@@ -1113,7 +1113,7 @@ interface StorageSummary {
 }
 ```
 
-- [ ] **Step 4: 实现 Query factories**
+- [x] **Step 4: 实现 Query factories**
 
 Query keys 必须稳定：
 
@@ -1129,13 +1129,13 @@ export const storageKeys = {
 
 同步成功后只失效受影响的 summary/list/address keys。
 
-- [ ] **Step 5: 运行测试**
+- [x] **Step 5: 运行测试**
 
 Run: `pnpm test src/data && pnpm typecheck`
 
 Expected: PASS。
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
 ```bash
 git add src/data src/app/query-client.ts
