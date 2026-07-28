@@ -1423,7 +1423,7 @@ git commit -m "feat: add storage dashboard and submissions"
 - Create: `src/features/address/address-page.tsx`
 - Create: `src/features/address/address-page.test.tsx`
 
-- [ ] **Step 1: 写详情失败测试**
+- [x] **Step 1: 写详情失败测试**
 
 提交详情断言：
 
@@ -1441,29 +1441,29 @@ git commit -m "feat: add storage dashboard and submissions"
 - 按 event submitter 过滤，而不是 transaction sender；
 - URL 分页稳定。
 
-- [ ] **Step 2: 运行并确认失败**
+- [x] **Step 2: 运行并确认失败**
 
 Run: `pnpm test src/features/submission-detail src/features/address`
 
 Expected: FAIL。
 
-- [ ] **Step 3: 实现详情页面**
+- [x] **Step 3: 实现详情页面**
 
 不存在 sequence 时显示明确空状态，RPC 故障但缓存有记录时显示 stale record。
 可选 `getFlowRootByTxSeq` 失败不能阻塞事件字段。
 
-- [ ] **Step 4: 实现地址页面**
+- [x] **Step 4: 实现地址页面**
 
 使用 viem `getAddress()` 规范化输入。非法地址由 route error component 处理，
 不发 RPC。分页表格复用 `SubmissionTable`。
 
-- [ ] **Step 5: 运行测试**
+- [x] **Step 5: 运行测试**
 
 Run: `pnpm test src/features/submission-detail src/features/address && pnpm lint`
 
 Expected: PASS。
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
 ```bash
 git add src/features/submission-detail src/features/address

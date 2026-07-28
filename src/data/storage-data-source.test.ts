@@ -185,6 +185,10 @@ function storageDataSourceContract(name: string, createHarness: () => Promise<Da
 				indexedSubmissionCount: 3n,
 				storageFeeCfx: 0n,
 			})
+			await expect(harness.source.getSubmitterSummary(submitter)).resolves.toEqual({
+				indexedLogicalBytes: 303n,
+				indexedSubmissionCount: 3n,
+			})
 		})
 
 		it("paginates by descending sequence and supports sequence and submitter queries", async () => {

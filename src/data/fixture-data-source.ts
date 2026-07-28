@@ -188,6 +188,17 @@ class FixtureStorageDataSource implements StorageDataSource {
 		}
 	}
 
+	async getSubmitterSummary(submitterValue: string) {
+		const submitter = normalizeSubmitterAddress(submitterValue)
+		const submissions = this.#submissions.filter(
+			(submission) => submission.submitter.toLowerCase() === submitter.toLowerCase(),
+		)
+		return {
+			indexedLogicalBytes: submissions.reduce((total, submission) => total + submission.logicalSizeBytes, 0n),
+			indexedSubmissionCount: BigInt(submissions.length),
+		}
+	}
+
 	async listSubmissions(query: ListSubmissionsQuery = {}): Promise<Page<StorageSubmission>> {
 		return paginate(this.#submissions, query)
 	}

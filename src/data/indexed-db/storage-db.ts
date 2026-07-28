@@ -95,6 +95,11 @@ export interface IndexedSummary {
 	readonly latestBlock?: bigint
 }
 
+export interface IndexedSubmitterSummary {
+	readonly indexedSubmissionCount: bigint
+	readonly indexedLogicalBytes: bigint
+}
+
 export interface SyncCheckpoint {
 	readonly blockNumber: bigint
 	readonly blockHash?: Hex
@@ -109,6 +114,7 @@ export interface StorageRepository {
 	getByCanonicalKey(canonicalKey: string): Promise<StorageSubmission | undefined>
 	getBySequence(sequence: bigint): Promise<StorageSubmission | undefined>
 	getSummary(): Promise<IndexedSummary>
+	getSubmitterSummary(submitter: Address): Promise<IndexedSubmitterSummary>
 	getCheckpoint(): Promise<SyncCheckpoint | undefined>
 	clearCurrentNamespace(): Promise<void>
 }
@@ -405,6 +411,15 @@ class IndexedDbStorageRepository implements StorageRepository {
 			indexedSubmissionCount: BigInt(submissions.length),
 			indexedLogicalBytes: submissions.reduce((total, submission) => total + BigInt(submission.logicalSizeBytes), 0n),
 			...(checkpoint ? { latestBlock: BigInt(checkpoint.blockNumber) } : {}),
+		}
+	}
+
+	async getSubmitterSummary(submitter: Address): Promise<IndexedSubmitterSummary> {
+		const database = await this.#database()
+		const submissions = await database.getAllFromIndex("submissions", "submitter", submitter.toLowerCase())
+		return {
+			indexedLogicalBytes: submissions.reduce((total, submission) => total + BigInt(submission.logicalSizeBytes), 0n),
+			indexedSubmissionCount: BigInt(submissions.length),
 		}
 	}
 

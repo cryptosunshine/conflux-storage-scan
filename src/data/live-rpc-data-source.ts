@@ -152,6 +152,10 @@ class LiveRpcStorageDataSource implements StorageDataSource {
 		}
 	}
 
+	getSubmitterSummary(submitter: string) {
+		return this.#options.repository.getSubmitterSummary(normalizeSubmitterAddress(submitter))
+	}
+
 	listSubmissions(query: ListSubmissionsQuery = {}): Promise<Page<StorageSubmission>> {
 		return this.#options.repository.list(query)
 	}

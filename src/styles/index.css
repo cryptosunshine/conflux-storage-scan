@@ -352,6 +352,45 @@ a:hover {
 	line-height: 1.5;
 }
 
+.page-heading--address {
+	align-items: start;
+}
+
+.full-address {
+	display: flex;
+	min-width: 0;
+	align-items: center;
+	gap: 0.35rem;
+	margin-top: 0.8rem;
+	color: var(--color-text);
+}
+
+.full-address code {
+	overflow-wrap: anywhere;
+	font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+	font-size: 0.8rem;
+}
+
+.indexed-status {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 0.7rem;
+	border: 1px solid var(--color-primary-soft);
+	border-radius: 0.55rem;
+	color: var(--color-primary-strong);
+	background: color-mix(in srgb, var(--color-primary-soft) 42%, white);
+	font-size: 0.75rem;
+	font-weight: 760;
+}
+
+.indexed-status > span {
+	width: 0.45rem;
+	height: 0.45rem;
+	border-radius: 999px;
+	background: var(--color-primary);
+}
+
 .eyebrow {
 	margin: 0;
 	color: var(--color-primary-strong);
@@ -374,6 +413,18 @@ a:hover {
 
 .metrics-grid--loading > div {
 	height: 7.5rem;
+}
+
+.address-metrics {
+	display: grid;
+	max-width: 42rem;
+	margin-top: 1.25rem;
+	gap: 2rem;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.address-metrics__skeleton {
+	height: 7rem;
 }
 
 .content-panel {
@@ -527,6 +578,130 @@ a:hover {
 	color: var(--color-text-muted);
 	font-size: 0.825rem;
 	line-height: 1.5;
+}
+
+.empty-state--page {
+	min-height: 60vh;
+}
+
+.empty-state--page h1 {
+	margin: 0;
+	color: var(--color-text-strong);
+	font-size: clamp(1.75rem, 4vw, 2.5rem);
+	letter-spacing: -0.04em;
+}
+
+.empty-state__action {
+	justify-self: center;
+	margin-top: 0.75rem;
+	text-decoration: none;
+}
+
+.detail-panel {
+	margin-top: 1.25rem;
+	overflow: hidden;
+	border: 1px solid var(--color-border);
+	border-radius: 0.85rem;
+	background: var(--color-surface);
+}
+
+.detail-panel + .detail-panel {
+	margin-top: 1.5rem;
+}
+
+.detail-grid {
+	display: grid;
+	margin: 0;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.detail-item {
+	min-width: 0;
+	padding: 1.15rem 1.25rem;
+	border-right: 1px solid var(--color-border);
+	border-bottom: 1px solid var(--color-border);
+}
+
+.detail-item:nth-child(2n) {
+	border-right: 0;
+}
+
+.detail-item--wide {
+	grid-column: 1 / -1;
+	border-right: 0;
+}
+
+.detail-grid > :last-child {
+	border-bottom: 0;
+}
+
+.detail-item dt {
+	margin-bottom: 0.5rem;
+	color: var(--color-text-muted);
+	font-size: 0.675rem;
+	font-weight: 760;
+	letter-spacing: 0.065em;
+	text-transform: uppercase;
+}
+
+.detail-item dd {
+	display: flex;
+	min-width: 0;
+	align-items: center;
+	gap: 0.65rem;
+	margin: 0;
+	color: var(--color-text-strong);
+	font-size: 0.85rem;
+	font-variant-numeric: tabular-nums;
+}
+
+.detail-item__secondary {
+	color: var(--color-text-muted);
+}
+
+.detail-hash {
+	--icon-button-size: 1.75rem;
+	display: inline-flex;
+	min-width: 0;
+	align-items: center;
+	gap: 0.25rem;
+}
+
+.detail-hash code {
+	overflow: hidden;
+	color: var(--color-text);
+	font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+	font-size: 0.76rem;
+	text-overflow: ellipsis;
+}
+
+.detail-hash a {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+	font-size: 0.76rem;
+	text-decoration: none;
+}
+
+.muted-value {
+	color: var(--color-text-muted);
+}
+
+.detail-loading {
+	display: grid;
+	min-height: 50vh;
+	align-content: start;
+	gap: 1rem;
+}
+
+.detail-loading > div:first-child {
+	width: min(28rem, 80%);
+	height: 3.5rem;
+}
+
+.detail-loading > div:not(:first-child) {
+	height: 15rem;
 }
 
 .route-skeleton {
@@ -824,6 +999,10 @@ a:hover {
 		grid-column: 1 / -1;
 	}
 
+	.address-metrics {
+		gap: 0.75rem;
+	}
+
 	.section-heading {
 		padding-inline: 1rem;
 	}
@@ -839,6 +1018,22 @@ a:hover {
 
 	.hash-value .icon-button {
 		display: none;
+	}
+
+	.detail-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.detail-item,
+	.detail-item:nth-child(2n),
+	.detail-item--wide {
+		grid-column: auto;
+		border-right: 0;
+	}
+
+	.detail-item dd {
+		align-items: flex-start;
+		flex-direction: column;
 	}
 
 	.route-skeleton,
