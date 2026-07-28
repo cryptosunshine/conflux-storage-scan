@@ -1,0 +1,27 @@
+{
+	"address": "0x3fF03285AA79027Ecc552432336FCB85eaD7199e",
+	"args": {
+		"sender": "0x1111111111111111111111111111111111111111",
+		"identity": "0xb569321de72d0af89c2fb48a484de3fc9343f31600ae1f3e13d633cb48cbf816",
+		"submissionIndex": "7",
+		"startPos": "100",
+		"length": "9",
+		"submission": {
+			"length": "1234",
+			"tags": "0x1234",
+			"nodes": [
+				{
+					"root": "0x1111111111111111111111111111111111111111111111111111111111111111",
+					"height": "3"
+				}
+			]
+		}
+	},
+	"blockNumber": "253160900",
+	"blockHash": "0x2222222222222222222222222222222222222222222222222222222222222222",
+	"transactionHash": "0x3333333333333333333333333333333333333333333333333333333333333333",
+	"transactionIndex": 2,
+	"logIndex": 4,
+	"transactionLogIndex": 1,
+	"blockTimestamp": "1700000000"
+}
