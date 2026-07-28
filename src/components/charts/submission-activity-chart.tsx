@@ -3,7 +3,7 @@ import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAx
 import type { StorageTimelinePoint } from "../../analytics/types"
 import { formatInteger } from "../format"
 import { ChartDataTable } from "./chart-data-table"
-import { bigintToChartNumber, formatChartTick, formatUtcDate } from "./chart-format"
+import { bigintToChartNumber, formatChartTick, formatUtcCompactDate, formatUtcDate } from "./chart-format"
 
 interface SubmissionActivityChartProps {
 	readonly compact?: boolean
@@ -34,7 +34,7 @@ export function SubmissionActivityChart({ compact = false, points }: SubmissionA
 				</div>
 				{latest ? <strong>{formatInteger(latest.cumulativeSubmissionCount)}</strong> : null}
 			</header>
-			<div aria-label="Daily submission activity chart" className="chart-canvas">
+			<section aria-label="Daily submission activity chart" className="chart-canvas">
 				<ResponsiveContainer
 					height="100%"
 					initialDimension={{ height: compact ? 168 : 300, width: 720 }}
@@ -47,7 +47,7 @@ export function SubmissionActivityChart({ compact = false, points }: SubmissionA
 							axisLine={false}
 							dataKey="date"
 							minTickGap={compact ? 48 : 28}
-							tickFormatter={(date: string) => (compact ? date.slice(5) : formatUtcDate(date))}
+							tickFormatter={(date: string) => (compact ? formatUtcCompactDate(date) : formatUtcDate(date))}
 							tickLine={false}
 						/>
 						<YAxis
@@ -58,6 +58,14 @@ export function SubmissionActivityChart({ compact = false, points }: SubmissionA
 							width={compact ? 0 : 48}
 						/>
 						<Tooltip
+							contentStyle={{
+								background: "rgb(255 255 255 / 97%)",
+								borderColor: "var(--color-border)",
+								borderRadius: "0.65rem",
+								boxShadow: "var(--shadow-popover)",
+								fontSize: "0.75rem",
+								padding: "0.7rem 0.8rem",
+							}}
 							formatter={(value, name, item) => [
 								`${formatInteger(BigInt(Math.round(Number(value))))}${
 									name === "Daily submissions"
@@ -75,10 +83,12 @@ export function SubmissionActivityChart({ compact = false, points }: SubmissionA
 										<span aria-hidden="true" className="chart-legend__bar" />
 										Daily submissions
 									</li>
-									<li>
-										<span>Cumulative submissions</span>
-										<small>Included in each tooltip</small>
-									</li>
+									{compact ? null : (
+										<li>
+											<span>Cumulative submissions</span>
+											<small>Included in each tooltip</small>
+										</li>
+									)}
 								</ul>
 							)}
 						/>
@@ -92,7 +102,7 @@ export function SubmissionActivityChart({ compact = false, points }: SubmissionA
 						/>
 					</BarChart>
 				</ResponsiveContainer>
-			</div>
+			</section>
 			{compact ? null : <ChartDataTable kind="submissions" points={points} />}
 		</figure>
 	)

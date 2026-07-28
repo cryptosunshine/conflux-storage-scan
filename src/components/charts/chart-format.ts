@@ -22,6 +22,17 @@ export function formatUtcDate(date: string): string {
 	}).format(new Date(`${date}T00:00:00.000Z`))
 }
 
+export function formatUtcCompactDate(date: string): string {
+	const parts = new Intl.DateTimeFormat("en-US", {
+		day: "2-digit",
+		month: "2-digit",
+		timeZone: "UTC",
+	}).formatToParts(new Date(`${date}T00:00:00.000Z`))
+	const month = parts.find((part) => part.type === "month")?.value ?? ""
+	const day = parts.find((part) => part.type === "day")?.value ?? ""
+	return `${month}-${day}`
+}
+
 export function selectChartByteScale(points: readonly StorageTimelinePoint[]): ChartByteScale {
 	const maximum = points.reduce(
 		(current, point) => (point.allocatedBytes > current ? point.allocatedBytes : current),

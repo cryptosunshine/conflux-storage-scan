@@ -1,20 +1,13 @@
 import { useId } from "react"
-import {
-	CartesianGrid,
-	Legend,
-	Line,
-	LineChart,
-	ResponsiveContainer,
-	Tooltip,
-	XAxis,
-	YAxis,
-} from "recharts"
+import type { TooltipContentProps } from "recharts"
+import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import type { StorageTimelinePoint } from "../../analytics/types"
 import { formatBytes } from "../format"
 import { ChartDataTable } from "./chart-data-table"
 import {
 	bigintToChartNumber,
 	formatChartTick,
+	formatUtcCompactDate,
 	formatUtcDate,
 	selectChartByteScale,
 	utilizationPercent,
@@ -23,6 +16,44 @@ import {
 interface StorageGrowthChartProps {
 	readonly compact?: boolean
 	readonly points: readonly StorageTimelinePoint[]
+}
+
+interface StorageChartDatum {
+	readonly allocated: number
+	readonly date: string
+	readonly logical: number
+	readonly point: StorageTimelinePoint
+}
+
+function StorageTooltip({ active, payload }: TooltipContentProps) {
+	const datum = payload.at(0)?.payload as StorageChartDatum | undefined
+	if (!active || !datum) {
+		return null
+	}
+
+	return (
+		<div className="chart-tooltip">
+			<time dateTime={`${datum.point.date}T00:00:00.000Z`}>{formatUtcDate(datum.point.date)}</time>
+			<dl>
+				<div>
+					<dt>Daily logical</dt>
+					<dd>{formatBytes(datum.point.dailyLogicalBytes)}</dd>
+				</div>
+				<div>
+					<dt>Total logical</dt>
+					<dd>{formatBytes(datum.point.cumulativeLogicalBytes)}</dd>
+				</div>
+				<div>
+					<dt>Allocated</dt>
+					<dd>{formatBytes(datum.point.allocatedBytes)}</dd>
+				</div>
+				<div>
+					<dt>Utilization</dt>
+					<dd>{utilizationPercent(datum.point.cumulativeLogicalBytes, datum.point.allocatedBytes)}</dd>
+				</div>
+			</dl>
+		</div>
+	)
 }
 
 export function StorageGrowthChart({ compact = false, points }: StorageGrowthChartProps) {
@@ -34,6 +65,7 @@ export function StorageGrowthChart({ compact = false, points }: StorageGrowthCha
 		allocated: bigintToChartNumber(point.allocatedBytes, byteScale.divisor),
 		date: point.date,
 		logical: bigintToChartNumber(point.cumulativeLogicalBytes, byteScale.divisor),
+		point,
 	}))
 	const summary = latest
 		? `Logical data reached ${formatBytes(latest.cumulativeLogicalBytes)} of ${formatBytes(
@@ -53,7 +85,7 @@ export function StorageGrowthChart({ compact = false, points }: StorageGrowthCha
 				</div>
 				{latest ? <strong>{formatBytes(latest.allocatedBytes)}</strong> : null}
 			</header>
-			<div aria-label={`Storage growth chart in ${byteScale.label}`} className="chart-canvas">
+			<section aria-label={`Storage growth chart in ${byteScale.label}`} className="chart-canvas">
 				<ResponsiveContainer
 					height="100%"
 					initialDimension={{ height: compact ? 168 : 300, width: 720 }}
@@ -66,7 +98,7 @@ export function StorageGrowthChart({ compact = false, points }: StorageGrowthCha
 							axisLine={false}
 							dataKey="date"
 							minTickGap={compact ? 48 : 28}
-							tickFormatter={(date: string) => (compact ? date.slice(5) : formatUtcDate(date))}
+							tickFormatter={(date: string) => (compact ? formatUtcCompactDate(date) : formatUtcDate(date))}
 							tickLine={false}
 						/>
 						<YAxis
@@ -76,13 +108,7 @@ export function StorageGrowthChart({ compact = false, points }: StorageGrowthCha
 							unit={` ${byteScale.label}`}
 							width={compact ? 0 : 72}
 						/>
-						<Tooltip
-							formatter={(value, name) => [
-								`${formatChartTick(Number(value))} ${byteScale.label}`,
-								String(name),
-							]}
-							labelFormatter={(date) => formatUtcDate(String(date))}
-						/>
+						<Tooltip content={StorageTooltip} />
 						<Legend iconType="plainline" />
 						<Line
 							dataKey="logical"
@@ -105,7 +131,7 @@ export function StorageGrowthChart({ compact = false, points }: StorageGrowthCha
 						/>
 					</LineChart>
 				</ResponsiveContainer>
-			</div>
+			</section>
 			{compact ? null : <ChartDataTable kind="storage" points={points} />}
 		</figure>
 	)

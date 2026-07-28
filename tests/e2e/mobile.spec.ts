@@ -19,6 +19,31 @@ test("mobile keeps navigation, search, and submission details accessible without
 	)
 })
 
+test("mobile stacks analytics cards and keeps the detail charts inside the viewport", async ({ page }) => {
+	await page.goto("/")
+
+	const storageAnalytics = page.getByRole("link", { name: "View storage growth analytics" })
+	const submissionAnalytics = page.getByRole("link", { name: "View submission activity analytics" })
+	await expect(storageAnalytics).toBeVisible()
+	await expect(submissionAnalytics).toBeVisible()
+
+	const storageBox = await storageAnalytics.boundingBox()
+	const submissionBox = await submissionAnalytics.boundingBox()
+	expect(storageBox).not.toBeNull()
+	expect(submissionBox).not.toBeNull()
+	expect(submissionBox?.y).toBeGreaterThan((storageBox?.y ?? 0) + (storageBox?.height ?? 0) - 1)
+	expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(
+		true,
+	)
+
+	await submissionAnalytics.click()
+	await expect(page).toHaveURL(/\/analytics\?metric=submissions&range=all$/)
+	await expect(page.getByRole("region", { name: "Daily submission activity" })).toBeFocused()
+	expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(
+		true,
+	)
+})
+
 test("tablet width preserves primary route navigation", async ({ page }) => {
 	await page.setViewportSize({ height: 900, width: 1024 })
 	await page.goto("/")

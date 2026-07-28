@@ -27,12 +27,7 @@ describe("buildStorageTimeline", () => {
 			asOfDate: "2026-07-04",
 			firstSubmissionDate: "2026-07-01",
 		})
-		expect(result.points.map((point) => point.date)).toEqual([
-			"2026-07-01",
-			"2026-07-02",
-			"2026-07-03",
-			"2026-07-04",
-		])
+		expect(result.points.map((point) => point.date)).toEqual(["2026-07-01", "2026-07-02", "2026-07-03", "2026-07-04"])
 		expect(result.points[0]).toMatchObject({
 			allocatedBytes: 3_072n,
 			allocatedSectorCount: 12n,

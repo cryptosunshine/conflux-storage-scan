@@ -19,12 +19,23 @@ describe("DashboardPage", () => {
 		expect(await screen.findByText("Contract submissions")).toBeInTheDocument()
 		expect(screen.getByText("Indexed submissions")).toBeInTheDocument()
 		expect(screen.getByText("Indexed logical data")).toBeInTheDocument()
-		expect(screen.getByText("Allocated storage")).toBeInTheDocument()
+		expect(screen.getAllByText("Allocated storage").length).toBeGreaterThanOrEqual(1)
 		expect(screen.getByText("Storage fee")).toBeInTheDocument()
 		expect(screen.getAllByText("0 CFX").length).toBeGreaterThanOrEqual(1)
 		expect(screen.getByText(/data may be incomplete/i)).toBeInTheDocument()
 
+		const storageAnalytics = await screen.findByRole("link", {
+			name: /view storage growth analytics/i,
+		})
+		expect(storageAnalytics).toHaveAttribute("href", "/analytics?metric=storage&range=all")
+		expect(
+			screen.getByRole("link", {
+				name: /view submission activity analytics/i,
+			}),
+		).toHaveAttribute("href", "/analytics?metric=submissions&range=all")
+
 		const table = screen.getByRole("table", { name: /recent submissions/i })
+		expect(storageAnalytics.compareDocumentPosition(table) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
 		expect(within(table).getAllByRole("row")).toHaveLength(6)
 		expect(screen.queryByText(/download/i)).not.toBeInTheDocument()
 	})
