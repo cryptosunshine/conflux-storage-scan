@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import { createWalletConfig, walletDiscoveryPolicy } from "./config"
 
 describe("wallet configuration", () => {
@@ -38,5 +38,48 @@ describe("wallet configuration", () => {
 
 		expect(config.connectors.map((connector) => connector.id)).not.toContain("walletConnect")
 		expect("writeContract" in config).toBe(false)
+	})
+
+	it("discovers two EIP-6963 wallets as separate named connectors", async () => {
+		const config = createWalletConfig({
+			rpcUrl: "https://rpc.example.invalid",
+			walletConnectProjectId: "",
+		})
+		const provider = {
+			request: vi.fn(async () => []),
+		}
+		const persistence = (
+			config._internal.store as unknown as {
+				readonly persist: { hasHydrated(): boolean }
+			}
+		).persist
+		await vi.waitFor(() => {
+			expect(persistence.hasHydrated()).toBe(true)
+		})
+
+		for (const [name, rdns, uuid] of [
+			["Alpha Wallet", "org.example.alpha", "00000000-0000-4000-8000-000000000001"],
+			["Beta Wallet", "org.example.beta", "00000000-0000-4000-8000-000000000002"],
+		] as const) {
+			window.dispatchEvent(
+				new CustomEvent("eip6963:announceProvider", {
+					detail: {
+						info: {
+							icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'/>",
+							name,
+							rdns,
+							uuid,
+						},
+						provider,
+					},
+				}),
+			)
+		}
+
+		await vi.waitFor(() => {
+			expect(config.connectors.map((connector) => connector.name)).toEqual(
+				expect.arrayContaining(["Alpha Wallet", "Beta Wallet"]),
+			)
+		})
 	})
 })

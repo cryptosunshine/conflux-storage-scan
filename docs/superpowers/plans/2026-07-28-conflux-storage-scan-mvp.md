@@ -1480,22 +1480,22 @@ git commit -m "feat: add submission and address details"
 - Modify: `src/app/providers.tsx`
 - Modify: `src/components/app-header.tsx`
 
-- [ ] **Step 1: 加载钱包 Skill**
+- [x] **Step 1: 加载钱包 Skill**
 
 实施者必须加载 `integrate-rainbowkit-wallets` 和 `vercel-react-best-practices`。
 
-- [ ] **Step 2: 写钱包历史失败测试**
+- [x] **Step 2: 写钱包历史失败测试**
 
 断言未连接、连接到链 71、连接到其他链、切换账户四种状态。模拟两个 EIP-6963 provider，
 确认 ConnectButton 能分别展示它们。
 
-- [ ] **Step 3: 运行并确认失败**
+- [x] **Step 3: 运行并确认失败**
 
 Run: `pnpm test src/features/wallet-history/wallet-history-page.test.tsx`
 
 Expected: FAIL，钱包历史页面不存在。
 
-- [ ] **Step 4: 实现 `/history`**
+- [x] **Step 4: 实现 `/history`**
 
 状态：
 
@@ -1507,13 +1507,13 @@ Expected: FAIL，钱包历史页面不存在。
 页面文案为“My Submissions / 我的提交”，不能写“My Files”。
 同时在 Header 增加 My Submissions 导航。
 
-- [ ] **Step 5: 运行钱包和页面测试**
+- [x] **Step 5: 运行钱包和页面测试**
 
 Run: `pnpm test src/wallet src/features/wallet-history && pnpm typecheck`
 
 Expected: PASS。
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
 ```bash
 git add src/features/wallet-history src/routes/history.tsx src/components/app-header.tsx src/app/providers.tsx

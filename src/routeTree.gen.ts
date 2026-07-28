@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as HistoryRouteImport } from './routes/history'
 import { Route as SubmissionsRouteImport } from './routes/submissions'
 import { Route as AddressAddressRouteImport } from './routes/address.$address'
 import { Route as SubmissionSequenceRouteImport } from './routes/submission.$sequence'
@@ -17,6 +18,11 @@ import { Route as SubmissionSequenceRouteImport } from './routes/submission.$seq
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoryRoute = HistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SubmissionsRoute = SubmissionsRouteImport.update({
@@ -37,12 +43,14 @@ const SubmissionSequenceRoute = SubmissionSequenceRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/history': typeof HistoryRoute
   '/submissions': typeof SubmissionsRoute
   '/address/$address': typeof AddressAddressRoute
   '/submission/$sequence': typeof SubmissionSequenceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/history': typeof HistoryRoute
   '/submissions': typeof SubmissionsRoute
   '/address/$address': typeof AddressAddressRoute
   '/submission/$sequence': typeof SubmissionSequenceRoute
@@ -50,6 +58,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/history': typeof HistoryRoute
   '/submissions': typeof SubmissionsRoute
   '/address/$address': typeof AddressAddressRoute
   '/submission/$sequence': typeof SubmissionSequenceRoute
@@ -57,12 +66,22 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/submissions' | '/address/$address' | '/submission/$sequence'
+    | '/'
+    | '/history'
+    | '/submissions'
+    | '/address/$address'
+    | '/submission/$sequence'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/submissions' | '/address/$address' | '/submission/$sequence'
+  to:
+    | '/'
+    | '/history'
+    | '/submissions'
+    | '/address/$address'
+    | '/submission/$sequence'
   id:
     | '__root__'
     | '/'
+    | '/history'
     | '/submissions'
     | '/address/$address'
     | '/submission/$sequence'
@@ -70,6 +89,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  HistoryRoute: typeof HistoryRoute
   SubmissionsRoute: typeof SubmissionsRoute
   AddressAddressRoute: typeof AddressAddressRoute
   SubmissionSequenceRoute: typeof SubmissionSequenceRoute
@@ -82,6 +102,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/submissions': {
@@ -110,6 +137,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  HistoryRoute: HistoryRoute,
   SubmissionsRoute: SubmissionsRoute,
   AddressAddressRoute: AddressAddressRoute,
   SubmissionSequenceRoute: SubmissionSequenceRoute,

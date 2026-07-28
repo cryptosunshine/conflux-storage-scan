@@ -24,7 +24,7 @@ export function AddressPage({ address, page }: AddressPageProps) {
 		...queries.address(address, page),
 		placeholderData: keepPreviousData,
 	})
-	const sync = useStorageSync()
+	const sync = useStorageSync([address])
 	const syncState = sync.data ?? dataSource.getSyncState()
 
 	return (

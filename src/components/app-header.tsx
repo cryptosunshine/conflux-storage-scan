@@ -20,6 +20,9 @@ export function AppHeader() {
 					<Link activeProps={{ "aria-current": "page" }} search={{ page: 1 }} to="/submissions">
 						Submissions
 					</Link>
+					<Link activeProps={{ "aria-current": "page" }} search={{ page: 1 }} to="/history">
+						My Submissions
+					</Link>
 				</nav>
 				<div className="header-search">
 					<GlobalSearch compact />
