@@ -6,7 +6,7 @@
 
 **Architecture:** 应用是 Vite + React SPA。`LiveRpcDataSource` 通过 viem 读取已验证的 BeaconProxy 和 `Submit` 日志，标准化后写入 IndexedDB；UI 只依赖 `StorageDataSource`，测试可切换为 `FixtureDataSource`。TanStack Router 管理路由，TanStack Query 管理异步状态，RainbowKit/wagmi 只负责可选钱包连接，不参与公开链数据读取。
 
-**Tech Stack:** pnpm 11、Vite 8、React 19、TypeScript 7、TanStack Router/Query、Tailwind CSS 4、Biome 2、viem 2、RainbowKit 2、wagmi 2、idb 8、Vitest 4、Testing Library、MSW 2、Playwright 1。
+**Tech Stack:** pnpm 11、Vite 8、React 19、TypeScript 5.9、TanStack Router/Query、Tailwind CSS 4、Biome 2、viem 2、RainbowKit 2、wagmi 2、idb 8、Vitest 4、Testing Library、MSW 2、Playwright 1。
 
 ---
 
@@ -24,7 +24,7 @@
 | `pnpm` | `11.17.0` |
 | `vite` | `8.1.5` |
 | `react` / `react-dom` | `19.2.8` |
-| `typescript` | `7.0.2` |
+| `typescript` | `5.9.3` |
 | `@vitejs/plugin-react` | `6.0.4` |
 | `@tanstack/react-router` | `1.170.18` |
 | `@tanstack/router-plugin` | `1.168.23` |
@@ -42,6 +42,10 @@
 
 RainbowKit `2.2.11` 的 peer dependency 要求 wagmi `^2.9.0`，所以必须使用最新兼容的
 wagmi 2.x，不得直接升级到 wagmi 3。
+
+RainbowKit/wagmi 的 Coinbase/Solana 间接依赖尚未声明 TypeScript 7 兼容，因此使用最新兼容的
+TypeScript `5.9.3`。`valtio` 的旧传递依赖统一覆盖为支持 React 19 的
+`use-sync-external-store@1.6.0`。
 
 已验证的链常量：
 
@@ -261,11 +265,18 @@ MVP 不配置 CI；实施过程中不得创建 `.github/workflows/` 或其他 CI
     "msw": "2.15.0",
     "tailwindcss": "4.3.3",
     "tsx": "4.23.1",
-    "typescript": "7.0.2",
+    "typescript": "5.9.3",
     "vite": "8.1.5",
     "vitest": "4.1.10"
   }
 }
+```
+
+pnpm 11 的 override 配置写入 `pnpm-workspace.yaml`：
+
+```yaml
+overrides:
+  use-sync-external-store: 1.6.0
 ```
 
 - [ ] **Step 2: 写 TypeScript、Vite、Vitest 和 Biome 配置**
@@ -275,14 +286,16 @@ MVP 不配置 CI；实施过程中不得创建 `.github/workflows/` 或其他 CI
 ```ts
 // vite.config.ts
 import tailwindcss from "@tailwindcss/vite"
-import { tanstackRouter } from "@tanstack/router-plugin/vite"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 
 export default defineConfig({
-  plugins: [tailwindcss(), tanstackRouter({ target: "react", autoCodeSplitting: true }), react()],
+  plugins: [tailwindcss(), react()],
 })
 ```
+
+TanStack Router 插件在 Task 10 创建首个 `src/routes` 文件时加入，避免基础阶段扫描不存在的
+路由目录。
 
 ```ts
 // vitest.config.ts
