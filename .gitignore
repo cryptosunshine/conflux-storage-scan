@@ -3,6 +3,8 @@ dist/
 coverage/
 playwright-report/
 test-results/
+.playwright-cli/
+output/playwright/
 .env.local
 .env.*.local
 .DS_Store
