@@ -300,6 +300,25 @@ describe("fixture parsing and query keys", () => {
 			timestamp: BigInt(item.timestamp),
 		})
 	})
+
+	it("converts the Conflux transactionLogIndex hex quantity at the RPC boundary", async () => {
+		const item = submission(0n)
+		const rawLog = {
+			...syncLog(item),
+			transactionLogIndex: "0x2",
+		}
+		const client = {
+			getLogs: vi.fn(async () => [rawLog]),
+		} as unknown as PublicClient
+		const transport = createViemStorageSyncTransport(client)
+
+		await expect(
+			transport.getSubmitLogs({
+				fromBlock: item.blockNumber,
+				toBlock: item.blockNumber,
+			}),
+		).resolves.toEqual([expect.objectContaining({ transactionLogIndex: 2 })])
+	})
 })
 
 describe("live summary trust boundary", () => {
