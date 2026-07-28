@@ -1,0 +1,9 @@
+{
+	"schemaVersion": 1,
+	"fault": "wrong-chain",
+	"expectedState": "incompatible-contract",
+	"deployment": {
+		"expectedChainId": 71,
+		"actualChainId": 1
+	}
+}

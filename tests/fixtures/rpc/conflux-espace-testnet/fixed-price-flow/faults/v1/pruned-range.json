@@ -1,0 +1,9 @@
+{
+	"schemaVersion": 1,
+	"fault": "pruned-range",
+	"expectedState": "partial",
+	"rpc": {
+		"code": "PRUNED_RANGE",
+		"retryable": true
+	}
+}

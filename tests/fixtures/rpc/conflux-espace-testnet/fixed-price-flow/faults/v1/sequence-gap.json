@@ -1,0 +1,9 @@
+{
+	"schemaVersion": 1,
+	"fault": "sequence-gap",
+	"expectedState": "partial",
+	"logs": {
+		"sequences": ["0", "2"],
+		"expectedGaps": ["1"]
+	}
+}

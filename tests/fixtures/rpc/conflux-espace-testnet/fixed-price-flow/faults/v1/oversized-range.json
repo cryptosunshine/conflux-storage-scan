@@ -1,0 +1,9 @@
+{
+	"schemaVersion": 1,
+	"fault": "oversized-range",
+	"expectedState": "partial",
+	"rpc": {
+		"code": "RESPONSE_TOO_LARGE",
+		"retryable": true
+	}
+}

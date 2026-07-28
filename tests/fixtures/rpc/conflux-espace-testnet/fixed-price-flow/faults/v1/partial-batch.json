@@ -1,0 +1,9 @@
+{
+	"schemaVersion": 1,
+	"fault": "partial-batch",
+	"expectedState": "partial",
+	"batch": {
+		"requested": 3,
+		"returned": 2
+	}
+}

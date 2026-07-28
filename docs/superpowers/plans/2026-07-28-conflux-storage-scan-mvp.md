@@ -975,9 +975,9 @@ git commit -m "feat: persist canonical submission index"
 - Create: `src/chain/sync/adaptive-ranges.test.ts`
 - Create: `src/chain/sync/sync-submissions.ts`
 - Create: `src/chain/sync/sync-submissions.test.ts`
-- Create: `tests/fixtures/rpc/conflux-espace-testnet/fixed-price-flow/v1/faults/*.json`
+- Create: `tests/fixtures/rpc/conflux-espace-testnet/fixed-price-flow/faults/v1/*.json`
 
-- [ ] **Step 1: 写自适应范围失败测试**
+- [x] **Step 1: 写自适应范围失败测试**
 
 断言：
 
@@ -987,7 +987,7 @@ git commit -m "feat: persist canonical submission index"
 - retry 使用指数退避和可注入 jitter；
 - abort signal 立即停止。
 
-- [ ] **Step 2: 写同步失败测试**
+- [x] **Step 2: 写同步失败测试**
 
 使用 fixture transport 断言：
 
@@ -1000,13 +1000,13 @@ git commit -m "feat: persist canonical submission index"
 - partial batch、malformed event、sequence gap 产生 `partial` 状态；
 - implementation mismatch 产生 `incompatible-contract` 并且不写新数据。
 
-- [ ] **Step 3: 运行并确认失败**
+- [x] **Step 3: 运行并确认失败**
 
 Run: `pnpm test src/chain/sync`
 
 Expected: FAIL，目标模块不存在。
 
-- [ ] **Step 4: 实现同步状态机**
+- [x] **Step 4: 实现同步状态机**
 
 ```ts
 export type SyncState =
@@ -1022,9 +1022,10 @@ export type SyncState =
 `max(deploymentBlock, checkpoint.blockNumber - 127n)`，分段请求日志，
 为缺失时间戳的不同 block hash 批量补充区块，并通过 repository 原子写入。
 
-- [ ] **Step 5: 加入 fault fixtures**
+- [x] **Step 5: 加入 fault fixtures**
 
-提供确定性文件：
+提供确定性文件。由于 live `v1` 已接受且不可修改，故障语料使用独立版本目录
+`fixed-price-flow/faults/v1/`，不得写入或改动 `fixed-price-flow/v1/`：
 
 ```text
 429.json
@@ -1044,13 +1045,13 @@ implementation-changed.json
 wrong-chain.json
 ```
 
-- [ ] **Step 6: 运行同步测试**
+- [x] **Step 6: 运行同步测试**
 
 Run: `pnpm test src/chain/sync --coverage=false && pnpm typecheck`
 
 Expected: PASS。
 
-- [ ] **Step 7: 提交**
+- [x] **Step 7: 提交**
 
 ```bash
 git add src/chain/sync tests/fixtures

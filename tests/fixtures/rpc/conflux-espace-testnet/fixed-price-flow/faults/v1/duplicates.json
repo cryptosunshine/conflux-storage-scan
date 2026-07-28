@@ -1,0 +1,9 @@
+{
+	"schemaVersion": 1,
+	"fault": "duplicate-log",
+	"expectedState": "fresh",
+	"logs": {
+		"canonicalKeys": ["same", "same"],
+		"expectedRecords": 1
+	}
+}

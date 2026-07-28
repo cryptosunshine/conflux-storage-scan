@@ -1,0 +1,9 @@
+{
+	"schemaVersion": 1,
+	"fault": "rpc-rate-limited",
+	"expectedState": "partial",
+	"rpc": {
+		"httpStatus": 429,
+		"retryable": true
+	}
+}
