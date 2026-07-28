@@ -5,6 +5,7 @@
 - Keep the product read-only. Never add upload, download, mining, reward, signing, approval, or contract-write behavior.
 - Display the storage fee as the product constant `0 CFX`. Never call `pricePerSector` or infer storage fees from transaction gas.
 - Public explorer routes must work without a wallet. Wallet connection is only required for `/history`.
+- `/analytics` is a public, read-only route derived from the canonical local index. Chart reads must make no additional RPC requests.
 - Support Light Theme only.
 
 ## Sources of truth
