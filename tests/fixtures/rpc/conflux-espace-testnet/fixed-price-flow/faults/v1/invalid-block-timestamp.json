@@ -1,0 +1,9 @@
+{
+	"schemaVersion": 1,
+	"fault": "invalid-block-timestamp",
+	"expectedState": "partial",
+	"block": {
+		"timestamp": "-1",
+		"expectedError": "INVALID_BLOCK_TIMESTAMP"
+	}
+}

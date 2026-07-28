@@ -1,0 +1,9 @@
+{
+	"schemaVersion": 1,
+	"fault": "malformed-submit",
+	"expectedState": "partial",
+	"log": {
+		"identity": "0x00",
+		"expectedError": "FIELD_INVALID"
+	}
+}

@@ -1,0 +1,9 @@
+{
+	"schemaVersion": 1,
+	"fault": "removed-log",
+	"expectedState": "fresh",
+	"log": {
+		"removed": true,
+		"expectedPresent": false
+	}
+}

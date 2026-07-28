@@ -1,0 +1,10 @@
+{
+	"schemaVersion": 1,
+	"fault": "missing-enriched-log-fields",
+	"expectedState": "fresh",
+	"log": {
+		"blockTimestamp": null,
+		"transactionLogIndex": null,
+		"expectedBlockFallbacks": 1
+	}
+}

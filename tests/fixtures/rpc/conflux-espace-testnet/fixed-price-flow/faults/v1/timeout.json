@@ -1,0 +1,9 @@
+{
+	"schemaVersion": 1,
+	"fault": "rpc-timeout",
+	"expectedState": "partial",
+	"rpc": {
+		"code": "RPC_TIMEOUT",
+		"retryable": true
+	}
+}

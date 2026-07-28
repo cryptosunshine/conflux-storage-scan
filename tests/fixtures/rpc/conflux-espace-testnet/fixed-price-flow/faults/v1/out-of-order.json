@@ -1,0 +1,9 @@
+{
+	"schemaVersion": 1,
+	"fault": "out-of-order-logs",
+	"expectedState": "fresh",
+	"logs": {
+		"sequences": ["2", "0", "1"],
+		"expectedSequences": ["0", "1", "2"]
+	}
+}

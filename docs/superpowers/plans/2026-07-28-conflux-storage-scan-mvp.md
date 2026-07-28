@@ -882,7 +882,7 @@ git commit -m "feat: add immutable RPC fixture capture"
 - Create: `src/data/indexed-db/storage-db.ts`
 - Create: `src/data/indexed-db/storage-db.test.ts`
 
-- [ ] **Step 1: 写数据库失败测试**
+- [x] **Step 1: 写数据库失败测试**
 
 使用 `fake-indexeddb` 测试：
 
@@ -910,13 +910,13 @@ it("replaces orphaned logs and checkpoint atomically", async () => {
 
 还要测试 schema/implementation/normalizer 版本不兼容时打开新 namespace。
 
-- [ ] **Step 2: 运行并确认失败**
+- [x] **Step 2: 运行并确认失败**
 
 Run: `pnpm test src/data/indexed-db/storage-db.test.ts`
 
 Expected: FAIL，模块不存在。
 
-- [ ] **Step 3: 实现数据库 schema**
+- [x] **Step 3: 实现数据库 schema**
 
 使用 `idb`，stores 为：
 
@@ -943,7 +943,7 @@ interface StorageRepository {
 }
 ```
 
-- [ ] **Step 4: 实现重组对账**
+- [x] **Step 4: 实现重组对账**
 
 在单个 readwrite transaction 中：
 
@@ -954,13 +954,13 @@ interface StorageRepository {
 5. 校验同一 sequence 只有一条 canonical 记录；
 6. 更新 checkpoint。
 
-- [ ] **Step 5: 运行测试**
+- [x] **Step 5: 运行测试**
 
 Run: `pnpm test src/data/indexed-db && pnpm typecheck`
 
 Expected: PASS。
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
 ```bash
 git add src/data/indexed-db
@@ -975,9 +975,9 @@ git commit -m "feat: persist canonical submission index"
 - Create: `src/chain/sync/adaptive-ranges.test.ts`
 - Create: `src/chain/sync/sync-submissions.ts`
 - Create: `src/chain/sync/sync-submissions.test.ts`
-- Create: `tests/fixtures/rpc/conflux-espace-testnet/fixed-price-flow/v1/faults/*.json`
+- Create: `tests/fixtures/rpc/conflux-espace-testnet/fixed-price-flow/faults/v1/*.json`
 
-- [ ] **Step 1: 写自适应范围失败测试**
+- [x] **Step 1: 写自适应范围失败测试**
 
 断言：
 
@@ -987,7 +987,7 @@ git commit -m "feat: persist canonical submission index"
 - retry 使用指数退避和可注入 jitter；
 - abort signal 立即停止。
 
-- [ ] **Step 2: 写同步失败测试**
+- [x] **Step 2: 写同步失败测试**
 
 使用 fixture transport 断言：
 
@@ -1000,13 +1000,13 @@ git commit -m "feat: persist canonical submission index"
 - partial batch、malformed event、sequence gap 产生 `partial` 状态；
 - implementation mismatch 产生 `incompatible-contract` 并且不写新数据。
 
-- [ ] **Step 3: 运行并确认失败**
+- [x] **Step 3: 运行并确认失败**
 
 Run: `pnpm test src/chain/sync`
 
 Expected: FAIL，目标模块不存在。
 
-- [ ] **Step 4: 实现同步状态机**
+- [x] **Step 4: 实现同步状态机**
 
 ```ts
 export type SyncState =
@@ -1022,9 +1022,10 @@ export type SyncState =
 `max(deploymentBlock, checkpoint.blockNumber - 127n)`，分段请求日志，
 为缺失时间戳的不同 block hash 批量补充区块，并通过 repository 原子写入。
 
-- [ ] **Step 5: 加入 fault fixtures**
+- [x] **Step 5: 加入 fault fixtures**
 
-提供确定性文件：
+提供确定性文件。由于 live `v1` 已接受且不可修改，故障语料使用独立版本目录
+`fixed-price-flow/faults/v1/`，不得写入或改动 `fixed-price-flow/v1/`：
 
 ```text
 429.json
@@ -1044,13 +1045,13 @@ implementation-changed.json
 wrong-chain.json
 ```
 
-- [ ] **Step 6: 运行同步测试**
+- [x] **Step 6: 运行同步测试**
 
 Run: `pnpm test src/chain/sync --coverage=false && pnpm typecheck`
 
 Expected: PASS。
 
-- [ ] **Step 7: 提交**
+- [x] **Step 7: 提交**
 
 ```bash
 git add src/chain/sync tests/fixtures
@@ -1068,7 +1069,7 @@ git commit -m "feat: sync storage logs with reorg recovery"
 - Create: `src/data/storage-data-source.test.ts`
 - Create: `src/app/query-client.ts`
 
-- [ ] **Step 1: 写数据源 contract tests**
+- [x] **Step 1: 写数据源 contract tests**
 
 同一组 contract tests 分别运行于 `FixtureDataSource` 和基于 mock RPC + fake IndexedDB 的
 `LiveRpcDataSource`，断言：
@@ -1087,13 +1088,13 @@ export interface StorageDataSource {
 
 分页固定按 sequence 降序。页码从 1 开始，默认每页 20 条。
 
-- [ ] **Step 2: 运行并确认失败**
+- [x] **Step 2: 运行并确认失败**
 
 Run: `pnpm test src/data/storage-data-source.test.ts`
 
 Expected: FAIL，接口和实现不存在。
 
-- [ ] **Step 3: 实现数据源**
+- [x] **Step 3: 实现数据源**
 
 `LiveRpcDataSource` 组合 public client、repository 和 sync service。
 `FixtureDataSource` 读取已标准化的 fixture JSON，不访问 IndexedDB 或网络。
@@ -1112,7 +1113,7 @@ interface StorageSummary {
 }
 ```
 
-- [ ] **Step 4: 实现 Query factories**
+- [x] **Step 4: 实现 Query factories**
 
 Query keys 必须稳定：
 
@@ -1128,13 +1129,13 @@ export const storageKeys = {
 
 同步成功后只失效受影响的 summary/list/address keys。
 
-- [ ] **Step 5: 运行测试**
+- [x] **Step 5: 运行测试**
 
 Run: `pnpm test src/data && pnpm typecheck`
 
 Expected: PASS。
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
 ```bash
 git add src/data src/app/query-client.ts
