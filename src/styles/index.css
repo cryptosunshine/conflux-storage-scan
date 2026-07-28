@@ -1089,8 +1089,9 @@ a:hover {
 
 .analytics-preview-card {
 	position: relative;
-	display: block;
+	display: flex;
 	overflow: hidden;
+	flex-direction: column;
 	padding: 1.25rem 1.25rem 0.9rem;
 	color: inherit;
 	text-decoration: none;
@@ -1112,6 +1113,7 @@ a:hover {
 	align-items: center;
 	justify-content: flex-end;
 	min-height: 2.25rem;
+	margin-top: auto;
 	color: var(--color-link);
 	font-size: 0.8125rem;
 	font-weight: 720;
@@ -1127,14 +1129,16 @@ a:hover {
 }
 
 .chart-shell__header {
+	display: grid;
+	gap: 0.35rem;
+}
+
+.chart-shell__title-row {
 	display: flex;
+	min-width: 0;
 	align-items: flex-start;
 	justify-content: space-between;
 	gap: 1.5rem;
-}
-
-.chart-shell__header > div {
-	min-width: 0;
 }
 
 .chart-shell__header h2 {
@@ -1146,8 +1150,8 @@ a:hover {
 }
 
 .chart-shell__header p {
-	max-width: 44rem;
-	margin: 0.35rem 0 0;
+	width: 100%;
+	margin: 0;
 	color: var(--color-text-muted);
 	font-size: 0.8125rem;
 	line-height: 1.5;
@@ -1171,6 +1175,10 @@ a:hover {
 .analytics-preview-card .chart-canvas {
 	height: 11.5rem;
 	margin-top: 0.75rem;
+}
+
+.analytics-preview-card .chart-shell__header {
+	min-height: 4.75rem;
 }
 
 .chart-canvas .recharts-cartesian-axis-tick-value,
@@ -1457,6 +1465,10 @@ a:hover {
 
 	.chart-shell__header {
 		gap: 0.75rem;
+	}
+
+	.analytics-preview-card .chart-shell__header {
+		min-height: 0;
 	}
 
 	.chart-shell__header strong {
