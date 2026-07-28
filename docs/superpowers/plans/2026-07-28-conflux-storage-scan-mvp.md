@@ -882,7 +882,7 @@ git commit -m "feat: add immutable RPC fixture capture"
 - Create: `src/data/indexed-db/storage-db.ts`
 - Create: `src/data/indexed-db/storage-db.test.ts`
 
-- [ ] **Step 1: 写数据库失败测试**
+- [x] **Step 1: 写数据库失败测试**
 
 使用 `fake-indexeddb` 测试：
 
@@ -910,13 +910,13 @@ it("replaces orphaned logs and checkpoint atomically", async () => {
 
 还要测试 schema/implementation/normalizer 版本不兼容时打开新 namespace。
 
-- [ ] **Step 2: 运行并确认失败**
+- [x] **Step 2: 运行并确认失败**
 
 Run: `pnpm test src/data/indexed-db/storage-db.test.ts`
 
 Expected: FAIL，模块不存在。
 
-- [ ] **Step 3: 实现数据库 schema**
+- [x] **Step 3: 实现数据库 schema**
 
 使用 `idb`，stores 为：
 
@@ -943,7 +943,7 @@ interface StorageRepository {
 }
 ```
 
-- [ ] **Step 4: 实现重组对账**
+- [x] **Step 4: 实现重组对账**
 
 在单个 readwrite transaction 中：
 
@@ -954,13 +954,13 @@ interface StorageRepository {
 5. 校验同一 sequence 只有一条 canonical 记录；
 6. 更新 checkpoint。
 
-- [ ] **Step 5: 运行测试**
+- [x] **Step 5: 运行测试**
 
 Run: `pnpm test src/data/indexed-db && pnpm typecheck`
 
 Expected: PASS。
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
 ```bash
 git add src/data/indexed-db
