@@ -15,7 +15,7 @@
 **Files:**
 - Inspect: `package.json`
 - Expected missing file: `wrangler.jsonc`
-- Expected missing file: `pnpm-workspace.yaml`
+- Inspect: `pnpm-workspace.yaml`
 
 - [ ] **Step 1: Run the failing deployment-contract assertion**
 
@@ -29,7 +29,7 @@ Expected: FAIL with `wrangler.jsonc must be checked in`.
 
 **Files:**
 - Create: `wrangler.jsonc`
-- Create: `pnpm-workspace.yaml`
+- Modify: `pnpm-workspace.yaml`
 - Modify: `package.json`
 - Modify: `pnpm-lock.yaml`
 
@@ -47,11 +47,22 @@ Expected: FAIL with `wrangler.jsonc must be checked in`.
 }
 ```
 
-- [ ] **Step 2: Approve only the required dependency build**
+- [ ] **Step 2: Preserve the existing workspace settings and approve the required dependency build**
 
 ```yaml
+packages:
+  - "."
+overrides:
+  use-sync-external-store: 1.6.0
 allowBuilds:
+  bufferutil: false
+  esbuild: true
+  keccak: true
+  msw: false
+  utf-8-validate: false
   workerd: true
+minimumReleaseAgeExclude:
+  - viem@2.55.10
 ```
 
 - [ ] **Step 3: Pin Wrangler and update the lock file**
@@ -158,4 +169,3 @@ Expected: lint, typecheck, unit tests, and production build all exit with code 0
 ```bash
 git push origin master
 ```
-

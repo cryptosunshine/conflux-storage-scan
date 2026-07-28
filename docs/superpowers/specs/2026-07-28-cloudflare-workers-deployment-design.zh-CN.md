@@ -12,7 +12,7 @@ Wrangler 配置，也没有固定 Wrangler 依赖。部署命令因此触发 Wra
 采用仓库内显式配置：
 
 - 将 Wrangler 固定为开发依赖并写入锁文件；
-- 在 `pnpm-workspace.yaml` 中只批准 `workerd` 执行依赖构建脚本；
+- 在 `pnpm-workspace.yaml` 的现有白名单中只追加批准 `workerd` 执行依赖构建脚本；
 - 提交 `wrangler.jsonc`，把 Vite 的 `dist` 目录作为静态资源；
 - 对 TanStack Router 使用 `single-page-application` 回退，保证公开详情路由直接访问和
   刷新时仍返回 `index.html`。
@@ -27,8 +27,8 @@ Wrangler 配置，也没有固定 Wrangler 依赖。部署命令因此触发 Wra
 服务端入口、运行时变量或写链行为。`VITE_CONFLUX_ESPACE_RPC_URL` 继续作为 Vite
 构建变量注入浏览器代码，不写入 Wrangler 的运行时 `vars`。
 
-`pnpm-workspace.yaml` 只允许 `workerd` 的安装脚本，不启用允许所有依赖构建脚本的宽泛
-选项。
+`pnpm-workspace.yaml` 保留现有 workspace、版本覆盖、依赖构建白名单和等待期例外，只在
+`allowBuilds` 中追加 `workerd: true`，不启用允许所有依赖构建脚本的宽泛选项。
 
 ## 验证
 
@@ -37,4 +37,3 @@ Wrangler 配置，也没有固定 Wrangler 依赖。部署命令因此触发 Wra
 3. 运行 Wrangler dry-run，确认 `dist` 被识别为 SPA 静态资源且不会触发自动配置。
 4. 运行 `corepack pnpm verify`。
 5. 由于 SPA 路由配置会影响公开路由交付，运行 `corepack pnpm test:e2e`。
-
