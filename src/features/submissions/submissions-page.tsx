@@ -1,10 +1,10 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query"
 import { useStorageDataSource } from "../../app/providers"
-import { DataState } from "../../components/data-state"
 import { Pagination } from "../../components/pagination"
 import { SubmissionTable } from "../../components/submission-table"
 import { SyncStatus } from "../../components/sync-status"
 import { createStorageQueries } from "../../data/queries"
+import { RecoveryDataState } from "../recovery/recovery-data-state"
 import { useStorageSync } from "../storage/use-storage-sync"
 
 export interface SubmissionsPageProps {
@@ -34,7 +34,7 @@ export function SubmissionsPage({ page }: SubmissionsPageProps) {
 				</div>
 			</header>
 
-			<DataState onRetry={() => void sync.refetch()} state={syncState} />
+			<RecoveryDataState onRetry={() => void sync.refetch()} state={syncState} />
 
 			<section aria-labelledby="submission-list-title" className="content-panel">
 				<header className="section-heading">

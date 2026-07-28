@@ -5,12 +5,12 @@ import type { Address } from "viem"
 import { useAccount, useSwitchChain } from "wagmi"
 import { useStorageDataSource } from "../../app/providers"
 import { CopyButton } from "../../components/copy-button"
-import { DataState } from "../../components/data-state"
 import { formatBytes, formatInteger, truncateMiddle } from "../../components/format"
 import { MetricCard } from "../../components/metric-card"
 import { Pagination } from "../../components/pagination"
 import { SubmissionTable } from "../../components/submission-table"
 import { createStorageQueries, storageKeys } from "../../data/queries"
+import { RecoveryDataState } from "../recovery/recovery-data-state"
 import { useStorageSync } from "../storage/use-storage-sync"
 
 export interface WalletHistoryContentProps {
@@ -96,7 +96,7 @@ function ConnectedHistory({
 				</div>
 			) : null}
 
-			<DataState onRetry={() => void sync.refetch()} state={syncState} />
+			<RecoveryDataState onRetry={() => void sync.refetch()} state={syncState} />
 
 			{summary.data ? (
 				<div className="address-metrics">

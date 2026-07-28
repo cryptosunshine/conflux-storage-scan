@@ -1,8 +1,10 @@
+import type { ReactNode } from "react"
 import type { SyncState } from "../chain/sync/sync-submissions"
 
 export interface DataStateProps {
 	readonly state: SyncState
 	readonly onRetry?: () => void
+	readonly recoveryAction?: ReactNode
 }
 
 function LastSynced({ value }: { readonly value: number }) {
@@ -14,7 +16,15 @@ function LastSynced({ value }: { readonly value: number }) {
 	)
 }
 
-export function DataState({ state, onRetry }: DataStateProps) {
+function incompatibleTitle(state: Extract<SyncState, { status: "incompatible-contract" }>): string {
+	return state.error.code === "CHAIN_ID_MISMATCH" ? "Wrong network" : "Contract update detected"
+}
+
+function partialTitle(state: Extract<SyncState, { status: "partial" }>): string {
+	return state.error.code === "CACHE_CORRUPT" ? "Local index needs rebuilding" : "Data may be incomplete"
+}
+
+export function DataState({ state, onRetry, recoveryAction }: DataStateProps) {
 	if (state.status === "idle" || state.status === "fresh") {
 		return null
 	}
@@ -36,10 +46,11 @@ export function DataState({ state, onRetry }: DataStateProps) {
 		return (
 			<div className="data-notice data-notice--blocking" role="alert">
 				<div>
-					<strong>Contract update detected</strong>
-					<p>
-						New logs are paused until the deployed implementation and ABI are verified. Cached records remain available.
-					</p>
+					<strong>{incompatibleTitle(state)}</strong>
+					<p>{state.error.message}</p>
+					{state.error.code === "CHAIN_ID_MISMATCH" ? null : (
+						<p>New logs are paused until the deployed implementation and ABI are verified.</p>
+					)}
 				</div>
 			</div>
 		)
@@ -49,7 +60,7 @@ export function DataState({ state, onRetry }: DataStateProps) {
 		return (
 			<div className="data-notice data-notice--warning" role="status">
 				<div>
-					<strong>Data may be incomplete</strong>
+					<strong>{partialTitle(state)}</strong>
 					<p>{state.error.message}</p>
 					{state.lastSuccessAt === undefined ? null : (
 						<small>
@@ -57,7 +68,9 @@ export function DataState({ state, onRetry }: DataStateProps) {
 						</small>
 					)}
 				</div>
-				{onRetry ? (
+				{state.error.code === "CACHE_CORRUPT" && recoveryAction ? (
+					recoveryAction
+				) : onRetry ? (
 					<button className="secondary-button" onClick={onRetry} type="button">
 						Retry
 					</button>

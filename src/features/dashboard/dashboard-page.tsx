@@ -2,12 +2,12 @@ import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { ArrowRight } from "lucide-react"
 import { useStorageDataSource } from "../../app/providers"
-import { DataState } from "../../components/data-state"
 import { formatBytes, formatInteger } from "../../components/format"
 import { MetricCard } from "../../components/metric-card"
 import { SubmissionTable } from "../../components/submission-table"
 import { SyncStatus } from "../../components/sync-status"
 import { createStorageQueries } from "../../data/queries"
+import { RecoveryDataState } from "../recovery/recovery-data-state"
 import { useStorageSync } from "../storage/use-storage-sync"
 
 export function DashboardPage() {
@@ -33,9 +33,9 @@ export function DashboardPage() {
 				</div>
 			</header>
 
-			<DataState onRetry={() => void sync.refetch()} state={syncState} />
+			<RecoveryDataState onRetry={() => void sync.refetch()} state={syncState} />
 			{countMismatch && summary.data ? (
-				<DataState
+				<RecoveryDataState
 					onRetry={() => void sync.refetch()}
 					state={{
 						error: {

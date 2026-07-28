@@ -4,10 +4,10 @@ import type { ReactNode } from "react"
 import { useStorageDataSource } from "../../app/providers"
 import { AddressLink } from "../../components/address-link"
 import { CopyButton } from "../../components/copy-button"
-import { DataState } from "../../components/data-state"
 import { formatBytes, formatInteger, timestampIso, truncateMiddle } from "../../components/format"
 import { confluxScanTransactionUrl } from "../../components/submission-table"
 import { createStorageQueries } from "../../data/queries"
+import { RecoveryDataState } from "../recovery/recovery-data-state"
 import { useStorageSync } from "../storage/use-storage-sync"
 
 function DetailItem({
@@ -84,7 +84,7 @@ export function SubmissionDetailPage({ sequence }: SubmissionDetailPageProps) {
 				</span>
 			</header>
 
-			<DataState onRetry={() => void sync.refetch()} state={syncState} />
+			<RecoveryDataState onRetry={() => void sync.refetch()} state={syncState} />
 
 			<section aria-labelledby="overview-details-title" className="detail-panel">
 				<header className="section-heading">

@@ -2,13 +2,13 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query"
 import type { Address } from "viem"
 import { useStorageDataSource } from "../../app/providers"
 import { CopyButton } from "../../components/copy-button"
-import { DataState } from "../../components/data-state"
 import { formatBytes, formatInteger } from "../../components/format"
 import { MetricCard } from "../../components/metric-card"
 import { Pagination } from "../../components/pagination"
 import { SubmissionTable } from "../../components/submission-table"
 import { SyncStatus } from "../../components/sync-status"
 import { createStorageQueries } from "../../data/queries"
+import { RecoveryDataState } from "../recovery/recovery-data-state"
 import { useStorageSync } from "../storage/use-storage-sync"
 
 export interface AddressPageProps {
@@ -44,7 +44,7 @@ export function AddressPage({ address, page }: AddressPageProps) {
 				</div>
 			</header>
 
-			<DataState onRetry={() => void sync.refetch()} state={syncState} />
+			<RecoveryDataState onRetry={() => void sync.refetch()} state={syncState} />
 
 			{summary.data ? (
 				<div className="address-metrics">

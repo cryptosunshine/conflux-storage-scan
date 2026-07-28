@@ -926,6 +926,29 @@ a:hover {
 	background: var(--color-surface-blue);
 }
 
+.rebuild-confirmation {
+	max-width: 30rem;
+	padding: 1rem;
+	border: 1px solid var(--color-warning);
+	border-radius: 0.75rem;
+	background: var(--color-surface);
+	box-shadow: var(--shadow-popover);
+}
+
+.rebuild-confirmation p {
+	margin: 0.35rem 0 0;
+	color: var(--color-text-muted);
+	font-size: 0.8125rem;
+	line-height: 1.5;
+}
+
+.rebuild-confirmation__actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.5rem;
+	margin-top: 0.875rem;
+}
+
 .pagination {
 	display: grid;
 	grid-template-columns: 1fr auto 1fr;
