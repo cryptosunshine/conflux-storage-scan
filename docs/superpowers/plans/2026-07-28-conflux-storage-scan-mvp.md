@@ -6,7 +6,7 @@
 
 **Architecture:** 应用是 Vite + React SPA。`LiveRpcDataSource` 通过 viem 读取已验证的 BeaconProxy 和 `Submit` 日志，标准化后写入 IndexedDB；UI 只依赖 `StorageDataSource`，测试可切换为 `FixtureDataSource`。TanStack Router 管理路由，TanStack Query 管理异步状态，RainbowKit/wagmi 只负责可选钱包连接，不参与公开链数据读取。
 
-**Tech Stack:** pnpm 11、Vite 8、React 19、TypeScript 7、TanStack Router/Query、Tailwind CSS 4、Biome 2、viem 2、RainbowKit 2、wagmi 2、idb 8、Vitest 4、Testing Library、MSW 2、Playwright 1。
+**Tech Stack:** pnpm 11、Vite 8、React 19、TypeScript 5.9、TanStack Router/Query、Tailwind CSS 4、Biome 2、viem 2、RainbowKit 2、wagmi 2、idb 8、Vitest 4、Testing Library、MSW 2、Playwright 1。
 
 ---
 
@@ -24,7 +24,7 @@
 | `pnpm` | `11.17.0` |
 | `vite` | `8.1.5` |
 | `react` / `react-dom` | `19.2.8` |
-| `typescript` | `7.0.2` |
+| `typescript` | `5.9.3` |
 | `@vitejs/plugin-react` | `6.0.4` |
 | `@tanstack/react-router` | `1.170.18` |
 | `@tanstack/router-plugin` | `1.168.23` |
@@ -42,6 +42,10 @@
 
 RainbowKit `2.2.11` 的 peer dependency 要求 wagmi `^2.9.0`，所以必须使用最新兼容的
 wagmi 2.x，不得直接升级到 wagmi 3。
+
+RainbowKit/wagmi 的 Coinbase/Solana 间接依赖尚未声明 TypeScript 7 兼容，因此使用最新兼容的
+TypeScript `5.9.3`。`valtio` 的旧传递依赖统一覆盖为支持 React 19 的
+`use-sync-external-store@1.6.0`。
 
 已验证的链常量：
 
@@ -204,7 +208,7 @@ MVP 不配置 CI；实施过程中不得创建 `.github/workflows/` 或其他 CI
 - Create: `src/test/setup.ts`
 - Create: `src/test/smoke.test.tsx`
 
-- [ ] **Step 1: 写出项目 manifest**
+- [x] **Step 1: 写出项目 manifest**
 
 `package.json` 必须包含固定版本和本地门禁：
 
@@ -261,28 +265,37 @@ MVP 不配置 CI；实施过程中不得创建 `.github/workflows/` 或其他 CI
     "msw": "2.15.0",
     "tailwindcss": "4.3.3",
     "tsx": "4.23.1",
-    "typescript": "7.0.2",
+    "typescript": "5.9.3",
     "vite": "8.1.5",
     "vitest": "4.1.10"
   }
 }
 ```
 
-- [ ] **Step 2: 写 TypeScript、Vite、Vitest 和 Biome 配置**
+pnpm 11 的 override 配置写入 `pnpm-workspace.yaml`：
+
+```yaml
+overrides:
+  use-sync-external-store: 1.6.0
+```
+
+- [x] **Step 2: 写 TypeScript、Vite、Vitest 和 Biome 配置**
 
 使用以下关键配置：
 
 ```ts
 // vite.config.ts
 import tailwindcss from "@tailwindcss/vite"
-import { tanstackRouter } from "@tanstack/router-plugin/vite"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 
 export default defineConfig({
-  plugins: [tailwindcss(), tanstackRouter({ target: "react", autoCodeSplitting: true }), react()],
+  plugins: [tailwindcss(), react()],
 })
 ```
+
+TanStack Router 插件在 Task 10 创建首个 `src/routes` 文件时加入，避免基础阶段扫描不存在的
+路由目录。
 
 ```ts
 // vitest.config.ts
@@ -301,7 +314,7 @@ export default defineConfig({
 `noUncheckedSideEffectImports`、`verbatimModuleSyntax` 和 `moduleResolution: "bundler"`。
 `biome.json` 使用 Tab 缩进、双引号、自动整理 imports，并忽略 `src/routeTree.gen.ts`。
 
-- [ ] **Step 3: 写失败的 React smoke test**
+- [x] **Step 3: 写失败的 React smoke test**
 
 ```tsx
 // src/test/smoke.test.tsx
@@ -317,7 +330,7 @@ describe("App", () => {
 })
 ```
 
-- [ ] **Step 4: 安装依赖并确认测试按预期失败**
+- [x] **Step 4: 安装依赖并确认测试按预期失败**
 
 Run:
 
@@ -330,7 +343,7 @@ pnpm test src/test/smoke.test.tsx
 
 Expected: FAIL，错误为无法解析 `../app/app`。
 
-- [ ] **Step 5: 写最小 App 和入口**
+- [x] **Step 5: 写最小 App 和入口**
 
 ```tsx
 // src/app/app.tsx
@@ -362,13 +375,13 @@ createRoot(root).render(
 Task 1 的 `src/styles/index.css` 只写入 `@import "tailwindcss";`，Task 9 再加入完整设计令牌。
 `src/test/setup.ts` 导入 `@testing-library/jest-dom/vitest` 和 `fake-indexeddb/auto`。
 
-- [ ] **Step 6: 运行基线门禁**
+- [x] **Step 6: 运行基线门禁**
 
 Run: `pnpm test src/test/smoke.test.tsx && pnpm typecheck && pnpm build`
 
 Expected: 全部退出码为 0。
 
-- [ ] **Step 7: 提交**
+- [x] **Step 7: 提交**
 
 ```bash
 git add package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig*.json vite.config.ts vitest.config.ts biome.json index.html src
@@ -386,7 +399,7 @@ git commit -m "chore: scaffold Conflux storage scan"
 - Create: `scripts/validate-agent-harness.mjs`
 - Modify: `package.json`
 
-- [ ] **Step 1: 加载创建 Skill 所需规范**
+- [x] **Step 1: 加载创建 Skill 所需规范**
 
 实施者必须先加载：
 
@@ -395,7 +408,7 @@ git commit -m "chore: scaffold Conflux storage scan"
 
 不得凭记忆编写 `SKILL.md`。
 
-- [ ] **Step 2: 先写失败的 Harness 校验脚本**
+- [x] **Step 2: 先写失败的 Harness 校验脚本**
 
 ```js
 // scripts/validate-agent-harness.mjs
@@ -425,13 +438,13 @@ console.log(`Validated ${required.length} agent harness files`)
 "harness:validate": "node scripts/validate-agent-harness.mjs"
 ```
 
-- [ ] **Step 3: 运行校验并确认失败**
+- [x] **Step 3: 运行校验并确认失败**
 
 Run: `pnpm harness:validate`
 
 Expected: FAIL，首个缺失文件为 `AGENTS.md`。
 
-- [ ] **Step 4: 编写根 AGENTS.md**
+- [x] **Step 4: 编写根 AGENTS.md**
 
 内容必须明确：
 
@@ -452,7 +465,7 @@ Expected: FAIL，首个缺失文件为 `AGENTS.md`。
 - Never overwrite an accepted fixture version or automatically commit/push captured fixtures.
 ```
 
-- [ ] **Step 5: 编写三个 Skills**
+- [x] **Step 5: 编写三个 Skills**
 
 每个 `SKILL.md` 使用有效 frontmatter，描述中包含准确触发条件。正文必须包含设计 Spec
 第 14.2 节对应的不变量、推荐工作流、需要读取的项目文件和完成前验证命令。
@@ -466,7 +479,7 @@ Expected: FAIL，首个缺失文件为 `AGENTS.md`。
 UI Skill 明确支持的五条路由、Light Theme、全部精确色值、无下载/挖矿 UI、
 响应式表格和所有数据状态。
 
-- [ ] **Step 6: 校验 Skills**
+- [x] **Step 6: 校验 Skills**
 
 Run:
 
@@ -477,7 +490,7 @@ rg -n "pricePerSector|EIP-6963|Light Theme|pnpm verify" AGENTS.md .agents/skills
 
 Expected: 校验输出 `Validated 4 agent harness files`，四类关键规则均能检索到。
 
-- [ ] **Step 7: 提交**
+- [x] **Step 7: 提交**
 
 ```bash
 git add AGENTS.md .agents/skills scripts/validate-agent-harness.mjs package.json

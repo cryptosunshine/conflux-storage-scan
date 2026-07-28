@@ -1,0 +1,4 @@
+interface:
+  display_name: "Develop Conflux Storage Data"
+  short_description: "FixedPriceFlow RPC, cache, and fixture guardrails"
+  default_prompt: "Use $develop-conflux-storage-data to implement or review Conflux storage chain data safely."

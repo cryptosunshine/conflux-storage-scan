@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design Conflux Storage UI"
+  short_description: "Conflux Light Theme explorer UI and route guardrails"
+  default_prompt: "Use $design-conflux-storage-ui to build or review the storage explorer interface."
