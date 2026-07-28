@@ -69,7 +69,7 @@
 - Modify: `.agents/skills/design-conflux-storage-ui/SKILL.md`
 - Modify: `scripts/validate-agent-harness.mjs`
 
-- [ ] **Step 1: Add a failing Harness requirement**
+- [x] **Step 1: Add a failing Harness requirement**
 
 Add `"/analytics"` and `"no additional RPC"` to the required UI skill rules:
 
@@ -80,7 +80,7 @@ Add `"/analytics"` and `"no additional RPC"` to the required UI skill rules:
 ]
 ```
 
-- [ ] **Step 2: Verify the Harness fails**
+- [x] **Step 2: Verify the Harness fails**
 
 Run:
 
@@ -90,13 +90,13 @@ corepack pnpm harness:validate
 
 Expected: FAIL because the UI skill does not yet contain both new rules.
 
-- [ ] **Step 3: Update project constraints**
+- [x] **Step 3: Update project constraints**
 
 Add `/analytics` to the public route lists in `AGENTS.md` and the UI skill. State that analytics is
 derived from the canonical local index and must not trigger additional RPC reads. Keep the forbidden
 mining/download/fee behavior unchanged.
 
-- [ ] **Step 4: Verify the Harness passes**
+- [x] **Step 4: Verify the Harness passes**
 
 Run:
 
@@ -106,7 +106,7 @@ corepack pnpm harness:validate
 
 Expected: `Validated 4 agent harness files`.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add AGENTS.md .agents/skills/design-conflux-storage-ui/SKILL.md scripts/validate-agent-harness.mjs
@@ -120,7 +120,7 @@ git commit -m "chore: authorize storage analytics route"
 - Create: `src/analytics/build-storage-timeline.ts`
 - Test: `src/analytics/build-storage-timeline.test.ts`
 
-- [ ] **Step 1: Write failing aggregation tests**
+- [x] **Step 1: Write failing aggregation tests**
 
 Cover unsorted input, two UTC dates, a missing date, cumulative logical bytes, maximum end sector,
 empty input, and range selection. Use fixed timestamps and a fixed `asOfTimestamp`:
@@ -157,7 +157,7 @@ expect(result.points[2]).toMatchObject({
 })
 ```
 
-- [ ] **Step 2: Run tests and observe failure**
+- [x] **Step 2: Run tests and observe failure**
 
 ```bash
 corepack pnpm test src/analytics/build-storage-timeline.test.ts
@@ -165,7 +165,7 @@ corepack pnpm test src/analytics/build-storage-timeline.test.ts
 
 Expected: FAIL because the analytics module does not exist.
 
-- [ ] **Step 3: Implement domain types and pure aggregation**
+- [x] **Step 3: Implement domain types and pure aggregation**
 
 Define:
 
@@ -193,7 +193,7 @@ Implement `buildStorageTimeline(submissions, asOfTimestamp = Math.floor(Date.now
 `selectTimelineRange(timeline, range)`. Validate finite non-negative timestamps, use UTC date keys,
 fill every calendar day, and multiply the running maximum sector by `STORAGE_SECTOR_BYTES`.
 
-- [ ] **Step 4: Run focused tests**
+- [x] **Step 4: Run focused tests**
 
 ```bash
 corepack pnpm test src/analytics/build-storage-timeline.test.ts
@@ -201,7 +201,7 @@ corepack pnpm test src/analytics/build-storage-timeline.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/analytics
@@ -220,7 +220,7 @@ git commit -m "feat: aggregate indexed storage timeline"
 - Test: `src/data/storage-data-source.test.ts`
 - Test: `src/data/queries.test.ts`
 
-- [ ] **Step 1: Write failing data-source contract tests**
+- [x] **Step 1: Write failing data-source contract tests**
 
 Assert fixture/live parity with a fixed clock and spy on the live transport/client:
 
@@ -233,7 +233,7 @@ expect(client.readContract).not.toHaveBeenCalled()
 
 Also assert analytics invalidation is included in `invalidateStorageAfterSync`.
 
-- [ ] **Step 2: Verify failure**
+- [x] **Step 2: Verify failure**
 
 ```bash
 corepack pnpm test src/data/storage-data-source.test.ts src/data/queries.test.ts
@@ -241,7 +241,7 @@ corepack pnpm test src/data/storage-data-source.test.ts src/data/queries.test.ts
 
 Expected: FAIL because the analytics contract and query key do not exist.
 
-- [ ] **Step 3: Add repository and data-source methods**
+- [x] **Step 3: Add repository and data-source methods**
 
 Add:
 
@@ -260,7 +260,7 @@ The fixture source aggregates its in-memory canonical submissions; the live sour
 `repository.listAll()` through `guardLocalIndex`. Extend `guardedRepository` and
 `BrowserFixtureDataSource` so interface parity remains complete.
 
-- [ ] **Step 4: Add TanStack Query support**
+- [x] **Step 4: Add TanStack Query support**
 
 Add:
 
@@ -271,7 +271,7 @@ analytics: () => [...storageKeys.all, "analytics"] as const
 and a query option whose function calls `dataSource.getAnalyticsTimeline()`. Invalidate this key
 after every successful sync/rebuild along with summary and submission keys.
 
-- [ ] **Step 5: Run focused tests**
+- [x] **Step 5: Run focused tests**
 
 ```bash
 corepack pnpm test src/data src/analytics
@@ -280,7 +280,7 @@ corepack pnpm typecheck
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/data src/test/browser-fixture-data-source.ts src/analytics
@@ -299,7 +299,7 @@ git commit -m "feat: expose storage analytics data source"
 - Test: `src/components/charts/charts.test.tsx`
 - Modify: `src/test/setup.ts`
 
-- [ ] **Step 1: Install the latest stable Recharts**
+- [x] **Step 1: Install the latest stable Recharts**
 
 ```bash
 corepack pnpm add recharts@latest
@@ -307,7 +307,7 @@ corepack pnpm add recharts@latest
 
 Confirm `package.json` and `pnpm-lock.yaml` pin the resolved version.
 
-- [ ] **Step 2: Write failing semantic chart tests**
+- [x] **Step 2: Write failing semantic chart tests**
 
 Render each chart with two timeline points and assert visible heading/summary/legend plus a named
 table:
@@ -322,7 +322,7 @@ expect(screen.getByText("Allocated storage")).toBeInTheDocument()
 Assert the activity chart has “Daily submissions” and “Cumulative submissions” semantics and that
 neither component renders mining, reward, Gas, download, or a non-zero fee.
 
-- [ ] **Step 3: Verify failure**
+- [x] **Step 3: Verify failure**
 
 ```bash
 corepack pnpm test src/components/charts
@@ -330,7 +330,7 @@ corepack pnpm test src/components/charts
 
 Expected: FAIL because the chart components do not exist.
 
-- [ ] **Step 4: Implement format and accessibility helpers**
+- [x] **Step 4: Implement format and accessibility helpers**
 
 `chart-format.ts` must convert bytes into finite MiB/GiB/TiB coordinates without discarding the
 original `bigint`, format UTC dates, and calculate utilization with a zero-allocation guard.
@@ -339,13 +339,13 @@ original `bigint`, format UTC dates, and calculate utilization with a zero-alloc
 values. It may be visually collapsed behind a “View daily values” disclosure, but it must remain
 keyboard and screen-reader accessible.
 
-- [ ] **Step 5: Implement Recharts components**
+- [x] **Step 5: Implement Recharts components**
 
 Use `ResponsiveContainer`, `LineChart`, `BarChart`, `CartesianGrid`, `XAxis`, `YAxis`, `Tooltip`,
 `Legend`, `Line`, and `Bar`. Set stable container heights, `accessibilityLayer`, explicit series
 names, Conflux palette colors, and `isAnimationActive={false}` when reduced motion is requested.
 
-- [ ] **Step 6: Run focused tests and typecheck**
+- [x] **Step 6: Run focused tests and typecheck**
 
 ```bash
 corepack pnpm test src/components/charts
@@ -355,7 +355,7 @@ corepack pnpm typecheck
 Expected: PASS without ResizeObserver or zero-size chart errors. Add a minimal test-only
 `ResizeObserver` stub in `src/test/setup.ts` only if Recharts requires it.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add package.json pnpm-lock.yaml src/components/charts src/test/setup.ts
@@ -370,7 +370,7 @@ git commit -m "feat: add accessible storage charts"
 - Test: `src/features/dashboard/dashboard-page.test.tsx`
 - Modify: `src/test/render.tsx`
 
-- [ ] **Step 1: Write failing dashboard tests**
+- [x] **Step 1: Write failing dashboard tests**
 
 Assert the two linked cards appear before the recent table:
 
@@ -385,7 +385,7 @@ expect(storageLink.compareDocumentPosition(screen.getByRole("table", { name: /re
 
 Add empty/loading assertions using a stub `StorageDataSource`.
 
-- [ ] **Step 2: Verify failure**
+- [x] **Step 2: Verify failure**
 
 ```bash
 corepack pnpm test src/features/dashboard
@@ -393,7 +393,7 @@ corepack pnpm test src/features/dashboard
 
 Expected: FAIL because preview cards are absent.
 
-- [ ] **Step 3: Implement previews**
+- [x] **Step 3: Implement previews**
 
 `DashboardPage` reads `queries.analytics()` once. `AnalyticsPreviewCards` renders:
 
@@ -406,7 +406,7 @@ Expected: FAIL because preview cards are absent.
 Add the analytics route placeholder to the memory router in `src/test/render.tsx` so generated links
 are type-safe in tests.
 
-- [ ] **Step 4: Run focused tests**
+- [x] **Step 4: Run focused tests**
 
 ```bash
 corepack pnpm test src/features/dashboard src/components/charts
@@ -415,7 +415,7 @@ corepack pnpm typecheck
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/features/analytics/analytics-preview-cards.tsx src/features/dashboard src/test/render.tsx
@@ -433,7 +433,7 @@ git commit -m "feat: add dashboard analytics previews"
 - Modify: `src/test/render.tsx`
 - Generated: `src/routeTree.gen.ts`
 
-- [ ] **Step 1: Write failing route validation tests**
+- [x] **Step 1: Write failing route validation tests**
 
 Create or extend route validation tests:
 
@@ -444,7 +444,7 @@ expect(normalizeAnalyticsRange("30d")).toBe("30d")
 expect(normalizeAnalyticsRange("90d")).toBe("all")
 ```
 
-- [ ] **Step 2: Write failing page tests**
+- [x] **Step 2: Write failing page tests**
 
 Render `/analytics?metric=submissions&range=7d` and assert:
 
@@ -455,7 +455,7 @@ Render `/analytics?metric=submissions&range=7d` and assert:
 - submissions section receives initial focus;
 - no analytics link appears in the global primary navigation.
 
-- [ ] **Step 3: Verify failure**
+- [x] **Step 3: Verify failure**
 
 ```bash
 corepack pnpm test src/routes src/features/analytics
@@ -463,7 +463,7 @@ corepack pnpm test src/routes src/features/analytics
 
 Expected: FAIL because route helpers/page do not exist.
 
-- [ ] **Step 4: Implement route and page**
+- [x] **Step 4: Implement route and page**
 
 Use:
 
@@ -478,7 +478,7 @@ The page obtains the full analytics timeline, applies `selectTimelineRange`, ren
 state, and writes both `metric` and `range` on every range navigation. Move focus without smooth
 scroll when reduced motion is active.
 
-- [ ] **Step 5: Regenerate and test**
+- [x] **Step 5: Regenerate and test**
 
 ```bash
 corepack pnpm exec vite build
@@ -488,7 +488,7 @@ corepack pnpm typecheck
 
 Expected: generated route tree contains `/analytics`; tests pass.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/routes src/routeTree.gen.ts src/features/analytics src/test/render.tsx
@@ -502,7 +502,7 @@ git commit -m "feat: add storage analytics page"
 - Test: `tests/e2e/explorer.spec.ts`
 - Test: `tests/e2e/mobile.spec.ts`
 
-- [ ] **Step 1: Add failing browser flows**
+- [x] **Step 1: Add failing browser flows**
 
 Desktop flow:
 
@@ -518,7 +518,7 @@ await expect(page).toHaveURL(/range=all/)
 
 Mobile flow must assert both preview cards and the analytics page fit without horizontal overflow.
 
-- [ ] **Step 2: Run browser tests and observe style/flow failures**
+- [x] **Step 2: Run browser tests and observe style/flow failures**
 
 ```bash
 corepack pnpm test:e2e --grep "analytics"
@@ -526,7 +526,7 @@ corepack pnpm test:e2e --grep "analytics"
 
 Expected: FAIL before the styles and complete route behavior are present.
 
-- [ ] **Step 3: Implement styles**
+- [x] **Step 3: Implement styles**
 
 Add focused classes for:
 
@@ -542,7 +542,7 @@ Add focused classes for:
 Use only existing exact palette tokens. Do not add gradients, dark theme, copied ConfluxScan layout,
 or color-only series labels.
 
-- [ ] **Step 4: Run E2E at desktop/mobile**
+- [x] **Step 4: Run E2E at desktop/mobile**
 
 ```bash
 corepack pnpm test:e2e
@@ -550,7 +550,7 @@ corepack pnpm test:e2e
 
 Expected: PASS with no horizontal overflow.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/styles/index.css tests/e2e
@@ -563,7 +563,7 @@ git commit -m "style: polish responsive storage analytics"
 - Modify: `README.md`
 - Modify: this plan checkboxes as tasks complete
 
-- [ ] **Step 1: Update README**
+- [x] **Step 1: Update README**
 
 Document:
 
@@ -573,7 +573,7 @@ Document:
 - chart reads add no RPC methods or server cache;
 - UTC daily semantics.
 
-- [ ] **Step 2: Run focused deterministic suites**
+- [x] **Step 2: Run focused deterministic suites**
 
 ```bash
 corepack pnpm test src/analytics src/data src/components/charts src/features/analytics src/features/dashboard src/routes
@@ -581,7 +581,7 @@ corepack pnpm test src/analytics src/data src/components/charts src/features/ana
 
 Expected: PASS.
 
-- [ ] **Step 3: Run the full local quality gate**
+- [x] **Step 3: Run the full local quality gate**
 
 ```bash
 corepack pnpm verify
@@ -590,7 +590,7 @@ corepack pnpm test:e2e
 
 Expected: PASS.
 
-- [ ] **Step 4: Run the explicit read-only live probe**
+- [x] **Step 4: Run the explicit read-only live probe**
 
 ```bash
 corepack pnpm harness:probe
@@ -599,25 +599,25 @@ corepack pnpm harness:probe
 Expected: chain ID 71, verified FixedPriceFlow deployment, complete canonical submission count, and
 no captured fixture write.
 
-- [ ] **Step 5: Inspect the browser**
+- [x] **Step 5: Inspect the browser**
 
 Inspect 1440px, 1024px, and 390px. Confirm focus, tooltip bounds, partial/stale cached display,
 direct `/analytics` refresh, and absence of forbidden product concepts.
 
-- [ ] **Step 6: Commit final documentation**
+- [x] **Step 6: Commit final documentation**
 
 ```bash
 git add README.md docs/superpowers/plans/2026-07-28-storage-analytics-charts.md
 git commit -m "docs: document storage analytics"
 ```
 
-- [ ] **Step 7: Push the functional branch**
+- [x] **Step 7: Push the functional branch**
 
 ```bash
 git push -u origin codex/storage-analytics-charts
 ```
 
-- [ ] **Step 8: Merge only after all gates pass**
+- [x] **Step 8: Merge only after all gates pass**
 
 ```bash
 git switch master
@@ -626,7 +626,7 @@ git merge --no-ff codex/storage-analytics-charts -m "merge: add storage analytic
 git push origin master
 ```
 
-- [ ] **Step 9: Verify clean delivery**
+- [x] **Step 9: Verify clean delivery**
 
 ```bash
 git status --short --branch

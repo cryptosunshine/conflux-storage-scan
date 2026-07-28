@@ -38,7 +38,7 @@ test("mobile stacks analytics cards and keeps the detail charts inside the viewp
 
 	await submissionAnalytics.click()
 	await expect(page).toHaveURL(/\/analytics\?metric=submissions&range=all$/)
-	await expect(page.getByRole("region", { name: "Daily submission activity" })).toBeFocused()
+	await expect(page.getByRole("region", { exact: true, name: "Daily submission activity" })).toBeFocused()
 	expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(
 		true,
 	)

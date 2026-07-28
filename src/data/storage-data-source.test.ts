@@ -115,9 +115,7 @@ async function liveHarness(): Promise<DataSourceHarness> {
 		throw new Error("Missing test head")
 	}
 	const getSubmitLogs = vi.fn(async (range: { readonly fromBlock: bigint; readonly toBlock: bigint }) =>
-		submissions
-			.filter((item) => item.blockNumber >= range.fromBlock && item.blockNumber <= range.toBlock)
-			.map(syncLog),
+		submissions.filter((item) => item.blockNumber >= range.fromBlock && item.blockNumber <= range.toBlock).map(syncLog),
 	)
 	const transport: StorageSyncTransport = {
 		getBlock: async (blockNumber) => {
