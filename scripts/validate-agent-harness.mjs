@@ -30,7 +30,7 @@ const requiredRules = new Map([
 	],
 	[
 		".agents/skills/design-conflux-storage-ui/SKILL.md",
-		["Light Theme", "#17B38A", "/submissions", "/history", "download", "mining"],
+		["Light Theme", "#17B38A", "/submissions", "/history", "/analytics", "no additional RPC", "download", "mining"],
 	],
 ])
 

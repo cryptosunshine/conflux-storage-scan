@@ -32,9 +32,14 @@ Support:
 - `/submission/:sequence`
 - `/address/:address`
 - `/history`
+- `/analytics`
 
 Never add mining, rewards, upload, download, `/tool`, miner routes, or an internal transaction
 detail page. Link transaction hashes to Conflux eSpace Testnet Scan.
+
+Build analytics from the canonical local submission index with no additional RPC requests. Use UTC
+daily buckets, keep `bigint` facts outside chart coordinates, and preserve cached charts during
+stale or partial sync states.
 
 Use “Submission Identity / Data Root”, “Submitter”, logical bytes, storage sectors, and
 “Indexed on eSpace”. Display fee as `0 CFX`. Do not call it a file hash or imply retrievability.
@@ -70,6 +75,8 @@ contrast. Do not add Dark Theme, a theme toggle, generic gradients, or copied Co
   incompatible-contract states.
 - Keep valid cached content visible during transient RPC errors.
 - Respect `prefers-reduced-motion` and avoid layout shift.
+- Give every chart a visible title, text summary, series labels, and an accessible daily-values
+  table. Never rely on color alone.
 
 ## Test workflow
 

@@ -1,10 +1,19 @@
 import { getAddress, isAddress } from "viem"
+import type { AnalyticsMetric, AnalyticsRange } from "../analytics/types"
 
 const UNSIGNED_DECIMAL = /^(?:0|[1-9]\d*)$/
 
 export function normalizePage(value: unknown): number {
 	const candidate = typeof value === "string" && value !== "" ? Number(value) : value
 	return Number.isSafeInteger(candidate) && Number(candidate) > 0 ? Number(candidate) : 1
+}
+
+export function normalizeAnalyticsMetric(value: unknown): AnalyticsMetric {
+	return value === "submissions" ? "submissions" : "storage"
+}
+
+export function normalizeAnalyticsRange(value: unknown): AnalyticsRange {
+	return value === "7d" || value === "30d" ? value : "all"
 }
 
 export function parseSequenceParam(value: string): string {

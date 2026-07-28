@@ -23,6 +23,36 @@ test("dashboard navigates to the canonical submissions index", async ({ page }) 
 	expect(liveRpcRequests).toEqual([])
 })
 
+test("dashboard analytics open the all-history detail view and preserve URL range state", async ({ page }) => {
+	await page.goto("/")
+
+	const storageAnalytics = page.getByRole("link", { name: "View storage growth analytics" })
+	await expect(storageAnalytics).toBeVisible()
+	const previewChart = storageAnalytics.getByLabel("Storage growth chart in MiB")
+	await expect(previewChart).toBeVisible()
+	expect((await previewChart.boundingBox())?.height).toBeGreaterThan(140)
+
+	await storageAnalytics.click()
+	await expect(page).toHaveURL(/\/analytics\?metric=storage&range=all$/)
+	await expect(page.getByRole("heading", { name: "Storage analytics" })).toBeVisible()
+	await expect(page.getByRole("region", { name: "Indexed storage growth" })).toBeFocused()
+
+	const detailChart = page.getByLabel("Storage growth chart in MiB")
+	expect((await detailChart.boundingBox())?.height).toBeGreaterThan(250)
+
+	await page.getByRole("link", { name: "30D", exact: true }).click()
+	await expect(page).toHaveURL(/\/analytics\?metric=storage&range=30d$/)
+	await expect(page.getByRole("link", { name: "30D", exact: true })).toHaveAttribute("aria-current", "page")
+
+	await page.reload()
+	await expect(page.getByRole("link", { name: "30D", exact: true })).toHaveAttribute("aria-current", "page")
+	await page.goBack()
+	await expect(page).toHaveURL(/\/analytics\?metric=storage&range=all$/)
+	await expect(page.getByRole("link", { name: "All", exact: true })).toHaveAttribute("aria-current", "page")
+	await page.goForward()
+	await expect(page).toHaveURL(/\/analytics\?metric=storage&range=30d$/)
+})
+
 test("keyboard users can skip the repeated header", async ({ page }) => {
 	await page.goto("/")
 	await expect(page.getByRole("heading", { name: "Storage overview" })).toBeVisible()
@@ -95,6 +125,7 @@ test("a stale fixture preserves cached content and succeeds on retry", async ({ 
 
 	await expect(page.getByText("Showing cached data")).toBeVisible()
 	await expect(page.getByRole("link", { name: "#484" })).toBeVisible()
+	await expect(page.getByRole("link", { name: "View storage growth analytics" })).toBeVisible()
 	await page.getByRole("button", { name: "Retry" }).click()
 
 	await expect(page.getByText("Showing cached data")).toBeHidden()
@@ -107,4 +138,5 @@ test("a persistent RPC failure retains the cached fixture", async ({ page }) => 
 	await expect(page.getByText("Showing cached data")).toBeVisible()
 	await expect(page.getByText(/fixture rpc timed out/i)).toBeVisible()
 	await expect(page.getByRole("link", { name: "#484" })).toBeVisible()
+	await expect(page.getByRole("link", { name: "View submission activity analytics" })).toBeVisible()
 })

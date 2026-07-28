@@ -44,6 +44,10 @@ class BrowserFixtureDataSource implements StorageDataSource {
 		return this.#state
 	}
 
+	getAnalyticsTimeline(asOfTimestamp?: number) {
+		return this.#delegate.getAnalyticsTimeline(asOfTimestamp)
+	}
+
 	getSummary() {
 		return this.#delegate.getSummary()
 	}

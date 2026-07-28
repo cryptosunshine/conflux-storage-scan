@@ -5,6 +5,7 @@ export const storageKeys = {
 	all: ["storage"] as const,
 	sync: () => [...storageKeys.all, "sync"] as const,
 	summary: () => [...storageKeys.all, "summary"] as const,
+	analytics: () => [...storageKeys.all, "analytics"] as const,
 	submissionsRoot: () => [...storageKeys.all, "submissions"] as const,
 	submissions: (page: number, pageSize = 20) => [...storageKeys.submissionsRoot(), page, pageSize] as const,
 	submissionRoot: () => [...storageKeys.all, "submission"] as const,
@@ -24,6 +25,11 @@ export function keepPreviousAddressPage<Item>(
 
 export function createStorageQueries(dataSource: StorageDataSource) {
 	return {
+		analytics: () =>
+			queryOptions({
+				queryKey: storageKeys.analytics(),
+				queryFn: () => dataSource.getAnalyticsTimeline(),
+			}),
 		summary: () =>
 			queryOptions({
 				queryKey: storageKeys.summary(),
@@ -62,6 +68,7 @@ export async function invalidateStorageAfterSync(
 	affectedSubmitters: readonly string[] = [],
 ): Promise<void> {
 	await Promise.all([
+		queryClient.invalidateQueries({ queryKey: storageKeys.analytics() }),
 		queryClient.invalidateQueries({ queryKey: storageKeys.summary() }),
 		queryClient.invalidateQueries({
 			queryKey: storageKeys.submissionsRoot(),

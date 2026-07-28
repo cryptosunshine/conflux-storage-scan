@@ -111,6 +111,7 @@ export interface StorageRepository {
 	readonly namespace: string
 	applyChunk(chunk: CanonicalChunk): Promise<void>
 	reconcileWindow(chunk: CanonicalChunk): Promise<void>
+	listAll(): Promise<readonly StorageSubmission[]>
 	list(query?: ListQuery): Promise<Page<StorageSubmission>>
 	listBySubmitter(query: AddressListQuery): Promise<Page<StorageSubmission>>
 	getByCanonicalKey(canonicalKey: string): Promise<StorageSubmission | undefined>
@@ -401,6 +402,11 @@ class IndexedDbStorageRepository implements StorageRepository {
 	async list(query: ListQuery = {}): Promise<Page<StorageSubmission>> {
 		const database = await this.#database()
 		return paginate(await database.getAll("submissions"), query)
+	}
+
+	async listAll(): Promise<readonly StorageSubmission[]> {
+		const database = await this.#database()
+		return (await database.getAll("submissions")).map(fromPersistedSubmission)
 	}
 
 	async listBySubmitter(query: AddressListQuery): Promise<Page<StorageSubmission>> {

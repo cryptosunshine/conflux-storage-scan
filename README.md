@@ -5,7 +5,8 @@ Conflux Storage Scan 是 Conflux eSpace 测试网的只读存储浏览器。它�
 单条提交、提交者地址活动，以及连接钱包后的账户筛选结果。
 
 项目是 Vite + React 单页应用。公开页面不依赖钱包，也没有服务端业务缓存；链上事件会经过
-严格的代理合约校验和标准化，再写入当前浏览器的 IndexedDB。
+严格的代理合约校验和标准化，再写入当前浏览器的 IndexedDB。存储趋势图只聚合这份
+canonical 本地索引，不会为绘图增加 RPC 请求。
 
 ## 产品范围
 
@@ -15,7 +16,17 @@ Conflux Storage Scan 是 Conflux eSpace 测试网的只读存储浏览器。它�
 - `/submissions?page=1`：按 sequence 倒序分页的提交列表；
 - `/submission/:sequence`：标准化事件和链上来源详情；
 - `/address/:address?page=1`：按 `Submit.sender` 聚合的地址活动；
-- `/history?page=1`：使用当前钱包地址筛选同一份公开索引。
+- `/history?page=1`：使用当前钱包地址筛选同一份公开索引；
+- `/analytics?metric=storage&range=all`：存储增长和每日提交趋势详情。
+
+`/analytics` 支持以下 URL 状态：
+
+- `metric=storage|submissions`：决定进入页面时聚焦并强调的图表；
+- `range=7d|30d|all`：选择最近 7 天、30 天或完整历史，缺失日期按 UTC 自然日补零。
+
+首页趋势卡始终展示完整历史。图表的逻辑数据量、已分配存储量和提交数量均来自已经验证并
+写入 IndexedDB 的 `Submit` 记录；图表查询不增加 JSON-RPC 方法、不重新执行
+`eth_getLogs`，也不引入服务端索引器或共享缓存。
 
 明确不包含：
 
@@ -137,5 +148,7 @@ corepack pnpm test:e2e
 
 - [项目 Agent 约束](./AGENTS.md)
 - [中文版产品与设计规范](./docs/superpowers/specs/2026-07-27-conflux-storage-scan-design.zh-CN.md)
+- [存储趋势图设计规范](./docs/superpowers/specs/2026-07-28-storage-analytics-charts-design.zh-CN.md)
 - [MVP 实施计划](./docs/superpowers/plans/2026-07-28-conflux-storage-scan-mvp.md)
+- [存储趋势图实施计划](./docs/superpowers/plans/2026-07-28-storage-analytics-charts.md)
 - [Token 使用记录](./docs/token-usage.md)

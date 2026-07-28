@@ -1,4 +1,5 @@
 import { type Address, getAddress, type Hex, isAddress, isHex, size } from "viem"
+import { buildStorageTimeline } from "../analytics/build-storage-timeline"
 import { STORAGE_FEE_CFX, STORAGE_SECTOR_BYTES } from "../chain/config"
 import type { SyncState } from "../chain/sync/sync-submissions"
 import type { StorageSubmission } from "../chain/types"
@@ -172,6 +173,10 @@ class FixtureStorageDataSource implements StorageDataSource {
 
 	getSyncState(): SyncState {
 		return this.#state
+	}
+
+	async getAnalyticsTimeline(asOfTimestamp?: number) {
+		return buildStorageTimeline(this.#submissions, asOfTimestamp)
 	}
 
 	async getSummary(): Promise<StorageSummary> {

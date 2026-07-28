@@ -7,12 +7,14 @@ import { MetricCard } from "../../components/metric-card"
 import { SubmissionTable } from "../../components/submission-table"
 import { SyncStatus } from "../../components/sync-status"
 import { createStorageQueries } from "../../data/queries"
+import { AnalyticsPreviewCards } from "../analytics/analytics-preview-cards"
 import { RecoveryDataState } from "../recovery/recovery-data-state"
 import { useStorageSync } from "../storage/use-storage-sync"
 
 export function DashboardPage() {
 	const dataSource = useStorageDataSource()
 	const queries = createStorageQueries(dataSource)
+	const analytics = useQuery(queries.analytics())
 	const summary = useQuery(queries.summary())
 	const recent = useQuery(queries.submissions(1, 5))
 	const sync = useStorageSync()
@@ -79,6 +81,8 @@ export function DashboardPage() {
 					))}
 				</div>
 			)}
+
+			<AnalyticsPreviewCards loading={analytics.isPending} timeline={analytics.data} />
 
 			<section aria-labelledby="recent-title" className="content-panel">
 				<header className="section-heading">
