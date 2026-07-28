@@ -14,6 +14,7 @@
 
 ## Tracker 状态说明
 
-当前内置 tracker 的 objective 仍是本项目 MVP，但状态已停留在旧的 `blocked`，并且后续开发
-期间 `tokensUsed` 没有变化。因此 `250,092` 只能作为一次真实快照，不能当作各阶段精确用量，
-也不能据此计算剩余 Token。
+最终交付取样前，内置 tracker 的 objective 仍是本项目 MVP，但状态曾停留在旧的 `blocked`，
+并且后续开发期间 `tokensUsed` 没有变化。远程 `master` 推送完成后，目标已正式标记为
+`complete`，最终读数仍为 `250,092`。该数值是真实的最终 tracker 读数，但不能反推出未取样
+阶段的精确用量。
