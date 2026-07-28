@@ -1,0 +1,4 @@
+interface:
+  display_name: "Integrate RainbowKit Wallets"
+  short_description: "Read-only RainbowKit, wagmi, and EIP-6963 guardrails"
+  default_prompt: "Use $integrate-rainbowkit-wallets to implement or review the Conflux wallet experience."
