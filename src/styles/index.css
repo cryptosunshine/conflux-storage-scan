@@ -337,6 +337,21 @@ a:hover {
 	line-height: 1.55;
 }
 
+.page-heading__status {
+	display: grid;
+	max-width: 34rem;
+	justify-items: end;
+	gap: 0.5rem;
+	text-align: right;
+}
+
+.page-heading__status p {
+	margin: 0;
+	color: var(--color-text-muted);
+	font-size: 0.825rem;
+	line-height: 1.5;
+}
+
 .eyebrow {
 	margin: 0;
 	color: var(--color-primary-strong);
@@ -348,6 +363,170 @@ a:hover {
 
 .breakable {
 	overflow-wrap: anywhere;
+}
+
+.metrics-grid {
+	display: grid;
+	margin-top: 1.25rem;
+	gap: 1.5rem;
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.metrics-grid--loading > div {
+	height: 7.5rem;
+}
+
+.content-panel {
+	margin-top: clamp(2.25rem, 5vw, 4rem);
+	overflow: hidden;
+	border: 1px solid var(--color-border);
+	border-radius: 0.85rem;
+	background: var(--color-surface);
+	box-shadow: 0 0.35rem 1.25rem rgb(15 19 39 / 3%);
+}
+
+.section-heading {
+	display: flex;
+	min-height: 4.75rem;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1.5rem;
+	padding: 1rem 1.25rem;
+	border-bottom: 1px solid var(--color-border);
+}
+
+.section-heading h2 {
+	margin: 0.2rem 0 0;
+	color: var(--color-heading);
+	font-size: 1.05rem;
+	font-weight: 760;
+	letter-spacing: -0.02em;
+}
+
+.section-heading p {
+	margin: 0.25rem 0 0;
+	color: var(--color-text-muted);
+	font-size: 0.775rem;
+}
+
+.text-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	font-size: 0.8rem;
+	font-weight: 720;
+	text-decoration: none;
+}
+
+.refresh-label {
+	color: var(--color-interactive);
+	font-size: 0.75rem;
+	font-weight: 700;
+}
+
+.data-table-wrap {
+	overflow-x: auto;
+}
+
+.data-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.8125rem;
+	white-space: nowrap;
+}
+
+.data-table th,
+.data-table td {
+	height: var(--table-row-height);
+	padding: 0.75rem 1rem;
+	border-bottom: 1px solid var(--color-border);
+	text-align: left;
+	vertical-align: middle;
+}
+
+.data-table th {
+	height: 2.85rem;
+	color: var(--color-text-muted);
+	background: var(--color-surface-raised);
+	font-size: 0.675rem;
+	font-weight: 780;
+	letter-spacing: 0.07em;
+	text-transform: uppercase;
+}
+
+.data-table td {
+	color: var(--color-text);
+	font-variant-numeric: tabular-nums;
+}
+
+.data-table tbody tr {
+	transition: background-color 120ms ease;
+}
+
+.data-table tbody tr:hover {
+	background: var(--color-surface-blue);
+}
+
+.data-table tbody tr:last-child td {
+	border-bottom: 0;
+}
+
+.sequence-link {
+	color: var(--color-link);
+	font-weight: 760;
+	text-decoration: none;
+}
+
+.hash-value {
+	--icon-button-size: 1.75rem;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.15rem;
+}
+
+.hash-value__link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+	font-size: 0.75rem;
+	text-decoration: none;
+}
+
+.zero-fee {
+	color: var(--color-primary-strong);
+	font-weight: 700;
+}
+
+.data-table time {
+	color: var(--color-text-muted);
+}
+
+.table-loading {
+	height: 19rem;
+	border-radius: 0;
+}
+
+.empty-state {
+	display: grid;
+	min-height: 17rem;
+	place-content: center;
+	padding: 2rem;
+	text-align: center;
+}
+
+.empty-state h3 {
+	margin: 0;
+	color: var(--color-heading);
+	font-size: 1rem;
+}
+
+.empty-state p {
+	max-width: 28rem;
+	margin: 0.5rem 0 0;
+	color: var(--color-text-muted);
+	font-size: 0.825rem;
+	line-height: 1.5;
 }
 
 .route-skeleton {
@@ -414,8 +593,8 @@ a:hover {
 
 .icon-button {
 	display: inline-grid;
-	width: 2rem;
-	height: 2rem;
+	width: var(--icon-button-size, 2rem);
+	height: var(--icon-button-size, 2rem);
 	place-items: center;
 	padding: 0;
 	border: 1px solid transparent;
@@ -507,6 +686,11 @@ a:hover {
 
 .pagination > :last-child {
 	justify-self: end;
+}
+
+.data-table-wrap + .pagination {
+	padding: 1rem 1.25rem;
+	border-top: 1px solid var(--color-border);
 }
 
 .pagination [aria-disabled="true"] {
@@ -624,6 +808,37 @@ a:hover {
 	.app-footer__inner {
 		align-items: flex-start;
 		flex-direction: column;
+	}
+
+	.page-heading__status {
+		justify-items: start;
+		text-align: left;
+	}
+
+	.metrics-grid {
+		gap: 0.75rem;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.metrics-grid > :last-child {
+		grid-column: 1 / -1;
+	}
+
+	.section-heading {
+		padding-inline: 1rem;
+	}
+
+	.data-table .table-secondary {
+		display: none;
+	}
+
+	.data-table th,
+	.data-table td {
+		padding-inline: 0.75rem;
+	}
+
+	.hash-value .icon-button {
+		display: none;
 	}
 
 	.route-skeleton,

@@ -1364,7 +1364,7 @@ git commit -m "feat: add explorer routes and search"
 - Create: `src/components/submission-table.tsx`
 - Create: `src/components/address-link.tsx`
 
-- [ ] **Step 1: 写页面失败测试**
+- [x] **Step 1: 写页面失败测试**
 
 Dashboard 断言：
 
@@ -1377,13 +1377,13 @@ Dashboard 断言：
 列表断言桌面列为 sequence、submitter、transaction、logical size、sectors、fee、age，
 且不存在 download 列。
 
-- [ ] **Step 2: 运行并确认失败**
+- [x] **Step 2: 运行并确认失败**
 
 Run: `pnpm test src/features/dashboard src/features/submissions`
 
 Expected: FAIL，页面尚不存在。
 
-- [ ] **Step 3: 实现格式化函数和 SubmissionTable**
+- [x] **Step 3: 实现格式化函数和 SubmissionTable**
 
 字节数采用 IEC 单位，保留原始值 tooltip；地址和哈希中间截断但复制完整值；
 时间使用 `<time dateTime>`；交易链接为：
@@ -1396,18 +1396,18 @@ export function confluxScanTransactionUrl(hash: `0x${string}`) {
 
 外链添加 `target="_blank"` 和 `rel="noopener noreferrer"`。
 
-- [ ] **Step 4: 实现 Dashboard 和列表**
+- [x] **Step 4: 实现 Dashboard 和列表**
 
 Dashboard 只请求 summary 和 page 1。Submissions 页通过 URL page 参数请求 20 条，
 缓存旧页时使用 placeholder data，后台刷新时保留表格并显示 refresh 状态。
 
-- [ ] **Step 5: 运行页面测试**
+- [x] **Step 5: 运行页面测试**
 
 Run: `pnpm test src/features/dashboard src/features/submissions src/components && pnpm typecheck`
 
 Expected: PASS。
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
 ```bash
 git add src/features/dashboard src/features/submissions src/components
