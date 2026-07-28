@@ -53,6 +53,43 @@ test("dashboard analytics open the all-history detail view and preserve URL rang
 	await expect(page).toHaveURL(/\/analytics\?metric=storage&range=30d$/)
 })
 
+test("dashboard analytics preview cards align their plots and actions", async ({ page }) => {
+	await page.setViewportSize({ height: 900, width: 1440 })
+	await page.goto("/")
+
+	const storageCard = page.getByRole("link", { name: "View storage growth analytics" })
+	const activityCard = page.getByRole("link", { name: "View submission activity analytics" })
+	await expect(storageCard).toBeVisible()
+	await expect(activityCard).toBeVisible()
+
+	const storageSummary = storageCard.getByText(/^Logical data reached/)
+	const storageSummaryLineCount = await storageSummary.evaluate((element) => {
+		const range = document.createRange()
+		range.selectNodeContents(element)
+		return new Set(Array.from(range.getClientRects(), (rect) => Math.round(rect.top))).size
+	})
+	const storageChartBox = await storageCard.getByLabel("Storage growth chart in MiB").boundingBox()
+	const activityChartBox = await activityCard.getByLabel("Daily submission activity chart").boundingBox()
+	const storageActionBox = await storageCard.locator(".analytics-preview-card__action").boundingBox()
+	const activityActionBox = await activityCard.locator(".analytics-preview-card__action").boundingBox()
+
+	expect(storageSummaryLineCount).toBe(1)
+	expect(storageChartBox).not.toBeNull()
+	expect(activityChartBox).not.toBeNull()
+	expect(Math.abs((storageChartBox?.y ?? 0) - (activityChartBox?.y ?? 0))).toBeLessThanOrEqual(1)
+	expect(Math.abs((storageChartBox?.height ?? 0) - (activityChartBox?.height ?? 0))).toBeLessThanOrEqual(1)
+	expect(storageActionBox).not.toBeNull()
+	expect(activityActionBox).not.toBeNull()
+	expect(Math.abs((storageActionBox?.y ?? 0) - (activityActionBox?.y ?? 0))).toBeLessThanOrEqual(1)
+
+	await page.setViewportSize({ height: 900, width: 1024 })
+	const tabletStorageChartBox = await storageCard.getByLabel("Storage growth chart in MiB").boundingBox()
+	const tabletActivityChartBox = await activityCard.getByLabel("Daily submission activity chart").boundingBox()
+	expect(tabletStorageChartBox).not.toBeNull()
+	expect(tabletActivityChartBox).not.toBeNull()
+	expect(Math.abs((tabletStorageChartBox?.y ?? 0) - (tabletActivityChartBox?.y ?? 0))).toBeLessThanOrEqual(1)
+})
+
 test("keyboard users can skip the repeated header", async ({ page }) => {
 	await page.goto("/")
 	await expect(page.getByRole("heading", { name: "Storage overview" })).toBeVisible()

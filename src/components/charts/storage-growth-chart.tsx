@@ -79,11 +79,11 @@ export function StorageGrowthChart({ compact = false, points }: StorageGrowthCha
 	return (
 		<figure aria-describedby={descriptionId} aria-labelledby={titleId} className="chart-shell">
 			<header className="chart-shell__header">
-				<div>
+				<div className="chart-shell__title-row">
 					<h2 id={titleId}>Indexed storage growth</h2>
-					<p id={descriptionId}>{summary}</p>
+					{latest ? <strong>{formatBytes(latest.allocatedBytes)}</strong> : null}
 				</div>
-				{latest ? <strong>{formatBytes(latest.allocatedBytes)}</strong> : null}
+				<p id={descriptionId}>{summary}</p>
 			</header>
 			<section aria-label={`Storage growth chart in ${byteScale.label}`} className="chart-canvas">
 				<ResponsiveContainer

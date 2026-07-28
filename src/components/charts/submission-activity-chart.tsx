@@ -28,11 +28,11 @@ export function SubmissionActivityChart({ compact = false, points }: SubmissionA
 	return (
 		<figure aria-describedby={descriptionId} aria-labelledby={titleId} className="chart-shell">
 			<header className="chart-shell__header">
-				<div>
+				<div className="chart-shell__title-row">
 					<h2 id={titleId}>Daily submission activity</h2>
-					<p id={descriptionId}>{summary}</p>
+					{latest ? <strong>{formatInteger(latest.cumulativeSubmissionCount)}</strong> : null}
 				</div>
-				{latest ? <strong>{formatInteger(latest.cumulativeSubmissionCount)}</strong> : null}
+				<p id={descriptionId}>{summary}</p>
 			</header>
 			<section aria-label="Daily submission activity chart" className="chart-canvas">
 				<ResponsiveContainer
