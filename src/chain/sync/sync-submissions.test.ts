@@ -169,6 +169,9 @@ describe("submission sync service", () => {
 			items: [expect.objectContaining({ sequence: 1n }), expect.objectContaining({ sequence: 0n })],
 			totalItems: 2,
 		})
+
+		await expect(service.sync()).resolves.toMatchObject({ status: "fresh" })
+		expect(rpc.getBlock).toHaveBeenCalledTimes(1)
 	})
 
 	it("removes an orphaned event and installs its canonical replacement", async () => {

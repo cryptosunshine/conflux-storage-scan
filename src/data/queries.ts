@@ -14,6 +14,14 @@ export const storageKeys = {
 	addressSummary: (address: string) => [...storageKeys.addressRoot(), address.toLowerCase(), "summary"] as const,
 }
 
+export function keepPreviousAddressPage<Item>(
+	address: string,
+	previousData: Item | undefined,
+	previousQuery: { readonly queryKey: readonly unknown[] } | undefined,
+): Item | undefined {
+	return previousQuery?.queryKey[2] === address.toLowerCase() ? previousData : undefined
+}
+
 export function createStorageQueries(dataSource: StorageDataSource) {
 	return {
 		summary: () =>
@@ -29,7 +37,7 @@ export function createStorageQueries(dataSource: StorageDataSource) {
 		submission: (sequence: string) =>
 			queryOptions({
 				queryKey: storageKeys.submission(sequence),
-				queryFn: () => dataSource.getSubmission(BigInt(sequence)),
+				queryFn: async () => (await dataSource.getSubmission(BigInt(sequence))) ?? null,
 			}),
 		addressSummary: (address: string) =>
 			queryOptions({

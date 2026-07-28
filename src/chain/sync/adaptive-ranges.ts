@@ -44,9 +44,14 @@ function isRetryableRangeFailure(error: unknown): boolean {
 	const message = error instanceof Error ? error.message.toLowerCase() : ""
 	return (
 		status === 429 ||
-		["RPC_RATE_LIMITED", "RPC_TIMEOUT", "RESPONSE_TOO_LARGE", "OVERSIZED_RANGE", "PRUNED_RANGE"].includes(
-			String(code),
-		) ||
+		[
+			"RPC_NETWORK_ERROR",
+			"RPC_RATE_LIMITED",
+			"RPC_TIMEOUT",
+			"RESPONSE_TOO_LARGE",
+			"OVERSIZED_RANGE",
+			"PRUNED_RANGE",
+		].includes(String(code)) ||
 		name === "TimeoutError" ||
 		message.includes("response too large") ||
 		message.includes("range too large")

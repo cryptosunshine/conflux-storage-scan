@@ -44,6 +44,15 @@ async function renderSearch(): Promise<ReturnType<typeof createSearchRouter>> {
 }
 
 describe("GlobalSearch", () => {
+	it("marks explorer input as a non-auth search field", async () => {
+		await renderSearch()
+
+		expect(screen.getByRole("searchbox")).toHaveAttribute("autocomplete", "off")
+		expect(screen.getByRole("searchbox")).toHaveAttribute("inputmode", "search")
+		expect(screen.getByRole("searchbox")).toHaveAttribute("name", "explorer-search")
+		expect(screen.getByRole("searchbox")).toHaveAttribute("spellcheck", "false")
+	})
+
 	it.each([
 		["484", "/submission/484"],
 		["0xe9B0afd0DccB44Bc6e0a49f8032Cc7815A221ebE", "/address/0xe9B0afd0DccB44Bc6e0a49f8032Cc7815A221ebE"],

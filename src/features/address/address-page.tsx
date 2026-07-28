@@ -1,4 +1,4 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import type { Address } from "viem"
 import { useStorageDataSource } from "../../app/providers"
 import { CopyButton } from "../../components/copy-button"
@@ -7,7 +7,7 @@ import { MetricCard } from "../../components/metric-card"
 import { Pagination } from "../../components/pagination"
 import { SubmissionTable } from "../../components/submission-table"
 import { SyncStatus } from "../../components/sync-status"
-import { createStorageQueries } from "../../data/queries"
+import { createStorageQueries, keepPreviousAddressPage } from "../../data/queries"
 import { RecoveryDataState } from "../recovery/recovery-data-state"
 import { useStorageSync } from "../storage/use-storage-sync"
 
@@ -22,7 +22,7 @@ export function AddressPage({ address, page }: AddressPageProps) {
 	const summary = useQuery(queries.addressSummary(address))
 	const submissions = useQuery({
 		...queries.address(address, page),
-		placeholderData: keepPreviousData,
+		placeholderData: (previousData, previousQuery) => keepPreviousAddressPage(address, previousData, previousQuery),
 	})
 	const sync = useStorageSync([address])
 	const syncState = sync.data ?? dataSource.getSyncState()

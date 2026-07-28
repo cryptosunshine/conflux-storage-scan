@@ -23,6 +23,18 @@ test("dashboard navigates to the canonical submissions index", async ({ page }) 
 	expect(liveRpcRequests).toEqual([])
 })
 
+test("keyboard users can skip the repeated header", async ({ page }) => {
+	await page.goto("/")
+	await expect(page.getByRole("heading", { name: "Storage overview" })).toBeVisible()
+	await page.keyboard.press("Tab")
+
+	const skipLink = page.getByRole("link", { name: "Skip to main content" })
+	await expect(skipLink).toBeFocused()
+	await expect(skipLink).toHaveCSS("outline-width", "2px")
+	await page.keyboard.press("Enter")
+	await expect(page).toHaveURL(/#main-content$/)
+})
+
 test("global search resolves a sequence and an address", async ({ page }) => {
 	await page.goto("/")
 
@@ -37,6 +49,29 @@ test("global search resolves a sequence and an address", async ({ page }) => {
 	await expect(page).toHaveURL(new RegExp(`/address/${firstSubmitter}`, "i"))
 	await expect(page.getByRole("heading", { name: "Address activity" })).toBeVisible()
 	await expect(page.getByText(firstSubmitter, { exact: true })).toBeVisible()
+})
+
+test("an unknown sequence renders a clean empty state without query errors", async ({ page }) => {
+	const queryErrors: string[] = []
+	page.on("console", (message) => {
+		if (message.type() === "error" && message.text().includes("Query data cannot be undefined")) {
+			queryErrors.push(message.text())
+		}
+	})
+
+	await page.goto("/submission/999999")
+	await expect(page.getByRole("heading", { name: "Submission not found" })).toBeVisible()
+	expect(queryErrors).toEqual([])
+})
+
+test("invalid direct route parameters render actionable explorer errors", async ({ page }) => {
+	await page.goto("/submission/-1")
+	await expect(page.getByRole("heading", { name: "Invalid Explorer Link" })).toBeVisible()
+	await expect(page.getByText(/sequence must be a non-negative integer/i)).toBeVisible()
+
+	await page.goto("/address/0x123")
+	await expect(page.getByRole("heading", { name: "Invalid Explorer Link" })).toBeVisible()
+	await expect(page.getByText(/42-character EVM address/i)).toBeVisible()
 })
 
 test("pagination survives reload and external transaction links target ConfluxScan", async ({ page }) => {

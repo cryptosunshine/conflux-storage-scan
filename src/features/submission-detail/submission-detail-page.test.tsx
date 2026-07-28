@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import { createFixtureDataSource } from "../../data/fixture-data-source"
 import { createSubmissionFixture } from "../../test/fixtures"
 import { renderWithDataSource } from "../../test/render"
@@ -47,5 +47,23 @@ describe("SubmissionDetailPage", () => {
 		await renderWithDataSource(<SubmissionDetailPage sequence="999" />, source)
 
 		expect(await screen.findByRole("heading", { name: /submission not found/i })).toBeInTheDocument()
+	})
+
+	it("separates a failed local query from a canonical not-found result", async () => {
+		const source = createFixtureDataSource({
+			allocatedSectorCount: 0n,
+			contractSubmissionCount: 0n,
+			submissions: [],
+		})
+		vi.spyOn(source, "getSubmission").mockRejectedValue(
+			Object.assign(new Error("IndexedDB unavailable"), {
+				code: "CACHE_READ_FAILED",
+			}),
+		)
+		await renderWithDataSource(<SubmissionDetailPage sequence="999" />, source)
+
+		expect(await screen.findByRole("heading", { name: /submission temporarily unavailable/i })).toBeInTheDocument()
+		expect(screen.queryByRole("heading", { name: /submission not found/i })).not.toBeInTheDocument()
+		expect(screen.getByRole("button", { name: /retry/i })).toBeInTheDocument()
 	})
 })

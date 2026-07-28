@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises"
-import { join } from "node:path"
+import { join, resolve } from "node:path"
 import {
 	CONFLUX_ESPACE_TESTNET_CHAIN_ID,
 	FIXED_PRICE_FLOW_BEACON,
@@ -8,9 +8,13 @@ import {
 	FIXED_PRICE_FLOW_MARKET,
 	FIXED_PRICE_FLOW_PROXY,
 } from "../../../src/chain/config"
-import { sha256Text } from "./checksums"
+import { sha256File, sha256Text } from "./checksums"
 
-export type FixtureManifestErrorCode = "MANIFEST_INVALID" | "CHECKSUM_MISMATCH" | "EXPECTED_COUNT_MISMATCH"
+export type FixtureManifestErrorCode =
+	| "MANIFEST_INVALID"
+	| "ABI_CHECKSUM_MISMATCH"
+	| "CHECKSUM_MISMATCH"
+	| "EXPECTED_COUNT_MISMATCH"
 
 export class FixtureManifestError extends Error {
 	readonly code: FixtureManifestErrorCode
@@ -129,7 +133,32 @@ function assertManifest(value: unknown): asserts value is FixtureManifest {
 		!value.files ||
 		typeof value.files !== "object" ||
 		!("expectedSubmissions" in value) ||
-		typeof value.expectedSubmissions !== "number"
+		typeof value.expectedSubmissions !== "number" ||
+		!("abiSha256" in value) ||
+		typeof value.abiSha256 !== "string" ||
+		!/^[0-9a-f]{64}$/.test(value.abiSha256) ||
+		!("normalizerVersion" in value) ||
+		value.normalizerVersion !== "1" ||
+		!("deploymentBlock" in value) ||
+		value.deploymentBlock !== FIXED_PRICE_FLOW_DEPLOYMENT_BLOCK.toString(10) ||
+		!("contract" in value) ||
+		!value.contract ||
+		typeof value.contract !== "object" ||
+		!("proxy" in value.contract) ||
+		value.contract.proxy !== FIXED_PRICE_FLOW_PROXY ||
+		!("beacon" in value.contract) ||
+		value.contract.beacon !== FIXED_PRICE_FLOW_BEACON ||
+		!("implementation" in value.contract) ||
+		value.contract.implementation !== FIXED_PRICE_FLOW_IMPLEMENTATION ||
+		!("market" in value.contract) ||
+		value.contract.market !== FIXED_PRICE_FLOW_MARKET ||
+		!("source" in value) ||
+		!value.source ||
+		typeof value.source !== "object" ||
+		!("repository" in value.source) ||
+		value.source.repository !== "https://github.com/0gfoundation/0g-storage-contracts" ||
+		!("commit" in value.source) ||
+		value.source.commit !== "0dcef31fd6398c9aca7267dc5a7a9e1caf3a3581"
 	) {
 		throw new FixtureManifestError("MANIFEST_INVALID", "Fixture manifest schema or chain identity is invalid")
 	}
@@ -143,6 +172,14 @@ export async function validateFixtureDirectory(root: string): Promise<void> {
 		throw new FixtureManifestError("MANIFEST_INVALID", "Fixture manifest is missing or is not valid JSON")
 	}
 	assertManifest(manifestValue)
+
+	const abiSourcePath = resolve("src/chain/abi/fixed-price-flow.ts")
+	if ((await sha256File(abiSourcePath)) !== manifestValue.abiSha256) {
+		throw new FixtureManifestError(
+			"ABI_CHECKSUM_MISMATCH",
+			"Fixture ABI checksum does not match src/chain/abi/fixed-price-flow.ts",
+		)
+	}
 
 	for (const [relativePath, expected] of Object.entries(manifestValue.files)) {
 		if (

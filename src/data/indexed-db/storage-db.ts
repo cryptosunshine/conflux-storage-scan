@@ -34,6 +34,7 @@ interface PersistedSubmission {
 interface PersistedBlock {
 	readonly blockHash: Hex
 	readonly blockNumber: string
+	readonly timestamp?: number
 }
 
 interface PersistedMeta {
@@ -90,6 +91,7 @@ export interface Page<Item> {
 }
 
 export interface IndexedSummary {
+	readonly indexedAllocatedSectorCount: bigint
 	readonly indexedSubmissionCount: bigint
 	readonly indexedLogicalBytes: bigint
 	readonly latestBlock?: bigint
@@ -113,6 +115,7 @@ export interface StorageRepository {
 	listBySubmitter(query: AddressListQuery): Promise<Page<StorageSubmission>>
 	getByCanonicalKey(canonicalKey: string): Promise<StorageSubmission | undefined>
 	getBySequence(sequence: bigint): Promise<StorageSubmission | undefined>
+	getBlockTimestamp(blockHash: Hex): Promise<number | undefined>
 	getSummary(): Promise<IndexedSummary>
 	getSubmitterSummary(submitter: Address): Promise<IndexedSubmitterSummary>
 	getCheckpoint(): Promise<SyncCheckpoint | undefined>
@@ -332,10 +335,16 @@ class IndexedDbStorageRepository implements StorageRepository {
 		this.#validateChunk(chunk)
 		const database = await this.#database()
 		const transaction = database.transaction(["submissions", "blocks", "meta"], "readwrite")
+		const blockStore = transaction.objectStore("blocks")
+		const incomingTimestamps = new Map(
+			chunk.submissions.map((submission) => [submission.blockHash, submission.timestamp] as const),
+		)
 		for (const [blockNumber, blockHash] of chunk.canonicalBlockHashes) {
-			await transaction.objectStore("blocks").put({
+			const timestamp = incomingTimestamps.get(blockHash) ?? (await blockStore.get(blockHash))?.timestamp
+			await blockStore.put({
 				blockHash,
 				blockNumber: blockNumber.toString(10),
+				...(timestamp === undefined ? {} : { timestamp }),
 			})
 		}
 		for (const submission of chunk.submissions) {
@@ -359,16 +368,27 @@ class IndexedDbStorageRepository implements StorageRepository {
 		}
 
 		const blockStore = transaction.objectStore("blocks")
-		for (const persisted of await blockStore.getAll()) {
+		const persistedBlocks = await blockStore.getAll()
+		const persistedTimestamps = new Map(
+			persistedBlocks.flatMap((block) =>
+				block.timestamp === undefined ? [] : ([[block.blockHash, block.timestamp]] as const),
+			),
+		)
+		const incomingTimestamps = new Map(
+			chunk.submissions.map((submission) => [submission.blockHash, submission.timestamp] as const),
+		)
+		for (const persisted of persistedBlocks) {
 			const blockNumber = BigInt(persisted.blockNumber)
 			if (blockNumber >= chunk.fromBlock && blockNumber <= chunk.toBlock) {
 				await blockStore.delete(persisted.blockHash)
 			}
 		}
 		for (const [blockNumber, blockHash] of chunk.canonicalBlockHashes) {
+			const timestamp = incomingTimestamps.get(blockHash) ?? persistedTimestamps.get(blockHash)
 			await blockStore.put({
 				blockHash,
 				blockNumber: blockNumber.toString(10),
+				...(timestamp === undefined ? {} : { timestamp }),
 			})
 		}
 		for (const submission of chunk.submissions) {
@@ -401,6 +421,11 @@ class IndexedDbStorageRepository implements StorageRepository {
 		return submission ? fromPersistedSubmission(submission) : undefined
 	}
 
+	async getBlockTimestamp(blockHash: Hex): Promise<number | undefined> {
+		const database = await this.#database()
+		return (await database.get("blocks", blockHash))?.timestamp
+	}
+
 	async getSummary(): Promise<IndexedSummary> {
 		const database = await this.#database()
 		const [submissions, checkpoint] = await Promise.all([
@@ -408,6 +433,11 @@ class IndexedDbStorageRepository implements StorageRepository {
 			database.get("meta", CHECKPOINT_META_KEY),
 		])
 		return {
+			indexedAllocatedSectorCount: submissions.reduce(
+				(maximum, submission) =>
+					BigInt(submission.endSectorExclusive) > maximum ? BigInt(submission.endSectorExclusive) : maximum,
+				0n,
+			),
 			indexedSubmissionCount: BigInt(submissions.length),
 			indexedLogicalBytes: submissions.reduce((total, submission) => total + BigInt(submission.logicalSizeBytes), 0n),
 			...(checkpoint ? { latestBlock: BigInt(checkpoint.blockNumber) } : {}),

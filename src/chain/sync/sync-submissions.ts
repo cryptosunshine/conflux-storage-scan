@@ -167,8 +167,9 @@ function compareLogs(left: SyncSubmitLog, right: SyncSubmitLog): number {
 
 async function timestampForLog(
 	log: SyncSubmitLog,
+	repository: StorageRepository,
 	transport: StorageSyncTransport,
-	cache: Map<Hex, bigint>,
+	cache: Map<Hex, bigint | number>,
 	signal?: AbortSignal,
 ): Promise<bigint | number | Hex | undefined> {
 	if (log.blockTimestamp !== undefined) {
@@ -183,6 +184,11 @@ async function timestampForLog(
 	const cached = cache.get(log.blockHash)
 	if (cached !== undefined) {
 		return cached
+	}
+	const persisted = await repository.getBlockTimestamp(log.blockHash)
+	if (persisted !== undefined) {
+		cache.set(log.blockHash, persisted)
+		return persisted
 	}
 	const block = await transport.getBlock(log.blockNumber, signal)
 	if (
@@ -201,15 +207,16 @@ async function timestampForLog(
 async function normalizeLogs(
 	logs: readonly SyncSubmitLog[],
 	identity: DeploymentIdentity,
+	repository: StorageRepository,
 	transport: StorageSyncTransport,
 	signal?: AbortSignal,
 ): Promise<readonly StorageSubmission[]> {
-	const timestampCache = new Map<Hex, bigint>()
+	const timestampCache = new Map<Hex, bigint | number>()
 	const normalized: StorageSubmission[] = []
 	for (const log of [...activeLogs(logs)].sort(compareLogs)) {
 		normalized.push(
 			normalizeSubmitLog(log, {
-				blockTimestamp: await timestampForLog(log, transport, timestampCache, signal),
+				blockTimestamp: await timestampForLog(log, repository, transport, timestampCache, signal),
 				implementationAddress: identity.implementation,
 			}),
 		)
@@ -395,7 +402,7 @@ class DefaultSubmissionSyncService implements SubmissionSyncService {
 		}
 
 		try {
-			const submissions = await normalizeLogs(logs, identity, this.#options.transport, signal)
+			const submissions = await normalizeLogs(logs, identity, this.#options.repository, this.#options.transport, signal)
 			const gaps = sequenceGaps(submissions, fromBlock === FIXED_PRICE_FLOW_DEPLOYMENT_BLOCK)
 			if (gaps.length > 0) {
 				this.#state = this.#partialState(

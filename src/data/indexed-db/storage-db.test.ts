@@ -73,6 +73,7 @@ describe("IndexedDB storage repository", () => {
 		expect(await instance.getByCanonicalKey(oldSubmission.canonicalKey)).toBeUndefined()
 		expect(await instance.getBySequence(1n)).toEqual(replacementSubmission)
 		expect(await instance.getCheckpoint()).toMatchObject({ blockNumber: 112n })
+		expect(await instance.getBlockTimestamp(newHash)).toBe(replacementSubmission.timestamp)
 	})
 
 	it("uses a new namespace when implementation identity changes", async () => {
