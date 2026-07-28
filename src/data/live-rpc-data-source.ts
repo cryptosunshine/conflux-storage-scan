@@ -1,4 +1,4 @@
-import type { PublicClient } from "viem"
+import { type Hex, hexToNumber, type PublicClient } from "viem"
 import { fixedPriceFlowAbi } from "../chain/abi/fixed-price-flow"
 import { FIXED_PRICE_FLOW_PROXY, STORAGE_FEE_CFX, STORAGE_SECTOR_BYTES } from "../chain/config"
 import { verifyDeployment } from "../chain/proxy/verify-deployment"
@@ -124,8 +124,9 @@ export function createViemStorageSyncTransport(client: PublicClient): StorageSyn
 			return logs.map((log) => {
 				const enriched = log as typeof log & {
 					readonly blockTimestamp?: SyncSubmitLog["blockTimestamp"]
-					readonly transactionLogIndex?: number
+					readonly transactionLogIndex?: Hex | number | null
 				}
+				const transactionLogIndex = enriched.transactionLogIndex
 				return {
 					address: log.address,
 					args: log.args,
@@ -136,7 +137,12 @@ export function createViemStorageSyncTransport(client: PublicClient): StorageSyn
 					removed: log.removed,
 					transactionHash: log.transactionHash,
 					transactionIndex: log.transactionIndex,
-					...(enriched.transactionLogIndex === undefined ? {} : { transactionLogIndex: enriched.transactionLogIndex }),
+					...(transactionLogIndex === undefined || transactionLogIndex === null
+						? {}
+						: {
+								transactionLogIndex:
+									typeof transactionLogIndex === "number" ? transactionLogIndex : hexToNumber(transactionLogIndex),
+							}),
 				}
 			})
 		},
