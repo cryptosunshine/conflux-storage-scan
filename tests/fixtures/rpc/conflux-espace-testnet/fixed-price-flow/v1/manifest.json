@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-07-28T02:40:41.830Z",
+  "chainId": 71,
+  "rpcEndpointType": "public-conflux-espace-testnet-json-rpc",
+  "contract": {
+    "proxy": "0x3fF03285AA79027Ecc552432336FCB85eaD7199e",
+    "beacon": "0x7322ba93f0B6061C6FCE1af4ac5264cB252A0166",
+    "implementation": "0xAd85554aa3446F7199644F852eC7bBa706af3eF9",
+    "market": "0xB43eE2d86c4Ccb1e958a77a4c52937Cc22255Ac1"
+  },
+  "source": {
+    "repository": "https://github.com/0gfoundation/0g-storage-contracts",
+    "commit": "0dcef31fd6398c9aca7267dc5a7a9e1caf3a3581"
+  },
+  "abiSha256": "85bed5c82f4efb48440841f269b0f4376d0b5a5c787c2a1938835abd328f7c4d",
+  "normalizerVersion": "1",
+  "deploymentBlock": "253160870",
+  "headBlock": {
+    "number": "258293674",
+    "hash": "0x924936797b5137181a0bd741423f9afebfbd6d80ddc5e77b33bb58a91583cc7b"
+  },
+  "logRange": {
+    "fromBlock": "253160870",
+    "toBlock": "258293674"
+  },
+  "expectedSubmissions": 485,
+  "featureFlags": {
+    "blockTimestamp": true,
+    "transactionLogIndex": true
+  },
+  "files": {
+    "captures/requests.json": {
+      "bytes": 5368,
+      "sha256": "a724c028e08031d4eb78937fb7f51db6402242051bd3048756fe4cd5c166352e"
+    },
+    "captures/responses.json": {
+      "bytes": 778139,
+      "sha256": "1d28072f262378ce42131b9b72486efc4f24116eec4d052817477f8a52516cd3"
+    },
+    "expected/submissions.json": {
+      "bytes": 578404,
+      "sha256": "55c2cdcaa63cc4395c0f9c059ca944a2d49dd313fe2ced51cfc98a0cbc6f4d4e"
+    },
+    "expected/summary.json": {
+      "bytes": 673,
+      "sha256": "362dc6247fb6a9f10f477c3ef39e1da8c751971edbe851228775652f379f348b"
+    }
+  }
+}
