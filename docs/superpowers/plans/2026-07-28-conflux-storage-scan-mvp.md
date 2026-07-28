@@ -1160,7 +1160,7 @@ git commit -m "feat: expose storage data source"
 - Create: `src/components/components.test.tsx`
 - Create: `src/test/render.tsx`
 
-- [ ] **Step 1: 加载 UI 相关 Skills**
+- [x] **Step 1: 加载 UI 相关 Skills**
 
 实施者必须加载：
 
@@ -1171,7 +1171,7 @@ git commit -m "feat: expose storage data source"
 
 页面完成后使用 `web-design-guidelines` 做检查。
 
-- [ ] **Step 2: 写共享组件失败测试**
+- [x] **Step 2: 写共享组件失败测试**
 
 断言：
 
@@ -1191,13 +1191,13 @@ git commit -m "feat: expose storage data source"
 - 多个 EIP-6963 provider 不折叠成一个 Browser Wallet；
 - 配置中不存在 write contract helper。
 
-- [ ] **Step 3: 运行并确认失败**
+- [x] **Step 3: 运行并确认失败**
 
 Run: `pnpm test src/components/components.test.tsx src/wallet/config.test.ts`
 
 Expected: FAIL，共享组件不存在。
 
-- [ ] **Step 4: 写精确 Light Theme tokens**
+- [x] **Step 4: 写精确 Light Theme tokens**
 
 ```css
 @import "tailwindcss";
@@ -1228,7 +1228,7 @@ Expected: FAIL，共享组件不存在。
 同时定义 focus ring、最大内容宽度、响应式 gutters、表格密度、skeleton animation，
 并支持 `prefers-reduced-motion`。
 
-- [ ] **Step 5: 实现钱包配置、Providers 和状态组件**
+- [x] **Step 5: 实现钱包配置、Providers 和状态组件**
 
 链定义：
 
@@ -1264,7 +1264,7 @@ Provider 顺序：
 
 公开数据源始终使用配置的 viem public client，不能从 wagmi connector 获取 transport。
 
-- [ ] **Step 6: 运行测试和键盘检查**
+- [x] **Step 6: 运行测试和键盘检查**
 
 Run: `pnpm test src/components src/wallet && pnpm lint && pnpm typecheck`
 
