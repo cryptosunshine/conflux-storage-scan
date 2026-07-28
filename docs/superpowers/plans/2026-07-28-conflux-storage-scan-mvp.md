@@ -508,7 +508,7 @@ git commit -m "chore: add project agent harness"
 - Create: `src/chain/proxy/verify-deployment.test.ts`
 - Create: `src/chain/proxy/verify-deployment.ts`
 
-- [ ] **Step 1: 写 Beacon 校验失败测试**
+- [x] **Step 1: 写 Beacon 校验失败测试**
 
 ```ts
 // src/chain/proxy/verify-deployment.test.ts
@@ -533,13 +533,13 @@ describe("verifyDeployment", () => {
 })
 ```
 
-- [ ] **Step 2: 运行并确认失败**
+- [x] **Step 2: 运行并确认失败**
 
 Run: `pnpm test src/chain/proxy/verify-deployment.test.ts`
 
 Expected: FAIL，无法解析 `./verify-deployment`。
 
-- [ ] **Step 3: 编写配置和窄 ABI**
+- [x] **Step 3: 编写配置和窄 ABI**
 
 `fixedPriceFlowAbi` 只包含：
 
@@ -616,7 +616,7 @@ export const fixedPriceFlowAbi = [
 
 不要加入 `pricePerSector`、`submit`、`batchSubmit` 或 mining 方法。
 
-- [ ] **Step 4: 实现严格 Beacon 验证**
+- [x] **Step 4: 实现严格 Beacon 验证**
 
 `verifyDeployment()` 必须：
 
@@ -641,7 +641,7 @@ export type DeploymentErrorCode =
   | "MARKET_MISMATCH"
 ```
 
-- [ ] **Step 5: 运行测试**
+- [x] **Step 5: 运行测试**
 
 Run:
 
@@ -652,7 +652,7 @@ pnpm typecheck
 
 Expected: PASS。
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
 ```bash
 git add src/chain
@@ -670,7 +670,7 @@ git commit -m "feat: verify FixedPriceFlow deployment"
 - Create: `src/chain/normalize/normalize-submit-log.test.ts`
 - Create: `tests/fixtures/unit/submit-log.json`
 
-- [ ] **Step 1: 写提交标识测试**
+- [x] **Step 1: 写提交标识测试**
 
 ```ts
 import { describe, expect, it } from "vitest"
@@ -689,7 +689,7 @@ describe("calculateSubmissionIdentity", () => {
 })
 ```
 
-- [ ] **Step 2: 写标准化失败测试**
+- [x] **Step 2: 写标准化失败测试**
 
 测试必须断言：
 
@@ -701,7 +701,7 @@ describe("calculateSubmissionIdentity", () => {
 - 事件 identity 与节点 roots 计算结果不一致时拒绝数据；
 - 缺失 `blockTimestamp` 时要求外部提供区块时间戳。
 
-- [ ] **Step 3: 运行并确认失败**
+- [x] **Step 3: 运行并确认失败**
 
 Run:
 
@@ -712,7 +712,7 @@ pnpm test src/chain/normalize/normalize-submit-log.test.ts
 
 Expected: FAIL，目标模块尚不存在。
 
-- [ ] **Step 4: 实现领域类型**
+- [x] **Step 4: 实现领域类型**
 
 ```ts
 export interface StorageSubmission {
@@ -742,13 +742,13 @@ export interface StorageSubmission {
 `calculateSubmissionIdentity()` 使用 viem 的 `keccak256(concat(nodeRoots))`。
 `normalizeSubmitLog()` 校验 identity、地址、必需区块字段和安全的时间戳格式。
 
-- [ ] **Step 5: 运行测试和类型检查**
+- [x] **Step 5: 运行测试和类型检查**
 
 Run: `pnpm test src/chain/normalize && pnpm typecheck`
 
 Expected: PASS。
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
 ```bash
 git add src/chain/types.ts src/chain/normalize tests/fixtures
@@ -768,7 +768,7 @@ git commit -m "feat: normalize storage submissions"
 - Create: `scripts/harness/capture.ts`
 - Create: `tests/fixtures/rpc/conflux-espace-testnet/fixed-price-flow/v1/manifest.json`
 
-- [ ] **Step 1: 写 fixture writer 失败测试**
+- [x] **Step 1: 写 fixture writer 失败测试**
 
 使用临时目录测试：
 
@@ -785,13 +785,13 @@ it("selects the next version and never overwrites an accepted version", async ()
 
 再测试失败校验不会留下 `vN` 或临时目录。
 
-- [ ] **Step 2: 运行并确认失败**
+- [x] **Step 2: 运行并确认失败**
 
 Run: `pnpm test scripts/harness/lib/fixture-writer.test.ts`
 
 Expected: FAIL，fixture writer 不存在。
 
-- [ ] **Step 3: 实现严格 JSON-RPC client**
+- [x] **Step 3: 实现严格 JSON-RPC client**
 
 `rpc.ts`：
 
@@ -803,7 +803,7 @@ Expected: FAIL，fixture writer 不存在。
 - 禁止调用集合中包含 `pricePerSector`、`eth_sendTransaction`、
   `eth_sendRawTransaction`。
 
-- [ ] **Step 4: 实现 probe**
+- [x] **Step 4: 实现 probe**
 
 `pnpm harness:probe` 必须执行：
 
@@ -828,7 +828,7 @@ chain=71 proxy=ok beacon=ok implementation=ok submissions=<n> logs=<n> paused=fa
 
 probe 只读且不写 fixture。
 
-- [ ] **Step 5: 实现 capture 的原子发布**
+- [x] **Step 5: 实现 capture 的原子发布**
 
 `capture.ts` 复用 probe，生成：
 
@@ -842,7 +842,7 @@ probe 只读且不写 fixture。
 使用 `rename()` 原子发布为 `vN`。目标存在立即失败。进程失败时删除自己的临时目录，
 但绝不能删除任何 `vN`。
 
-- [ ] **Step 6: 捕获 v1 并人工检查**
+- [x] **Step 6: 捕获 v1 并人工检查**
 
 Run:
 
@@ -862,13 +862,13 @@ Expected:
 只将一个经过评审的基线版本加入当前提交；额外验证版本可保留在工作区供对比后删除，
 删除目标必须是本次命令明确创建的临时验证版本。
 
-- [ ] **Step 7: 运行 deterministic tests**
+- [x] **Step 7: 运行 deterministic tests**
 
 Run: `pnpm test scripts/harness && pnpm harness:validate`
 
 Expected: PASS，且测试不访问网络。
 
-- [ ] **Step 8: 提交**
+- [x] **Step 8: 提交**
 
 ```bash
 git add scripts/harness tests/fixtures package.json

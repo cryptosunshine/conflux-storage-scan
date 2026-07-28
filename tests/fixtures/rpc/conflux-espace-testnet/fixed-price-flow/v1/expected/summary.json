@@ -1,0 +1,24 @@
+{
+  "chainId": 71,
+  "contract": {
+    "chainId": 71,
+    "proxy": "0x3fF03285AA79027Ecc552432336FCB85eaD7199e",
+    "beacon": "0x7322ba93f0B6061C6FCE1af4ac5264cB252A0166",
+    "implementation": "0xAd85554aa3446F7199644F852eC7bBa706af3eF9",
+    "market": "0xB43eE2d86c4Ccb1e958a77a4c52937Cc22255Ac1"
+  },
+  "headBlock": {
+    "number": "258293674",
+    "hash": "0x924936797b5137181a0bd741423f9afebfbd6d80ddc5e77b33bb58a91583cc7b",
+    "timestamp": "1785206432"
+  },
+  "state": {
+    "paused": false,
+    "submissionIndex": "485",
+    "currentLength": "290624",
+    "unstagedHeight": "20"
+  },
+  "logCount": 485,
+  "normalizedSubmissionCount": 485,
+  "storageFeeCfx": "0"
+}
