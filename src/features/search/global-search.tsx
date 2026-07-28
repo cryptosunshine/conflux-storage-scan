@@ -61,14 +61,18 @@ export function GlobalSearch({ onNavigate, compact = false }: GlobalSearchProps)
 			<div className="global-search__control">
 				<Search aria-hidden="true" size={17} strokeWidth={2} />
 				<input
+					autoComplete="off"
 					aria-describedby={error ? `${errorId}-error` : undefined}
 					aria-invalid={Boolean(error)}
 					id={errorId}
+					inputMode="search"
+					name="explorer-search"
 					onChange={(event) => {
 						setValue(event.target.value)
 						if (error) setError(undefined)
 					}}
-					placeholder="Sequence or EVM address"
+					placeholder="Sequence 484 or 0x… address"
+					spellCheck={false}
 					type="search"
 					value={value}
 				/>

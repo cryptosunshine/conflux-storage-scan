@@ -58,6 +58,11 @@ button {
 	-webkit-tap-highlight-color: transparent;
 }
 
+a,
+button {
+	touch-action: manipulation;
+}
+
 a {
 	color: var(--color-link);
 	text-decoration-thickness: 0.08em;
@@ -100,11 +105,34 @@ a:hover {
 .app-shell {
 	display: grid;
 	min-height: 100vh;
+	grid-template-columns: minmax(0, 1fr);
 	grid-template-rows: auto 1fr auto;
+}
+
+.skip-link {
+	position: fixed;
+	z-index: 100;
+	top: 0.75rem;
+	left: 0.75rem;
+	padding: 0.6rem 0.8rem;
+	border-radius: 0.55rem;
+	color: var(--color-surface);
+	background: var(--color-primary-strong);
+	font-size: 0.8125rem;
+	font-weight: 750;
+	text-decoration: none;
+	transform: translateY(calc(-100% - 1rem));
+	transition: transform 140ms ease;
+}
+
+.skip-link:focus-visible {
+	color: var(--color-surface);
+	transform: translateY(0);
 }
 
 .app-main {
 	padding-block: clamp(2rem, 5vw, 4rem);
+	scroll-margin-top: 6rem;
 }
 
 .app-header {
@@ -326,6 +354,7 @@ a:hover {
 	font-weight: 760;
 	letter-spacing: -0.045em;
 	line-height: 1.08;
+	text-wrap: balance;
 }
 
 .page-heading > p,
@@ -842,6 +871,12 @@ a:hover {
 	text-decoration: none;
 }
 
+.route-error-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+}
+
 .icon-button {
 	display: inline-grid;
 	width: var(--icon-button-size, 2rem);
@@ -933,6 +968,7 @@ a:hover {
 	border-radius: 0.75rem;
 	background: var(--color-surface);
 	box-shadow: var(--shadow-popover);
+	overscroll-behavior: contain;
 }
 
 .rebuild-confirmation p {
@@ -1163,11 +1199,15 @@ a:hover {
 
 @media (min-width: 40.0625rem) and (max-width: 72rem) {
 	.app-header__inner {
+		padding-block: 0.55rem;
 		grid-template-columns: auto minmax(12rem, 1fr) auto auto;
 	}
 
 	.primary-nav {
-		display: none;
+		min-width: 0;
+		overflow-x: auto;
+		grid-column: 1 / -1;
+		grid-row: 2;
 	}
 
 	.brand > span:last-child {

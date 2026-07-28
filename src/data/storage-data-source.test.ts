@@ -14,7 +14,7 @@ import type { StorageSubmission } from "../chain/types"
 import { createFixtureDataSource, createFixtureDataSourceFromJson } from "./fixture-data-source"
 import { createStorageRepository, type StorageRepository } from "./indexed-db/storage-db"
 import { createLiveRpcDataSource, createViemStorageSyncTransport } from "./live-rpc-data-source"
-import { storageKeys } from "./queries"
+import { keepPreviousAddressPage, storageKeys } from "./queries"
 import type { StorageDataSource } from "./storage-data-source"
 
 const submitter = "0x1111111111111111111111111111111111111111" as const
@@ -252,6 +252,20 @@ describe("fixture parsing and query keys", () => {
 		])
 	})
 
+	it("never reuses a previous address page for another account", () => {
+		const page = { items: [], page: 1, pageSize: 20, totalItems: 0, totalPages: 0 }
+		expect(
+			keepPreviousAddressPage(submitter, page, {
+				queryKey: storageKeys.address(submitter, 1),
+			}),
+		).toBe(page)
+		expect(
+			keepPreviousAddressPage(submitter, page, {
+				queryKey: storageKeys.address("0x2222222222222222222222222222222222222222", 1),
+			}),
+		).toBeUndefined()
+	})
+
 	it("serializes the in-memory test fixture with decimal bigint fields", () => {
 		expect(serialized([submission(1n)])).toEqual([expect.objectContaining({ sequence: "1" })])
 	})
@@ -284,6 +298,72 @@ describe("fixture parsing and query keys", () => {
 			hash: item.blockHash,
 			number: item.blockNumber,
 			timestamp: BigInt(item.timestamp),
+		})
+	})
+})
+
+describe("live summary trust boundary", () => {
+	function summaryHarness(readContract: PublicClient["readContract"]) {
+		const repository = {
+			getSummary: vi.fn(async () => ({
+				indexedAllocatedSectorCount: 42n,
+				indexedLogicalBytes: 1_024n,
+				indexedSubmissionCount: 2n,
+				latestBlock: 123n,
+			})),
+			namespace: "summary-trust-boundary",
+		} as unknown as StorageRepository
+		const verify = vi.fn(async () => ({
+			beacon: FIXED_PRICE_FLOW_BEACON,
+			chainId: 71 as const,
+			implementation: FIXED_PRICE_FLOW_IMPLEMENTATION,
+			market: FIXED_PRICE_FLOW_MARKET,
+			proxy: FIXED_PRICE_FLOW_PROXY,
+		}))
+		const transport = {
+			getBlock: vi.fn(),
+			getHeadBlock: vi.fn(),
+			getSubmitLogs: vi.fn(),
+			verifyDeployment: verify,
+		} satisfies StorageSyncTransport
+		const client = { readContract } as PublicClient
+		return {
+			readContract,
+			source: createLiveRpcDataSource({ client, repository, transport }),
+			verify,
+		}
+	}
+
+	it("verifies deployment identity before reading contract summary views", async () => {
+		const readContract = vi.fn(async ({ functionName }: { functionName: string }) =>
+			functionName === "submissionIndex" ? 3n : ([50n, 20n] as const),
+		) as unknown as PublicClient["readContract"]
+		const harness = summaryHarness(readContract)
+
+		await expect(harness.source.getSummary()).resolves.toMatchObject({
+			allocatedSectorCount: 50n,
+			contractSubmissionCount: 3n,
+		})
+		expect(harness.verify).toHaveBeenCalledOnce()
+		expect(harness.verify.mock.invocationCallOrder[0]).toBeLessThan(
+			vi.mocked(readContract).mock.invocationCallOrder[0] ?? 0,
+		)
+	})
+
+	it("returns accurate cached index metrics when live summary views are unavailable", async () => {
+		const readContract = vi.fn(async () => {
+			throw Object.assign(new Error("RPC unavailable"), { code: "RPC_NETWORK_ERROR" })
+		}) as unknown as PublicClient["readContract"]
+		const harness = summaryHarness(readContract)
+
+		await expect(harness.source.getSummary()).resolves.toMatchObject({
+			allocatedBytes: 10_752n,
+			allocatedSectorCount: 42n,
+			contractSubmissionCount: 2n,
+			indexedLogicalBytes: 1_024n,
+			indexedSubmissionCount: 2n,
+			latestBlock: 123n,
+			storageFeeCfx: 0n,
 		})
 	})
 })

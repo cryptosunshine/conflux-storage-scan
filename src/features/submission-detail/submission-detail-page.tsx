@@ -40,6 +40,21 @@ export interface SubmissionDetailPageProps {
 	readonly sequence: string
 }
 
+function queryFailure(error: unknown) {
+	const code =
+		error && typeof error === "object" && "code" in error && typeof error.code === "string"
+			? error.code
+			: "SUBMISSION_QUERY_FAILED"
+	return {
+		error: {
+			code,
+			message: error instanceof Error ? error.message : "The local submission index could not be read.",
+		},
+		gaps: [],
+		status: "partial" as const,
+	}
+}
+
 export function SubmissionDetailPage({ sequence }: SubmissionDetailPageProps) {
 	const dataSource = useStorageDataSource()
 	const queries = createStorageQueries(dataSource)
@@ -54,6 +69,25 @@ export function SubmissionDetailPage({ sequence }: SubmissionDetailPageProps) {
 				<div className="skeleton" />
 				<div className="skeleton" />
 			</div>
+		)
+	}
+
+	if (submission.isError) {
+		return (
+			<section aria-labelledby="submission-unavailable-title" className="page-section">
+				<header className="page-heading">
+					<div>
+						<p className="eyebrow">Sequence {sequence}</p>
+						<h1 id="submission-unavailable-title">Submission Temporarily Unavailable</h1>
+					</div>
+				</header>
+				<RecoveryDataState
+					onRetry={() => {
+						void Promise.all([submission.refetch(), sync.refetch()])
+					}}
+					state={queryFailure(submission.error)}
+				/>
+			</section>
 		)
 	}
 

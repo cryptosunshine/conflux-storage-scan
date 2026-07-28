@@ -25,36 +25,38 @@ describe("scanAdaptiveRanges", () => {
 		])
 	})
 
-	it.each([{ code: "RPC_RATE_LIMITED", status: 429 }, { code: "RPC_TIMEOUT" }, { code: "RESPONSE_TOO_LARGE" }])(
-		"halves an oversized or unavailable range after $code",
-		async (failure) => {
-			const ranges: BlockRange[] = []
-			let failed = false
+	it.each([
+		{ code: "RPC_RATE_LIMITED", status: 429 },
+		{ code: "RPC_TIMEOUT" },
+		{ code: "RPC_NETWORK_ERROR" },
+		{ code: "RESPONSE_TOO_LARGE" },
+	])("halves an oversized or unavailable range after $code", async (failure) => {
+		const ranges: BlockRange[] = []
+		let failed = false
 
-			await scanAdaptiveRanges({
-				fetchRange: async (range) => {
-					ranges.push(range)
-					if (!failed) {
-						failed = true
-						throw Object.assign(new Error(failure.code), failure)
-					}
-					return [range]
-				},
-				fromBlock: 0n,
-				initialSpan: 8n,
-				jitter: () => 0,
-				maximumSpan: 8n,
-				minimumSpan: 2n,
-				sleep: async () => {},
-				toBlock: 7n,
-			})
+		await scanAdaptiveRanges({
+			fetchRange: async (range) => {
+				ranges.push(range)
+				if (!failed) {
+					failed = true
+					throw Object.assign(new Error(failure.code), failure)
+				}
+				return [range]
+			},
+			fromBlock: 0n,
+			initialSpan: 8n,
+			jitter: () => 0,
+			maximumSpan: 8n,
+			minimumSpan: 2n,
+			sleep: async () => {},
+			toBlock: 7n,
+		})
 
-			expect(ranges.slice(0, 2)).toEqual([
-				{ fromBlock: 0n, toBlock: 7n },
-				{ fromBlock: 0n, toBlock: 3n },
-			])
-		},
-	)
+		expect(ranges.slice(0, 2)).toEqual([
+			{ fromBlock: 0n, toBlock: 7n },
+			{ fromBlock: 0n, toBlock: 3n },
+		])
+	})
 
 	it("reports the exact range after retrying at the minimum span", async () => {
 		const delays: number[] = []

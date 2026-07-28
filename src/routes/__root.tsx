@@ -1,12 +1,15 @@
-import { createRootRoute, Link, Outlet } from "@tanstack/react-router"
+import { createRootRoute, type ErrorComponentProps, Link, Outlet } from "@tanstack/react-router"
 import { AppHeader } from "../components/app-header"
 import { GlobalSearch } from "../features/search/global-search"
 
 function RootLayout() {
 	return (
 		<div className="app-shell">
+			<a className="skip-link" href="#main-content">
+				Skip to main content
+			</a>
 			<AppHeader />
-			<main className="app-container app-main">
+			<main className="app-container app-main" id="main-content" tabIndex={-1}>
 				<Outlet />
 			</main>
 			<footer className="app-footer">
@@ -33,7 +36,41 @@ function NotFoundPage() {
 	)
 }
 
+function RouteErrorPage({ error, reset }: ErrorComponentProps) {
+	const validationError =
+		error instanceof TypeError ||
+		/sequence must be a non-negative integer|address must be a 42-character EVM address/i.test(error.message)
+	const message = validationError
+		? error.message
+		: "This explorer page could not be loaded. Retry the route or search for another record."
+
+	return (
+		<div className="app-shell">
+			<AppHeader />
+			<main className="app-container app-main">
+				<section className="not-found">
+					<p className="eyebrow">{validationError ? "Invalid route parameter" : "Explorer error"}</p>
+					<h1>{validationError ? "Invalid Explorer Link" : "Explorer Temporarily Unavailable"}</h1>
+					<p>{message}</p>
+					<GlobalSearch />
+					<div className="route-error-actions">
+						{validationError ? null : (
+							<button className="secondary-button" onClick={reset} type="button">
+								Retry Route
+							</button>
+						)}
+						<Link className="secondary-button" to="/">
+							Return to Overview
+						</Link>
+					</div>
+				</section>
+			</main>
+		</div>
+	)
+}
+
 export const Route = createRootRoute({
 	component: RootLayout,
+	errorComponent: RouteErrorPage,
 	notFoundComponent: NotFoundPage,
 })

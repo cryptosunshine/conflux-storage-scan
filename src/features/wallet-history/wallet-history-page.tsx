@@ -1,5 +1,5 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit"
-import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useRef } from "react"
 import type { Address } from "viem"
 import { useAccount, useSwitchChain } from "wagmi"
@@ -9,7 +9,7 @@ import { formatBytes, formatInteger, truncateMiddle } from "../../components/for
 import { MetricCard } from "../../components/metric-card"
 import { Pagination } from "../../components/pagination"
 import { SubmissionTable } from "../../components/submission-table"
-import { createStorageQueries, storageKeys } from "../../data/queries"
+import { createStorageQueries, keepPreviousAddressPage, storageKeys } from "../../data/queries"
 import { RecoveryDataState } from "../recovery/recovery-data-state"
 import { useStorageSync } from "../storage/use-storage-sync"
 
@@ -50,7 +50,7 @@ function ConnectedHistory({
 	const summary = useQuery(queries.addressSummary(address))
 	const submissions = useQuery({
 		...queries.address(address, page),
-		placeholderData: keepPreviousData,
+		placeholderData: (previousData, previousQuery) => keepPreviousAddressPage(address, previousData, previousQuery),
 	})
 	const sync = useStorageSync([address])
 	const syncState = sync.data ?? dataSource.getSyncState()

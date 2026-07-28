@@ -1,0 +1,19 @@
+# Token 使用记录
+
+本文件只记录 Codex 内置 goal tracker 返回的真实值，不用字符数、文件数或人工公式推算。
+
+| Checkpoint | 累计 Token | 记录状态 |
+| --- | ---: | --- |
+| 计划完成 | — | 当时未取得内置 tracker 取样 |
+| Harness 完成 | — | 当时未取得内置 tracker 取样 |
+| 链数据完成 | — | 当时未取得内置 tracker 取样 |
+| UI / 钱包完成 | — | 当时未取得内置 tracker 取样 |
+| 最终交付审计前 | 250,092 | 2026-07-28 读取；tracker 返回旧 `blocked` 状态且未继续递增 |
+| 功能分支最终门禁 | 250,092 | 2026-07-28 读取；tracker 仍未继续递增 |
+| 最终验证完成 | 250,092 | 2026-07-28 完成 deterministic gate、E2E、live probe 后读取；tracker 仍未继续递增 |
+
+## Tracker 状态说明
+
+当前内置 tracker 的 objective 仍是本项目 MVP，但状态已停留在旧的 `blocked`，并且后续开发
+期间 `tokensUsed` 没有变化。因此 `250,092` 只能作为一次真实快照，不能当作各阶段精确用量，
+也不能据此计算剩余 Token。

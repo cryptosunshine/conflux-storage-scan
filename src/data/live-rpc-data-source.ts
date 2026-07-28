@@ -62,6 +62,7 @@ function guardedRepository(repository: StorageRepository): StorageRepository {
 		clearCurrentNamespace: () => repository.clearCurrentNamespace(),
 		getByCanonicalKey: (canonicalKey) => guardLocalIndex(() => repository.getByCanonicalKey(canonicalKey)),
 		getBySequence: (sequence) => guardLocalIndex(() => repository.getBySequence(sequence)),
+		getBlockTimestamp: (blockHash) => guardLocalIndex(() => repository.getBlockTimestamp(blockHash)),
 		getCheckpoint: () => guardLocalIndex(() => repository.getCheckpoint()),
 		getSubmitterSummary: (submitter) => guardLocalIndex(() => repository.getSubmitterSummary(submitter)),
 		getSummary: () => guardLocalIndex(() => repository.getSummary()),
@@ -173,20 +174,28 @@ class LiveRpcStorageDataSource implements StorageDataSource {
 	}
 
 	async getSummary(): Promise<StorageSummary> {
-		const [indexed, contractSubmissionCount, tree] = await Promise.all([
-			guardLocalIndex(() => this.#options.repository.getSummary()),
-			this.#options.client.readContract({
-				abi: fixedPriceFlowAbi,
-				address: FIXED_PRICE_FLOW_PROXY,
-				functionName: "submissionIndex",
-			}),
-			this.#options.client.readContract({
-				abi: fixedPriceFlowAbi,
-				address: FIXED_PRICE_FLOW_PROXY,
-				functionName: "tree",
-			}),
-		])
-		const [allocatedSectorCount] = tree
+		const indexed = await guardLocalIndex(() => this.#options.repository.getSummary())
+		let contractSubmissionCount = indexed.indexedSubmissionCount
+		let allocatedSectorCount = indexed.indexedAllocatedSectorCount
+		try {
+			await this.#options.transport.verifyDeployment()
+			const [liveSubmissionCount, tree] = await Promise.all([
+				this.#options.client.readContract({
+					abi: fixedPriceFlowAbi,
+					address: FIXED_PRICE_FLOW_PROXY,
+					functionName: "submissionIndex",
+				}),
+				this.#options.client.readContract({
+					abi: fixedPriceFlowAbi,
+					address: FIXED_PRICE_FLOW_PROXY,
+					functionName: "tree",
+				}),
+			])
+			contractSubmissionCount = liveSubmissionCount
+			allocatedSectorCount = tree[0]
+		} catch {
+			// The sync state reports the live failure; cached index metrics remain useful and internally consistent.
+		}
 		return {
 			contractSubmissionCount,
 			indexedSubmissionCount: indexed.indexedSubmissionCount,

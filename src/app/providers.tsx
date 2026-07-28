@@ -25,7 +25,7 @@ export function AppProviders({
 	return (
 		<WagmiProvider config={wagmiConfig}>
 			<QueryClientProvider client={queryClient}>
-				<RainbowKitProvider modalSize="compact">
+				<RainbowKitProvider locale="en-US" modalSize="compact">
 					<StorageDataSourceContext value={dataSource}>{children}</StorageDataSourceContext>
 				</RainbowKitProvider>
 			</QueryClientProvider>

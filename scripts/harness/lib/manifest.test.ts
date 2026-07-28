@@ -1,7 +1,8 @@
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
-import { join } from "node:path"
+import { join, resolve } from "node:path"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
+import { sha256File } from "./checksums"
 import { createFixtureManifest, validateFixtureDirectory } from "./manifest"
 
 describe("fixture manifest", () => {
@@ -18,6 +19,7 @@ describe("fixture manifest", () => {
 	})
 
 	it("detects a response changed after checksums were recorded", async () => {
+		const abiSha256 = await sha256File(resolve("src/chain/abi/fixed-price-flow.ts"))
 		const files = {
 			"captures/requests.json": "[]\n",
 			"captures/responses.json": "[]\n",
@@ -29,7 +31,7 @@ describe("fixture manifest", () => {
 		}
 
 		const manifest = createFixtureManifest({
-			abiSha256: "a".repeat(64),
+			abiSha256,
 			capturedAt: "2026-07-28T00:00:00.000Z",
 			expectedSubmissions: 0,
 			featureFlags: {
@@ -48,5 +50,11 @@ describe("fixture manifest", () => {
 		await expect(validateFixtureDirectory(root)).rejects.toMatchObject({
 			code: "CHECKSUM_MISMATCH",
 		})
+	})
+
+	it("validates the immutable v1 capture and its current ABI digest", async () => {
+		const fixtureRoot = resolve("tests/fixtures/rpc/conflux-espace-testnet/fixed-price-flow/v1")
+
+		await expect(validateFixtureDirectory(fixtureRoot)).resolves.toBeUndefined()
 	})
 })
