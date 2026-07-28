@@ -1270,7 +1270,7 @@ Run: `pnpm test src/components src/wallet && pnpm lint && pnpm typecheck`
 
 Expected: PASS，无 Biome a11y 错误。
 
-- [ ] **Step 7: 提交**
+- [x] **Step 7: 提交**
 
 ```bash
 git add src/styles src/app src/components src/wallet
@@ -1291,7 +1291,7 @@ git commit -m "feat: add Conflux light design foundation"
 - Create: `src/features/search/global-search.test.tsx`
 - Modify: `src/app/app.tsx`
 
-- [ ] **Step 1: 写搜索失败测试**
+- [x] **Step 1: 写搜索失败测试**
 
 ```tsx
 it.each([
@@ -1308,13 +1308,13 @@ it.each([
 
 另断言交易哈希、负数、浮点数和短地址只显示本地错误，data source 未调用。
 
-- [ ] **Step 2: 运行并确认失败**
+- [x] **Step 2: 运行并确认失败**
 
 Run: `pnpm test src/features/search/global-search.test.tsx`
 
 Expected: FAIL，搜索组件不存在。
 
-- [ ] **Step 3: 实现 file-based routes**
+- [x] **Step 3: 实现 file-based routes**
 
 支持且仅支持：
 
@@ -1328,7 +1328,7 @@ Expected: FAIL，搜索组件不存在。
 route loader/search validator 在进入页面前规范化 page、sequence 和 address。
 404 页面保留搜索和返回首页操作。`/history` 由 Task 13 在钱包历史页面可用时一并加入。
 
-- [ ] **Step 4: 实现 Header**
+- [x] **Step 4: 实现 Header**
 
 Header 包含：
 
@@ -1340,13 +1340,13 @@ Header 包含：
 
 不得出现 Mining、Rewards、Upload、Download 或主题切换。
 
-- [ ] **Step 5: 运行路由测试**
+- [x] **Step 5: 运行路由测试**
 
 Run: `pnpm test src/features/search && pnpm typecheck`
 
 Expected: PASS，TanStack Router 生成 `src/routeTree.gen.ts`。
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
 ```bash
 git add src/routes src/features/search src/components/app-header.tsx src/app src/routeTree.gen.ts
