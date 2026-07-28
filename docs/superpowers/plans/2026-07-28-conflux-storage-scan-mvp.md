@@ -66,9 +66,9 @@ export const REORG_LOOKBACK_BLOCKS = 128n
 - 区块 `253160869`：代码为 `0x`
 - 区块 `253160870`：代理代码存在
 
-开始 Task 1 前，实施会话必须加载 `superpowers:using-git-worktrees`，从包含本计划的提交创建
-`codex/conflux-storage-scan-mvp` 分支和隔离 worktree。`.superpowers/` 是本地 brainstorming
-临时目录，不得复制、暂存或提交。
+后续协作已明确改为不使用 worktree：各功能模块在当前仓库创建 `codex/` 前缀分支，完成本地
+门禁后推送，最终合入并复测 `master`。`.superpowers/` 是本地 brainstorming 临时目录，
+不得复制、暂存或提交。
 
 MVP 不配置 CI；实施过程中不得创建 `.github/workflows/` 或其他 CI 平台配置。
 
@@ -1527,10 +1527,11 @@ git commit -m "feat: add read-only RainbowKit wallet flows"
 - Modify: `src/components/data-state.tsx`
 - Modify: `src/data/live-rpc-data-source.ts`
 - Create: `src/features/recovery/rebuild-index-button.tsx`
+- Create: `src/features/recovery/recovery-data-state.tsx`
 - Create: `src/features/recovery/recovery.test.tsx`
-- Modify: `tests/fixtures/rpc/conflux-espace-testnet/fixed-price-flow/v1/faults/*.json`
+- Reuse: `tests/fixtures/rpc/conflux-espace-testnet/fixed-price-flow/faults/v1/*.json`
 
-- [ ] **Step 1: 写恢复失败测试**
+- [x] **Step 1: 写恢复失败测试**
 
 断言：
 
@@ -1543,19 +1544,19 @@ git commit -m "feat: add read-only RainbowKit wallet flows"
 - wrong chain：显示预期 71 和实际值；
 - sequence gap：显示 partial，不显示“同步完成”。
 
-- [ ] **Step 2: 运行并确认失败**
+- [x] **Step 2: 运行并确认失败**
 
 Run: `pnpm test src/features/recovery/recovery.test.tsx`
 
 Expected: FAIL。
 
-- [ ] **Step 3: 实现恢复状态**
+- [x] **Step 3: 实现恢复状态**
 
 将 typed data errors 映射到唯一用户状态。Retry 只重新执行失败 query/sync。
 Rebuild 调用 `dataSource.rebuildLocalIndex()` 后重新同步。按钮确认文案明确将删除
 “本浏览器中的 Conflux Storage Scan 本地索引”，不声称删除链上数据。
 
-- [ ] **Step 4: 运行故障套件**
+- [x] **Step 4: 运行故障套件**
 
 Run:
 
@@ -1566,7 +1567,7 @@ pnpm typecheck
 
 Expected: PASS。
 
-- [ ] **Step 5: 提交**
+- [x] **Step 5: 提交**
 
 ```bash
 git add src/components/data-state.tsx src/data src/features/recovery tests/fixtures
@@ -1581,10 +1582,9 @@ git commit -m "feat: add explorer failure recovery"
 - Create: `tests/e2e/explorer.spec.ts`
 - Create: `tests/e2e/wallet.spec.ts`
 - Create: `tests/e2e/mobile.spec.ts`
-- Create: `src/test/handlers.ts`
-- Create: `src/test/server.ts`
+- Create: `src/test/browser-fixture-data-source.ts`
 
-- [ ] **Step 1: 写 fixture-backed E2E 测试**
+- [x] **Step 1: 写 fixture-backed E2E 测试**
 
 覆盖：
 
@@ -1603,24 +1603,24 @@ mobile header, search, table detail access
 
 测试模式通过环境变量启用 `FixtureDataSource`，不得访问 live RPC。
 
-- [ ] **Step 2: 运行并确认至少一个测试失败**
+- [x] **Step 2: 运行并确认至少一个测试失败**
 
 Run: `pnpm exec playwright install chromium && pnpm test:e2e`
 
 Expected: FAIL，fixture test bootstrapping 尚未接入。
 
-- [ ] **Step 3: 接入测试数据源**
+- [x] **Step 3: 接入测试数据源**
 
 仅当 `import.meta.env.MODE === "test"` 且 `VITE_DATA_SOURCE=fixture` 时创建
 `FixtureDataSource`。生产 build 不暴露用于改写数据的测试控制接口。
 
-- [ ] **Step 4: 运行 E2E**
+- [x] **Step 4: 运行 E2E**
 
 Run: `pnpm test:e2e`
 
 Expected: 所有 Chromium desktop 和 mobile 项目 PASS。
 
-- [ ] **Step 5: 浏览器人工检查**
+- [x] **Step 5: 浏览器人工检查**
 
 使用真实浏览器检查：
 
@@ -1634,7 +1634,7 @@ Expected: 所有 Chromium desktop 和 mobile 项目 PASS。
 
 发现问题先写回归测试，再修复。
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
 ```bash
 git add playwright.config.ts tests/e2e src/test
@@ -1648,7 +1648,7 @@ git commit -m "test: cover storage explorer browser flows"
 - Modify: `README.md`
 - Modify: `docs/superpowers/plans/2026-07-28-conflux-storage-scan-mvp.md`
 
-- [ ] **Step 1: 编写 README**
+- [x] **Step 1: 编写 README**
 
 README 必须包含：
 
@@ -1662,7 +1662,7 @@ README 必须包含：
 - FixedPriceFlow proxy/beacon/implementation 地址；
 - 当前无 CI 的说明。
 
-- [ ] **Step 2: 执行完整 deterministic gate**
+- [x] **Step 2: 执行完整 deterministic gate**
 
 Run:
 
@@ -1674,7 +1674,7 @@ pnpm test:e2e
 
 Expected: 三条命令退出码均为 0。
 
-- [ ] **Step 3: 执行只读 live probe**
+- [x] **Step 3: 执行只读 live probe**
 
 Run:
 
@@ -1691,7 +1691,7 @@ chain=71 proxy=ok beacon=ok implementation=ok submissions=<live value> logs=<liv
 如果 implementation 已变化，不能更新期望地址后直接继续；必须执行设计文档第 11 节的
 源码、ABI、fixture 和回归验证流程。
 
-- [ ] **Step 4: 运行范围审计**
+- [x] **Step 4: 运行范围审计**
 
 Run:
 
@@ -1707,7 +1707,7 @@ Expected:
 - 所有关键 Conflux 色值存在；
 - 工作区只包含本任务明确接受的文件。
 
-- [ ] **Step 5: 更新计划 checkbox 和 Token 记录**
+- [x] **Step 5: 更新计划 checkbox 和 Token 记录**
 
 将实际完成步骤改为 `[x]`。读取项目 Token tracker，记录：
 
@@ -1719,12 +1719,12 @@ Expected:
 
 Token 数只报告内置 tracker 的真实值，不使用字符数推算。
 
-- [ ] **Step 6: 请求代码评审**
+- [x] **Step 6: 请求代码评审**
 
 加载 `superpowers:requesting-code-review`，按设计 Spec 和本计划做 requirement-by-requirement
 审查。发现问题时先写/补回归测试再修复。
 
-- [ ] **Step 7: 最终提交**
+- [x] **Step 7: 最终提交**
 
 ```bash
 git add README.md docs/superpowers/plans/2026-07-28-conflux-storage-scan-mvp.md
