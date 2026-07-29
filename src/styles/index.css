@@ -385,6 +385,7 @@ a:hover {
 	border-radius: 0.65rem;
 	background: var(--color-surface-raised);
 	box-shadow: var(--shadow-popover);
+	transform-origin: var(--radix-select-content-transform-origin);
 	animation: language-select-open 120ms ease-out;
 }
 

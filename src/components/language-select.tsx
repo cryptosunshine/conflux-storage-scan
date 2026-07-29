@@ -16,7 +16,7 @@ export function LanguageSelect() {
 	return (
 		<div className="language-select">
 			<label htmlFor={id}>{t("footer.language")}</label>
-			<Select.Root onValueChange={(value) => void i18n.changeLanguage(value)} value={language}>
+			<Select.Root name="language" onValueChange={(value) => void i18n.changeLanguage(value)} value={language}>
 				<Select.Trigger className="language-select__trigger" id={id}>
 					<Select.Value />
 					<Select.Icon asChild>

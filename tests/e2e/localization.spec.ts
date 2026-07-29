@@ -15,20 +15,49 @@ test("follows the browser language and persists an explicit footer selection", a
 	await page.goto("/")
 	await expect(page.getByRole("heading", { name: "存储概览" })).toBeVisible()
 	await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN")
-	await expect(page.getByLabel("语言")).toHaveValue("zh-CN")
+	const language = page.getByRole("combobox", { name: "语言" })
+	await expect(language).toContainText("中文（简体）")
 
 	const currentUrl = page.url()
-	await page.getByLabel("语言").selectOption("en-US")
+	await language.click()
+	await page.getByRole("option", { name: "English" }).click()
 
 	await expect(page.getByRole("heading", { name: "Storage overview" })).toBeVisible()
 	await expect(page.locator("html")).toHaveAttribute("lang", "en-US")
+	await expect(page.getByRole("combobox", { name: "Language" })).toContainText("English")
 	expect(page.url()).toBe(currentUrl)
 	expect(await page.evaluate((key) => localStorage.getItem(key), languageStorageKey)).toBe("en-US")
 
 	await page.reload()
 	await expect(page.getByRole("heading", { name: "Storage overview" })).toBeVisible()
-	await expect(page.getByLabel("Language")).toHaveValue("en-US")
+	await expect(page.getByRole("combobox", { name: "Language" })).toContainText("English")
 	expect(liveRpcRequests).toEqual([])
+})
+
+test("keeps the language menu inside desktop, tablet, and mobile viewports", async ({ page }) => {
+	for (const width of [1440, 1024, 390]) {
+		await page.setViewportSize({ height: 900, width })
+		await page.goto("/")
+
+		const language = page.getByRole("combobox", { name: "语言" })
+		const trigger = page.locator(".language-select__trigger")
+		await language.scrollIntoViewIfNeeded()
+		await language.click()
+		await expect(trigger).toHaveAttribute("aria-expanded", "true")
+
+		const triggerBox = await trigger.boundingBox()
+		const englishOptionBox = await page.getByRole("option", { name: "English" }).boundingBox()
+		expect(triggerBox).not.toBeNull()
+		expect(englishOptionBox).not.toBeNull()
+		expect(englishOptionBox?.y).toBeLessThan(triggerBox?.y ?? 0)
+		expect((englishOptionBox?.x ?? 0) + (englishOptionBox?.width ?? 0)).toBeLessThanOrEqual(width)
+		expect(
+			await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth),
+		).toBe(true)
+
+		await page.keyboard.press("Escape")
+		await expect(language).toBeFocused()
+	}
 })
 
 test("keeps public explorer routes usable in Simplified Chinese", async ({ page }) => {
