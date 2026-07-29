@@ -82,13 +82,9 @@ export const englishResources = {
 			copiedTitle: "Copied",
 		},
 		footer: {
-			contract: "FixedPriceFlow 0x3fF0…7199",
 			description: "Read-only explorer for FixedPriceFlow storage submissions.",
 			language: "Language",
-			network: "Conflux eSpace Testnet",
 			readOnly: "Read-only",
-			resourcesAria: "Explorer resources",
-			source: "GitHub",
 		},
 		metadata: {
 			description: "Explore FixedPriceFlow storage submissions indexed from Conflux eSpace Testnet.",

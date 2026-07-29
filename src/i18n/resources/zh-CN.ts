@@ -84,13 +84,9 @@ export const chineseResources = {
 			copiedTitle: "已复制",
 		},
 		footer: {
-			contract: "FixedPriceFlow 0x3fF0…7199",
 			description: "FixedPriceFlow 存储提交的只读浏览器。",
 			language: "语言",
-			network: "Conflux eSpace 测试网",
 			readOnly: "只读",
-			resourcesAria: "浏览器资源",
-			source: "GitHub",
 		},
 		metadata: {
 			description: "浏览从 Conflux eSpace 测试网索引的 FixedPriceFlow 存储提交。",
