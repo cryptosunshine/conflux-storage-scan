@@ -278,6 +278,7 @@ export const englishResources = {
 		disconnectedTitle: "My Submissions",
 		emptyDescription: "The public event index has no matching submitter records.",
 		emptyTitle: "No indexed submissions for this account",
+		eventCount: "{{count}} events",
 		indexedLogicalData: "Indexed logical data",
 		indexedSubmissions: "Indexed submissions",
 		loading: "Loading account submissions",
@@ -286,7 +287,7 @@ export const englishResources = {
 		switchDescription:
 			"The table still uses the configured Conflux public index. Switch only to align your wallet network.",
 		switchNetwork: "Switch to eSpace Testnet",
-		wrongNetwork: "Wallet is on another network",
+		wrongNetwork: "Wallet is on chain {{chainId}}",
 	},
 } as const
 

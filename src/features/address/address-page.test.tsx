@@ -3,10 +3,25 @@ import { getAddress } from "viem"
 import { describe, expect, it, vi } from "vitest"
 import { createFixtureDataSource } from "../../data/fixture-data-source"
 import { createSubmissionFixture } from "../../test/fixtures"
+import { testI18n } from "../../test/i18n"
 import { renderWithDataSource } from "../../test/render"
 import { AddressPage } from "./address-page"
 
 describe("AddressPage", () => {
+	it("renders address activity in Simplified Chinese", async () => {
+		await testI18n.changeLanguage("zh-CN")
+		const address = getAddress("0xe9B0afd0DccB44Bc6e0a49f8032Cc7815A221ebE")
+		const source = createFixtureDataSource({
+			allocatedSectorCount: 1n,
+			contractSubmissionCount: 1n,
+			submissions: [createSubmissionFixture(0n, { submitter: address })],
+		})
+		await renderWithDataSource(<AddressPage address={address} page={1} />, source)
+
+		expect(await screen.findByRole("heading", { name: "地址活动" })).toBeInTheDocument()
+		expect(screen.getByText("已索引提交数")).toBeInTheDocument()
+	})
+
 	it("summarizes and paginates by event submitter", async () => {
 		const address = getAddress("0xe9B0afd0DccB44Bc6e0a49f8032Cc7815A221ebE")
 		const submissions = Array.from({ length: 21 }, (_, sequence) =>

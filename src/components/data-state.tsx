@@ -24,13 +24,15 @@ export function DataState({ state, onRetry, recoveryAction }: DataStateProps) {
 	const errorMessage =
 		state.status === "idle" || state.status === "fresh" || state.status === "syncing"
 			? undefined
-			: t("codeSuffix", {
-					code: state.error.code,
-					message: i18n.exists(`codes.${state.error.code}`, { ns: "errors" })
-						? t(`codes.${state.error.code}`, { ns: "errors" })
-						: t("codes.unknown", { ns: "errors" }),
-					ns: "errors",
-				})
+			: state.error.code === "INDEX_COUNT_MISMATCH"
+				? state.error.message
+				: t("codeSuffix", {
+						code: state.error.code,
+						message: i18n.exists(`codes.${state.error.code}`, { ns: "errors" })
+							? t(`codes.${state.error.code}`, { ns: "errors" })
+							: t("codes.unknown", { ns: "errors" }),
+						ns: "errors",
+					})
 	if (state.status === "idle" || state.status === "fresh") {
 		return null
 	}

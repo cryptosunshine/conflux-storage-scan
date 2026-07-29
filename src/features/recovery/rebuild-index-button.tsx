@@ -1,9 +1,11 @@
 import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useStorageDataSource } from "../../app/providers"
 import { storageKeys } from "../../data/queries"
 
 export function RebuildIndexButton() {
+	const { t } = useTranslation(["common", "errors"])
 	const dataSource = useStorageDataSource()
 	const queryClient = useQueryClient()
 	const [isConfirming, setIsConfirming] = useState(false)
@@ -13,7 +15,7 @@ export function RebuildIndexButton() {
 	if (!isConfirming) {
 		return (
 			<button className="secondary-button" onClick={() => setIsConfirming(true)} type="button">
-				Rebuild local index
+				{t("actions.rebuildLocalIndex")}
 			</button>
 		)
 	}
@@ -27,7 +29,7 @@ export function RebuildIndexButton() {
 			await queryClient.invalidateQueries({ queryKey: storageKeys.all })
 			setIsConfirming(false)
 		} catch (caught) {
-			setError(caught instanceof Error ? caught.message : "The local index could not be rebuilt.")
+			setError(caught instanceof Error ? caught.message : t("rebuild.failed", { ns: "errors" }))
 		} finally {
 			setIsRebuilding(false)
 		}
@@ -40,10 +42,8 @@ export function RebuildIndexButton() {
 			className="rebuild-confirmation"
 			role="alertdialog"
 		>
-			<strong id="rebuild-index-title">Rebuild local index?</strong>
-			<p id="rebuild-index-description">
-				This deletes the Conflux Storage Scan local index in this browser. It does not delete or change chain data.
-			</p>
+			<strong id="rebuild-index-title">{t("rebuild.title", { ns: "errors" })}</strong>
+			<p id="rebuild-index-description">{t("rebuild.description", { ns: "errors" })}</p>
 			{error ? <p role="alert">{error}</p> : null}
 			<div className="rebuild-confirmation__actions">
 				<button
@@ -52,10 +52,10 @@ export function RebuildIndexButton() {
 					onClick={() => setIsConfirming(false)}
 					type="button"
 				>
-					Cancel
+					{t("actions.cancel")}
 				</button>
 				<button className="primary-button" disabled={isRebuilding} onClick={() => void rebuild()} type="button">
-					{isRebuilding ? "Rebuilding…" : "Confirm rebuild"}
+					{isRebuilding ? t("actions.rebuilding") : t("actions.confirmRebuild")}
 				</button>
 			</div>
 		</div>

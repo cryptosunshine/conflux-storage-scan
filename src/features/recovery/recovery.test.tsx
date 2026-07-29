@@ -51,7 +51,7 @@ describe("explorer recovery states", () => {
 		)
 
 		expect(screen.getByText("Wrong network")).toBeInTheDocument()
-		expect(screen.getByText(/connected chain is 1; expected 71/i)).toBeInTheDocument()
+		expect(screen.getByText(/RPC endpoint returned the wrong network \(CHAIN_ID_MISMATCH\)/i)).toBeInTheDocument()
 
 		rerender(
 			<DataState

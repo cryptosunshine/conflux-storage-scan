@@ -2,10 +2,27 @@ import { screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 import { createFixtureDataSource } from "../../data/fixture-data-source"
 import { createSubmissionFixture } from "../../test/fixtures"
+import { testI18n } from "../../test/i18n"
 import { renderWithDataSource } from "../../test/render"
 import { SubmissionDetailPage } from "./submission-detail-page"
 
 describe("SubmissionDetailPage", () => {
+	it("renders normalized submission semantics in Simplified Chinese", async () => {
+		await testI18n.changeLanguage("zh-CN")
+		const submission = createSubmissionFixture(7n)
+		const source = createFixtureDataSource({
+			allocatedSectorCount: submission.endSectorExclusive,
+			contractSubmissionCount: 8n,
+			submissions: [submission],
+		})
+		await renderWithDataSource(<SubmissionDetailPage sequence="7" />, source)
+
+		expect(await screen.findByRole("heading", { name: "提交 #7" })).toBeInTheDocument()
+		expect(screen.getByText("提交标识")).toBeInTheDocument()
+		expect(screen.getByText("已在 eSpace 索引")).toBeInTheDocument()
+		expect(screen.getByText("存储费用")).toBeInTheDocument()
+	})
+
 	it("renders normalized event semantics and read-only chain provenance", async () => {
 		const submission = createSubmissionFixture(7n, {
 			endSectorExclusive: 22n,

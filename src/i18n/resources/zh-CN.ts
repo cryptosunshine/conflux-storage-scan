@@ -279,6 +279,7 @@ export const chineseResources = {
 		disconnectedTitle: "我的提交",
 		emptyDescription: "公开事件索引中没有匹配该提交者的记录。",
 		emptyTitle: "该账户没有已索引提交",
+		eventCount: "{{count}} 个事件",
 		indexedLogicalData: "已索引逻辑数据",
 		indexedSubmissions: "已索引提交数",
 		loading: "正在加载账户提交记录",
@@ -286,6 +287,6 @@ export const chineseResources = {
 		publicIndex: "公开 eSpace 索引",
 		switchDescription: "表格仍使用配置的 Conflux 公开索引；切换网络仅用于使钱包网络保持一致。",
 		switchNetwork: "切换到 eSpace 测试网",
-		wrongNetwork: "钱包连接在其他网络",
+		wrongNetwork: "钱包连接在链 {{chainId}}",
 	},
 } as const satisfies TranslationShape<typeof englishResources>

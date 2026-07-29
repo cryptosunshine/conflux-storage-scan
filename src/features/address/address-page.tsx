@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
+import { useTranslation } from "react-i18next"
 import type { Address } from "viem"
 import { useStorageDataSource } from "../../app/providers"
 import { CopyButton } from "../../components/copy-button"
@@ -17,6 +18,8 @@ export interface AddressPageProps {
 }
 
 export function AddressPage({ address, page }: AddressPageProps) {
+	const { i18n, t } = useTranslation("explorer")
+	const locale = i18n.resolvedLanguage ?? i18n.language
 	const dataSource = useStorageDataSource()
 	const queries = createStorageQueries(dataSource)
 	const summary = useQuery(queries.addressSummary(address))
@@ -31,16 +34,16 @@ export function AddressPage({ address, page }: AddressPageProps) {
 		<section aria-labelledby="address-title" className="page-section">
 			<header className="page-heading page-heading--address">
 				<div>
-					<p className="eyebrow">Event submitter</p>
-					<h1 id="address-title">Address activity</h1>
+					<p className="eyebrow">{t("address.eyebrow")}</p>
+					<h1 id="address-title">{t("address.title")}</h1>
 					<div className="full-address">
 						<code>{address}</code>
-						<CopyButton label="Copy full submitter address" value={address} />
+						<CopyButton label={t("address.copyAddress")} value={address} />
 					</div>
 				</div>
 				<div className="page-heading__status">
 					<SyncStatus state={syncState} />
-					<p>Filtered by the submitter recorded in FixedPriceFlow Submit events.</p>
+					<p>{t("address.description")}</p>
 				</div>
 			</header>
 
@@ -48,11 +51,17 @@ export function AddressPage({ address, page }: AddressPageProps) {
 
 			{summary.data ? (
 				<div className="address-metrics">
-					<MetricCard label="Indexed submissions" value={formatInteger(summary.data.indexedSubmissionCount)} />
-					<MetricCard label="Indexed logical data" value={formatBytes(summary.data.indexedLogicalBytes)} />
+					<MetricCard
+						label={t("dashboard.indexedSubmissions")}
+						value={formatInteger(summary.data.indexedSubmissionCount, locale)}
+					/>
+					<MetricCard
+						label={t("dashboard.indexedLogicalData")}
+						value={formatBytes(summary.data.indexedLogicalBytes, locale)}
+					/>
 				</div>
 			) : (
-				<div aria-label="Loading address summary" className="address-metrics" role="status">
+				<div aria-label={t("address.loadingSummary")} className="address-metrics" role="status">
 					<div className="address-metrics__skeleton skeleton" />
 					<div className="address-metrics__skeleton skeleton" />
 				</div>
@@ -61,16 +70,16 @@ export function AddressPage({ address, page }: AddressPageProps) {
 			<section aria-labelledby="address-submissions-title" className="content-panel">
 				<header className="section-heading">
 					<div>
-						<p className="eyebrow">Canonical activity</p>
-						<h2 id="address-submissions-title">Submitted storage</h2>
+						<p className="eyebrow">{t("address.canonicalActivity")}</p>
+						<h2 id="address-submissions-title">{t("address.submittedStorage")}</h2>
 					</div>
-					{submissions.data ? <p>{submissions.data.totalItems} events</p> : null}
+					{submissions.data ? <p>{t("address.eventCount", { count: submissions.data.totalItems })}</p> : null}
 				</header>
 
 				{submissions.data ? (
 					submissions.data.items.length > 0 ? (
 						<>
-							<SubmissionTable caption={`Submissions by ${address}`} submissions={submissions.data.items} />
+							<SubmissionTable caption={t("address.submissionsBy", { address })} submissions={submissions.data.items} />
 							<Pagination
 								buildHref={(targetPage) => `/address/${address}?page=${targetPage}`}
 								page={submissions.data.page}
@@ -79,12 +88,12 @@ export function AddressPage({ address, page }: AddressPageProps) {
 						</>
 					) : (
 						<div className="empty-state">
-							<h3>No submissions from this address</h3>
-							<p>No indexed Submit event names this address as its submitter.</p>
+							<h3>{t("address.emptyTitle")}</h3>
+							<p>{t("address.emptyDescription")}</p>
 						</div>
 					)
 				) : (
-					<div aria-label="Loading address submissions" className="table-loading skeleton" role="status" />
+					<div aria-label={t("address.loadingList")} className="table-loading skeleton" role="status" />
 				)}
 			</section>
 		</section>

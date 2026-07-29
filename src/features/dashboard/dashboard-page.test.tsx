@@ -2,10 +2,26 @@ import { screen, within } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 import { createFixtureDataSource } from "../../data/fixture-data-source"
 import { createSubmissionFixture } from "../../test/fixtures"
+import { testI18n } from "../../test/i18n"
 import { renderWithDataSource } from "../../test/render"
 import { DashboardPage } from "./dashboard-page"
 
 describe("DashboardPage", () => {
+	it("renders the overview in Simplified Chinese", async () => {
+		await testI18n.changeLanguage("zh-CN")
+		const source = createFixtureDataSource({
+			allocatedSectorCount: 1n,
+			contractSubmissionCount: 1n,
+			submissions: [createSubmissionFixture(0n)],
+		})
+		await renderWithDataSource(<DashboardPage />, source)
+
+		expect(await screen.findByRole("heading", { name: "存储概览" })).toBeInTheDocument()
+		expect(screen.getByText("合约提交数")).toBeInTheDocument()
+		expect(screen.getByText("存储费用")).toBeInTheDocument()
+		expect(screen.getAllByText("0 CFX").length).toBeGreaterThanOrEqual(1)
+	})
+
 	it("separates contract, indexed, logical, allocated, and fee metrics", async () => {
 		const submissions = Array.from({ length: 6 }, (_, sequence) => createSubmissionFixture(BigInt(sequence)))
 		const source = createFixtureDataSource({

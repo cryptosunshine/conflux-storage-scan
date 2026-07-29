@@ -1,5 +1,7 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query"
+import { useTranslation } from "react-i18next"
 import { useStorageDataSource } from "../../app/providers"
+import { formatInteger } from "../../components/format"
 import { Pagination } from "../../components/pagination"
 import { SubmissionTable } from "../../components/submission-table"
 import { SyncStatus } from "../../components/sync-status"
@@ -12,6 +14,8 @@ export interface SubmissionsPageProps {
 }
 
 export function SubmissionsPage({ page }: SubmissionsPageProps) {
+	const { i18n, t } = useTranslation("explorer")
+	const locale = i18n.resolvedLanguage ?? i18n.language
 	const dataSource = useStorageDataSource()
 	const queries = createStorageQueries(dataSource)
 	const submissions = useQuery({
@@ -25,12 +29,12 @@ export function SubmissionsPage({ page }: SubmissionsPageProps) {
 		<section aria-labelledby="submissions-title" className="page-section">
 			<header className="page-heading">
 				<div>
-					<p className="eyebrow">All activity</p>
-					<h1 id="submissions-title">Storage submissions</h1>
+					<p className="eyebrow">{t("submissions.allActivity")}</p>
+					<h1 id="submissions-title">{t("submissions.title")}</h1>
 				</div>
 				<div className="page-heading__status">
 					<SyncStatus state={syncState} />
-					<p>One row per canonical FixedPriceFlow Submit event.</p>
+					<p>{t("submissions.description")}</p>
 				</div>
 			</header>
 
@@ -39,12 +43,14 @@ export function SubmissionsPage({ page }: SubmissionsPageProps) {
 			<section aria-labelledby="submission-list-title" className="content-panel">
 				<header className="section-heading">
 					<div>
-						<h2 id="submission-list-title">Indexed activity</h2>
-						{submissions.data ? <p>{submissions.data.totalItems.toLocaleString()} submissions</p> : null}
+						<h2 id="submission-list-title">{t("submissions.indexedActivity")}</h2>
+						{submissions.data ? (
+							<p>{t("submissions.total", { count: formatInteger(submissions.data.totalItems, locale) })}</p>
+						) : null}
 					</div>
 					{submissions.isFetching && !submissions.isPending ? (
 						<span aria-live="polite" className="refresh-label">
-							Refreshing…
+							{t("submissions.refreshing")}
 						</span>
 					) : null}
 				</header>
@@ -52,7 +58,7 @@ export function SubmissionsPage({ page }: SubmissionsPageProps) {
 				{submissions.data ? (
 					submissions.data.items.length > 0 ? (
 						<>
-							<SubmissionTable caption="Storage submissions" submissions={submissions.data.items} />
+							<SubmissionTable caption={t("submissions.caption")} submissions={submissions.data.items} />
 							<Pagination
 								buildHref={(targetPage) => `/submissions?page=${targetPage}`}
 								page={submissions.data.page}
@@ -61,12 +67,12 @@ export function SubmissionsPage({ page }: SubmissionsPageProps) {
 						</>
 					) : (
 						<div className="empty-state">
-							<h3>No submissions indexed</h3>
-							<p>The local index does not contain a canonical Submit event yet.</p>
+							<h3>{t("submissions.emptyTitle")}</h3>
+							<p>{t("submissions.emptyDescription")}</p>
 						</div>
 					)
 				) : (
-					<div aria-label="Loading storage submissions" className="table-loading skeleton" role="status" />
+					<div aria-label={t("submissions.loading")} className="table-loading skeleton" role="status" />
 				)}
 			</section>
 		</section>

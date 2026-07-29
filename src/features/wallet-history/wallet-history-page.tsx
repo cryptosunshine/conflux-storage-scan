@@ -1,6 +1,7 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useRef } from "react"
+import { useTranslation } from "react-i18next"
 import type { Address } from "viem"
 import { useAccount, useSwitchChain } from "wagmi"
 import { useStorageDataSource } from "../../app/providers"
@@ -21,17 +22,16 @@ export interface WalletHistoryContentProps {
 }
 
 function DisconnectedHistory() {
+	const { t } = useTranslation("wallet")
 	return (
 		<section aria-labelledby="history-title" className="wallet-empty">
-			<p className="eyebrow">Account filter</p>
-			<h1 id="history-title">
-				My Submissions <span>我的提交</span>
-			</h1>
-			<p>Connect a wallet to filter the public FixedPriceFlow index by your active account.</p>
+			<p className="eyebrow">{t("disconnectedEyebrow")}</p>
+			<h1 id="history-title">{t("disconnectedTitle")}</h1>
+			<p>{t("disconnectedDescription")}</p>
 			<div className="wallet-empty__action">
 				<ConnectButton showBalance={false} />
 			</div>
-			<small>Connecting is optional and never requests a signature or transaction.</small>
+			<small>{t("disconnectedNote")}</small>
 		</section>
 	)
 }
@@ -44,6 +44,8 @@ function ConnectedHistory({
 }: Required<Pick<WalletHistoryContentProps, "address" | "page">> &
 	Pick<WalletHistoryContentProps, "chainId" | "onSwitchChain">) {
 	const dataSource = useStorageDataSource()
+	const { i18n, t } = useTranslation("wallet")
+	const locale = i18n.resolvedLanguage ?? i18n.language
 	const queryClient = useQueryClient()
 	const previousAddress = useRef<Address | undefined>(undefined)
 	const queries = createStorageQueries(dataSource)
@@ -71,13 +73,11 @@ function ConnectedHistory({
 		<section aria-labelledby="history-title" className="page-section">
 			<header className="page-heading page-heading--address">
 				<div>
-					<p className="eyebrow">Connected account</p>
-					<h1 id="history-title">
-						My Submissions <span className="heading-translation">我的提交</span>
-					</h1>
+					<p className="eyebrow">{t("connectedAccount")}</p>
+					<h1 id="history-title">{t("disconnectedTitle")}</h1>
 					<div className="full-address">
 						<code title={address}>{truncateMiddle(address, 12, 10)}</code>
-						<CopyButton label="Copy connected account" value={address} />
+						<CopyButton label={t("copyAccount")} value={address} />
 					</div>
 				</div>
 			</header>
@@ -85,12 +85,12 @@ function ConnectedHistory({
 			{wrongNetwork ? (
 				<div className="network-warning" role="status">
 					<div>
-						<strong>Wallet is on chain {chainId}</strong>
-						<p>The table still uses the configured Conflux public index. Switch only to align your wallet network.</p>
+						<strong>{t("wrongNetwork", { chainId })}</strong>
+						<p>{t("switchDescription")}</p>
 					</div>
 					{onSwitchChain ? (
 						<button className="secondary-button" onClick={onSwitchChain} type="button">
-							Switch to eSpace Testnet
+							{t("switchNetwork")}
 						</button>
 					) : null}
 				</div>
@@ -100,23 +100,26 @@ function ConnectedHistory({
 
 			{summary.data ? (
 				<div className="address-metrics">
-					<MetricCard label="Indexed submissions" value={formatInteger(summary.data.indexedSubmissionCount)} />
-					<MetricCard label="Indexed logical data" value={formatBytes(summary.data.indexedLogicalBytes)} />
+					<MetricCard
+						label={t("indexedSubmissions")}
+						value={formatInteger(summary.data.indexedSubmissionCount, locale)}
+					/>
+					<MetricCard label={t("indexedLogicalData")} value={formatBytes(summary.data.indexedLogicalBytes, locale)} />
 				</div>
 			) : null}
 
 			<section aria-labelledby="wallet-submissions-title" className="content-panel">
 				<header className="section-heading">
 					<div>
-						<p className="eyebrow">Public eSpace index</p>
-						<h2 id="wallet-submissions-title">Account activity</h2>
+						<p className="eyebrow">{t("publicIndex")}</p>
+						<h2 id="wallet-submissions-title">{t("accountActivity")}</h2>
 					</div>
-					{submissions.data ? <p>{submissions.data.totalItems} events</p> : null}
+					{submissions.data ? <p>{t("eventCount", { count: submissions.data.totalItems })}</p> : null}
 				</header>
 				{submissions.data ? (
 					submissions.data.items.length > 0 ? (
 						<>
-							<SubmissionTable caption="My indexed submissions" submissions={submissions.data.items} />
+							<SubmissionTable caption={t("myCaption")} submissions={submissions.data.items} />
 							<Pagination
 								buildHref={(targetPage) => `/history?page=${targetPage}`}
 								page={submissions.data.page}
@@ -125,12 +128,12 @@ function ConnectedHistory({
 						</>
 					) : (
 						<div className="empty-state">
-							<h3>No indexed submissions for this account</h3>
-							<p>The public event index has no matching submitter records.</p>
+							<h3>{t("emptyTitle")}</h3>
+							<p>{t("emptyDescription")}</p>
 						</div>
 					)
 				) : (
-					<div aria-label="Loading account submissions" className="table-loading skeleton" role="status" />
+					<div aria-label={t("loading")} className="table-loading skeleton" role="status" />
 				)}
 			</section>
 		</section>

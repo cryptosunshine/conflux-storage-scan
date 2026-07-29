@@ -5,6 +5,7 @@ import type { Address } from "viem"
 import { describe, expect, it, vi } from "vitest"
 import { createFixtureDataSource } from "../../data/fixture-data-source"
 import { createSubmissionFixture } from "../../test/fixtures"
+import { testI18n } from "../../test/i18n"
 import { renderWithDataSource } from "../../test/render"
 import { WalletHistoryContent } from "./wallet-history-page"
 
@@ -23,6 +24,15 @@ function sourceWithAccounts() {
 }
 
 describe("WalletHistoryContent", () => {
+	it("renders the disconnected wallet state in Simplified Chinese", async () => {
+		await testI18n.changeLanguage("zh-CN")
+		await renderWithDataSource(<WalletHistoryContent page={1} />, sourceWithAccounts())
+
+		expect(await screen.findByRole("heading", { name: "我的提交" })).toBeInTheDocument()
+		expect(screen.getByText(/连接钱包后可按当前账户筛选/)).toBeInTheDocument()
+		expect(screen.getByText(/绝不会请求签名或交易/)).toBeInTheDocument()
+	})
+
 	it("asks a disconnected visitor to connect without hiding public navigation", async () => {
 		await renderWithDataSource(<WalletHistoryContent page={1} />, sourceWithAccounts())
 

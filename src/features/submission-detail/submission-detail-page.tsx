@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { ExternalLink } from "lucide-react"
 import type { ReactNode } from "react"
+import { useTranslation } from "react-i18next"
 import { useStorageDataSource } from "../../app/providers"
 import { AddressLink } from "../../components/address-link"
 import { CopyButton } from "../../components/copy-button"
@@ -56,6 +57,8 @@ function queryFailure(error: unknown) {
 }
 
 export function SubmissionDetailPage({ sequence }: SubmissionDetailPageProps) {
+	const { i18n, t } = useTranslation(["common", "explorer"])
+	const locale = i18n.resolvedLanguage ?? i18n.language
 	const dataSource = useStorageDataSource()
 	const queries = createStorageQueries(dataSource)
 	const submission = useQuery(queries.submission(sequence))
@@ -64,7 +67,7 @@ export function SubmissionDetailPage({ sequence }: SubmissionDetailPageProps) {
 
 	if (submission.data === undefined && (submission.isPending || submission.isFetching || sync.isPending)) {
 		return (
-			<div aria-label="Loading submission details" className="detail-loading" role="status">
+			<div aria-label={t("submission.loading", { ns: "explorer" })} className="detail-loading" role="status">
 				<div className="skeleton" />
 				<div className="skeleton" />
 				<div className="skeleton" />
@@ -77,8 +80,8 @@ export function SubmissionDetailPage({ sequence }: SubmissionDetailPageProps) {
 			<section aria-labelledby="submission-unavailable-title" className="page-section">
 				<header className="page-heading">
 					<div>
-						<p className="eyebrow">Sequence {sequence}</p>
-						<h1 id="submission-unavailable-title">Submission Temporarily Unavailable</h1>
+						<p className="eyebrow">{t("submission.sequence", { ns: "explorer", sequence })}</p>
+						<h1 id="submission-unavailable-title">{t("submission.unavailable", { ns: "explorer" })}</h1>
 					</div>
 				</header>
 				<RecoveryDataState
@@ -94,11 +97,11 @@ export function SubmissionDetailPage({ sequence }: SubmissionDetailPageProps) {
 	if (!submission.data) {
 		return (
 			<section className="empty-state empty-state--page">
-				<p className="eyebrow">Sequence {sequence}</p>
-				<h1>Submission not found</h1>
-				<p>No canonical FixedPriceFlow Submit event is indexed for this sequence.</p>
+				<p className="eyebrow">{t("submission.sequence", { ns: "explorer", sequence })}</p>
+				<h1>{t("submission.notFoundTitle", { ns: "explorer" })}</h1>
+				<p>{t("submission.notFoundDescription", { ns: "explorer" })}</p>
 				<a className="secondary-button empty-state__action" href="/submissions?page=1">
-					Browse submissions
+					{t("actions.browseSubmissions")}
 				</a>
 			</section>
 		)
@@ -109,12 +112,17 @@ export function SubmissionDetailPage({ sequence }: SubmissionDetailPageProps) {
 		<section aria-labelledby="submission-title" className="page-section">
 			<header className="page-heading">
 				<div>
-					<p className="eyebrow">FixedPriceFlow submission</p>
-					<h1 id="submission-title">Submission #{formatInteger(record.sequence)}</h1>
+					<p className="eyebrow">{t("submission.eyebrow", { ns: "explorer" })}</p>
+					<h1 id="submission-title">
+						{t("submission.title", {
+							ns: "explorer",
+							sequence: formatInteger(record.sequence, locale),
+						})}
+					</h1>
 				</div>
 				<span className="indexed-status">
 					<span aria-hidden="true" />
-					Indexed on eSpace
+					{t("submission.indexed", { ns: "explorer" })}
 				</span>
 			</header>
 
@@ -123,33 +131,49 @@ export function SubmissionDetailPage({ sequence }: SubmissionDetailPageProps) {
 			<section aria-labelledby="overview-details-title" className="detail-panel">
 				<header className="section-heading">
 					<div>
-						<p className="eyebrow">Normalized event</p>
-						<h2 id="overview-details-title">Submission details</h2>
+						<p className="eyebrow">{t("submission.normalizedEvent", { ns: "explorer" })}</p>
+						<h2 id="overview-details-title">{t("submission.submissionDetails", { ns: "explorer" })}</h2>
 					</div>
 				</header>
 				<dl className="detail-grid">
-					<DetailItem label="Submitter" wide>
+					<DetailItem label={t("submission.submitter", { ns: "explorer" })} wide>
 						<AddressLink address={record.submitter} />
 					</DetailItem>
-					<DetailItem label="Submission identity" wide>
-						<ReadOnlyHash label="submission identity" value={record.submissionIdentity} />
+					<DetailItem label={t("submission.submissionIdentity", { ns: "explorer" })} wide>
+						<ReadOnlyHash
+							label={t("submission.submissionIdentityCopy", { ns: "explorer" })}
+							value={record.submissionIdentity}
+						/>
 					</DetailItem>
-					<DetailItem label="Logical size">
-						<strong>{formatBytes(record.logicalSizeBytes)}</strong>
-						<small className="detail-item__secondary">{formatInteger(record.logicalSizeBytes)} bytes</small>
+					<DetailItem label={t("submission.logicalSize", { ns: "explorer" })}>
+						<strong>{formatBytes(record.logicalSizeBytes, locale)}</strong>
+						<small className="detail-item__secondary">
+							{t("submission.bytes", {
+								count: formatInteger(record.logicalSizeBytes, locale),
+								ns: "explorer",
+							})}
+						</small>
 					</DetailItem>
-					<DetailItem label="Storage fee">
+					<DetailItem label={t("submission.storageFee", { ns: "explorer" })}>
 						<strong className="zero-fee">0 CFX</strong>
 					</DetailItem>
-					<DetailItem label="Start sector">{formatInteger(record.startSector)}</DetailItem>
-					<DetailItem label="End sector (exclusive)">{formatInteger(record.endSectorExclusive)}</DetailItem>
-					<DetailItem label="Sector count">{formatInteger(record.sectorCount)}</DetailItem>
-					<DetailItem label="Node count">{formatInteger(record.nodeRoots.length)}</DetailItem>
-					<DetailItem label="Tags" wide>
+					<DetailItem label={t("submission.startSector", { ns: "explorer" })}>
+						{formatInteger(record.startSector, locale)}
+					</DetailItem>
+					<DetailItem label={t("submission.endSector", { ns: "explorer" })}>
+						{formatInteger(record.endSectorExclusive, locale)}
+					</DetailItem>
+					<DetailItem label={t("submission.sectorCount", { ns: "explorer" })}>
+						{formatInteger(record.sectorCount, locale)}
+					</DetailItem>
+					<DetailItem label={t("submission.nodeCount", { ns: "explorer" })}>
+						{formatInteger(record.nodeRoots.length, locale)}
+					</DetailItem>
+					<DetailItem label={t("submission.tags", { ns: "explorer" })} wide>
 						{record.tags === "0x" ? (
-							<span className="muted-value">None</span>
+							<span className="muted-value">{t("submission.none", { ns: "explorer" })}</span>
 						) : (
-							<ReadOnlyHash label="tags" value={record.tags} />
+							<ReadOnlyHash label={t("submission.tagsCopy", { ns: "explorer" })} value={record.tags} />
 						)}
 					</DetailItem>
 				</dl>
@@ -158,33 +182,40 @@ export function SubmissionDetailPage({ sequence }: SubmissionDetailPageProps) {
 			<section aria-labelledby="chain-details-title" className="detail-panel">
 				<header className="section-heading">
 					<div>
-						<p className="eyebrow">Provenance</p>
-						<h2 id="chain-details-title">Chain details</h2>
+						<p className="eyebrow">{t("submission.provenance", { ns: "explorer" })}</p>
+						<h2 id="chain-details-title">{t("submission.chainDetails", { ns: "explorer" })}</h2>
 					</div>
 				</header>
 				<dl className="detail-grid">
-					<DetailItem label="Block" wide>
-						<strong>#{formatInteger(record.blockNumber)}</strong>
-						<ReadOnlyHash label="block hash" value={record.blockHash} />
+					<DetailItem label={t("submission.block", { ns: "explorer" })} wide>
+						<strong>#{formatInteger(record.blockNumber, locale)}</strong>
+						<ReadOnlyHash label={t("submission.blockHash", { ns: "explorer" })} value={record.blockHash} />
 					</DetailItem>
-					<DetailItem label="Transaction" wide>
+					<DetailItem label={t("submission.transaction", { ns: "explorer" })} wide>
 						<span className="detail-hash">
 							<a href={confluxScanTransactionUrl(record.transactionHash)} rel="noopener noreferrer" target="_blank">
 								{truncateMiddle(record.transactionHash, 12, 10)}
 								<ExternalLink aria-hidden="true" size={13} />
 							</a>
-							<CopyButton label="Copy transaction hash" value={record.transactionHash} />
+							<CopyButton label={t("submission.transactionCopy", { ns: "explorer" })} value={record.transactionHash} />
 						</span>
 					</DetailItem>
-					<DetailItem label="Log index">{formatInteger(record.logIndex)}</DetailItem>
-					<DetailItem label="Timestamp">
-						<time dateTime={timestampIso(record.timestamp)}>{new Date(record.timestamp * 1_000).toLocaleString()}</time>
+					<DetailItem label={t("submission.logIndex", { ns: "explorer" })}>
+						{formatInteger(record.logIndex, locale)}
 					</DetailItem>
-					<DetailItem label="Contract" wide>
-						<ReadOnlyHash label="contract address" value={record.contractAddress} />
+					<DetailItem label={t("submission.timestamp", { ns: "explorer" })}>
+						<time dateTime={timestampIso(record.timestamp)}>
+							{new Date(record.timestamp * 1_000).toLocaleString(locale)}
+						</time>
 					</DetailItem>
-					<DetailItem label="Implementation" wide>
-						<ReadOnlyHash label="implementation address" value={record.implementationAddress} />
+					<DetailItem label={t("submission.contract", { ns: "explorer" })} wide>
+						<ReadOnlyHash label={t("submission.contractAddress", { ns: "explorer" })} value={record.contractAddress} />
+					</DetailItem>
+					<DetailItem label={t("submission.implementation", { ns: "explorer" })} wide>
+						<ReadOnlyHash
+							label={t("submission.implementationAddress", { ns: "explorer" })}
+							value={record.implementationAddress}
+						/>
 					</DetailItem>
 				</dl>
 			</section>
