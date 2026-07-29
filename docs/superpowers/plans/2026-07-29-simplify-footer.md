@@ -4,7 +4,7 @@
 
 **Goal:** Remove all Footer resource links and place the read-only status and language selector on one responsive control row.
 
-**Architecture:** Keep `AppFooter` presentation-only and preserve the existing `LanguageSelect` component. Replace the resource navigation row with a compact control row, remove now-unused translations and link styles, and lock the 1440px/1024px/390px geometry with Playwright.
+**Architecture:** Keep `AppFooter` presentation-only and preserve the existing `LanguageSelect` component. Replace the resource navigation row with a compact control row, keep the complete Footer on one row at desktop and tablet widths, stack only the identity and control groups on mobile, remove now-unused translations and link styles, and lock the 1440px/1024px/390px geometry with Playwright.
 
 **Tech Stack:** React 19, TypeScript 5.9, i18next, CSS Flexbox, Vitest, Testing Library, Playwright.
 
@@ -40,7 +40,14 @@ This replaces all expectations that the testnet, contract, and GitHub Footer lin
 
 - [ ] **Step 2: Write the failing responsive geometry regression**
 
-Add a localization Playwright test that, at widths `1440`, `1024`, and `390`:
+Add localization Playwright tests that:
+
+- at widths `1440` and `1024`, align the product name, description, read-only status, language label,
+  and language selector on one row;
+- at width `390`, keep the read-only status and language selector on one row while allowing the
+  product identity group to occupy the preceding row.
+
+For the mobile control-row assertion:
 
 ```ts
 const footer = page.getByRole("contentinfo")
@@ -105,8 +112,10 @@ Remove `ExternalLink`, `CONTRACT_URL`, `SOURCE_URL`, and the resource `<nav>`. R
 Delete `footer.contract`, `footer.network`, `footer.resourcesAria`, and `footer.source` from both
 translation resources. Rename `.app-footer__resources` to `.app-footer__controls`, keep
 `display: flex`, `align-items: center`, `justify-content: space-between`, and remove the top border,
-resource navigation, and link rules. Do not apply a mobile `flex-direction: column` rule to the
-control row.
+resource navigation, and link rules. Use a horizontal Flex layout for `.app-footer__inner` at
+desktop and tablet widths; keep the identity group on one line and truncate its description when
+space is constrained. At mobile width, stack the identity and control groups, restore natural
+description wrapping, and do not apply `flex-direction: column` to the control row.
 
 - [ ] **Step 6: Run focused and affected tests**
 
