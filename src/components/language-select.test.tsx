@@ -22,11 +22,14 @@ describe("LanguageSelect", () => {
 		)
 
 		const language = screen.getByRole("combobox", { name: "Language" })
-		expect(language).toHaveValue("en-US")
+		expect(language).toHaveAttribute("aria-expanded", "false")
+		expect(language).toHaveTextContent("English")
 
-		await user.selectOptions(language, "zh-CN")
+		await user.click(language)
+		expect(language).toHaveAttribute("aria-expanded", "true")
+		await user.click(screen.getByRole("option", { name: "中文（简体）" }))
 
-		expect(screen.getByRole("combobox", { name: "语言" })).toHaveValue("zh-CN")
+		expect(screen.getByRole("combobox", { name: "语言" })).toHaveTextContent("中文（简体）")
 		expect(document.documentElement.lang).toBe("zh-CN")
 		expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe("zh-CN")
 	})
