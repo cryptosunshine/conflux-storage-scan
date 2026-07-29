@@ -86,6 +86,18 @@ export const englishResources = {
 			language: "Language",
 			network: "Conflux eSpace Testnet",
 		},
+		metadata: {
+			description: "Explore FixedPriceFlow storage submissions indexed from Conflux eSpace Testnet.",
+			title: {
+				address: "Address {{address}} — Conflux Storage Scan",
+				analytics: "Storage Analytics — Conflux Storage Scan",
+				explorer: "Explorer Page — Conflux Storage Scan",
+				history: "My Submissions — Conflux Storage Scan",
+				overview: "Conflux Storage Explorer — Conflux Storage Scan",
+				submission: "Submission #{{sequence}} — Conflux Storage Scan",
+				submissions: "Storage Submissions — Conflux Storage Scan",
+			},
+		},
 		nav: {
 			aria: "Primary",
 			mySubmissions: "My Submissions",

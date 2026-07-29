@@ -88,6 +88,18 @@ export const chineseResources = {
 			language: "语言",
 			network: "Conflux eSpace 测试网",
 		},
+		metadata: {
+			description: "浏览从 Conflux eSpace 测试网索引的 FixedPriceFlow 存储提交。",
+			title: {
+				address: "地址 {{address}} — Conflux Storage Scan",
+				analytics: "存储分析 — Conflux Storage Scan",
+				explorer: "浏览器页面 — Conflux Storage Scan",
+				history: "我的提交 — Conflux Storage Scan",
+				overview: "Conflux 存储浏览器 — Conflux Storage Scan",
+				submission: "提交 #{{sequence}} — Conflux Storage Scan",
+				submissions: "存储提交记录 — Conflux Storage Scan",
+			},
+		},
 		nav: {
 			aria: "主导航",
 			mySubmissions: "我的提交",

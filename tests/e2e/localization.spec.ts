@@ -34,6 +34,54 @@ test("follows the browser language and persists an explicit footer selection", a
 	expect(liveRpcRequests).toEqual([])
 })
 
+test("localizes document metadata for explorer routes without live RPC", async ({ page }) => {
+	const liveRpcRequests: string[] = []
+	page.on("request", (request) => {
+		if (/confluxrpc|confura/i.test(request.url())) {
+			liveRpcRequests.push(request.url())
+		}
+	})
+
+	await page.goto("/")
+	await expect(page).toHaveTitle("Conflux 存储浏览器 — Conflux Storage Scan")
+	await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+		"content",
+		"浏览从 Conflux eSpace 测试网索引的 FixedPriceFlow 存储提交。",
+	)
+
+	await page.goto("/submissions?page=1")
+	await expect(page).toHaveTitle("存储提交记录 — Conflux Storage Scan")
+
+	await page.goto("/submission/484")
+	await expect(page).toHaveTitle("提交 #484 — Conflux Storage Scan")
+
+	await page.goto("/address/0x6493fe3530Ad2D3C564e11222d7f029114B8AB8d?page=1")
+	await expect(page).toHaveTitle("地址 0x6493…AB8d — Conflux Storage Scan")
+
+	await page.goto("/history?page=1")
+	await expect(page).toHaveTitle("我的提交 — Conflux Storage Scan")
+
+	await page.goto("/analytics?metric=storage&range=all")
+	await expect(page).toHaveTitle("存储分析 — Conflux Storage Scan")
+
+	await page.goto("/unsupported")
+	await expect(page).toHaveTitle("浏览器页面 — Conflux Storage Scan")
+
+	const language = page.getByRole("combobox", { name: "语言" })
+	await language.click()
+	await page.getByRole("option", { name: "English" }).click()
+	await expect(page).toHaveTitle("Explorer Page — Conflux Storage Scan")
+	await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+		"content",
+		"Explore FixedPriceFlow storage submissions indexed from Conflux eSpace Testnet.",
+	)
+
+	await page.goto("/analytics?metric=storage&range=all")
+	await expect(page).toHaveTitle("Storage Analytics — Conflux Storage Scan")
+
+	expect(liveRpcRequests).toEqual([])
+})
+
 test("keeps the language menu inside desktop, tablet, and mobile viewports", async ({ page }) => {
 	for (const width of [1440, 1024, 390]) {
 		await page.setViewportSize({ height: 900, width })

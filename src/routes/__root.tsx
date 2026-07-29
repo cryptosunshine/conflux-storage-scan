@@ -2,12 +2,14 @@ import { createRootRoute, type ErrorComponentProps, Link, Outlet } from "@tansta
 import { useTranslation } from "react-i18next"
 import { AppFooter } from "../components/app-footer"
 import { AppHeader } from "../components/app-header"
+import { RouteMetadata } from "../components/route-metadata"
 import { GlobalSearch } from "../features/search/global-search"
 
 function RootLayout() {
 	const { t } = useTranslation("common")
 	return (
 		<div className="app-shell">
+			<RouteMetadata />
 			<a className="skip-link" href="#main-content">
 				{t("skipToContent")}
 			</a>
@@ -48,6 +50,7 @@ function RouteErrorPage({ error, reset }: ErrorComponentProps) {
 
 	return (
 		<div className="app-shell">
+			<RouteMetadata />
 			<AppHeader />
 			<main className="app-container app-main">
 				<section className="not-found">
