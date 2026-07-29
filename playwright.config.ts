@@ -33,6 +33,7 @@ export default defineConfig({
 	timeout: 30_000,
 	use: {
 		baseURL: `http://${host}:${port}`,
+		locale: "en-US",
 		screenshot: "only-on-failure",
 		trace: "retain-on-failure",
 	},

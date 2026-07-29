@@ -191,7 +191,7 @@ test("a persistent RPC failure retains the cached fixture", async ({ page }) => 
 	await page.goto("/?fixtureState=rpc-error")
 
 	await expect(page.getByText("Showing cached data")).toBeVisible()
-	await expect(page.getByText(/fixture rpc timed out/i)).toBeVisible()
+	await expect(page.getByText("The RPC request timed out (RPC_TIMEOUT)")).toBeVisible()
 	await expect(page.getByRole("link", { name: "#484" })).toBeVisible()
 	await expect(page.getByRole("link", { name: "View submission activity analytics" })).toBeVisible()
 })

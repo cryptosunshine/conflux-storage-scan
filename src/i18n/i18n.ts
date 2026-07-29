@@ -1,4 +1,4 @@
-import i18next, { createInstance, type i18n } from "i18next"
+import { createInstance, type i18n } from "i18next"
 import LanguageDetector from "i18next-browser-languagedetector"
 import { initReactI18next } from "react-i18next"
 import { englishResources } from "./resources/en-US"
@@ -62,5 +62,3 @@ export async function createAppI18n({
 	instance.on("languageChanged", () => syncDocumentLanguage(instance))
 	return instance
 }
-
-export const defaultI18n = i18next
