@@ -17,8 +17,14 @@ describe("DashboardPage", () => {
 		await renderWithDataSource(<DashboardPage />, source)
 
 		expect(await screen.findByRole("heading", { name: "存储概览" })).toBeInTheDocument()
+		expect(screen.getByText("Conflux eSpace 存储")).toBeInTheDocument()
+		expect(screen.getByText("浏览从 Conflux eSpace 测试网索引的 FixedPriceFlow 规范存储提交。")).toBeInTheDocument()
 		expect(screen.getByText("合约提交数")).toBeInTheDocument()
+		expect(screen.getByText("FixedPriceFlow 提交序号计数")).toBeInTheDocument()
+		expect(screen.getByText("已验证的规范 Submit 事件")).toBeInTheDocument()
+		expect(screen.getByText("已索引提交声明的逻辑字节总量")).toBeInTheDocument()
 		expect(screen.getByText("存储费用")).toBeInTheDocument()
+		expect(screen.getByText("当前测试网不收取存储费用")).toBeInTheDocument()
 		expect(screen.getAllByText("0 CFX").length).toBeGreaterThanOrEqual(1)
 	})
 
@@ -32,11 +38,19 @@ describe("DashboardPage", () => {
 		})
 		await renderWithDataSource(<DashboardPage />, source)
 
+		expect(await screen.findByText("Conflux eSpace Storage")).toBeInTheDocument()
+		expect(
+			screen.getByText("Explore canonical FixedPriceFlow submissions indexed from Conflux eSpace Testnet."),
+		).toBeInTheDocument()
 		expect(await screen.findByText("Contract submissions")).toBeInTheDocument()
+		expect(screen.getByText("FixedPriceFlow sequence counter")).toBeInTheDocument()
 		expect(screen.getByText("Indexed submissions")).toBeInTheDocument()
+		expect(screen.getByText("Validated canonical Submit events")).toBeInTheDocument()
 		expect(screen.getByText("Indexed logical data")).toBeInTheDocument()
+		expect(screen.getByText("Total bytes declared by indexed submissions")).toBeInTheDocument()
 		expect(screen.getAllByText("Allocated storage").length).toBeGreaterThanOrEqual(1)
 		expect(screen.getByText("Storage fee")).toBeInTheDocument()
+		expect(screen.getByText("No storage fee on this testnet")).toBeInTheDocument()
 		expect(screen.getAllByText("0 CFX").length).toBeGreaterThanOrEqual(1)
 		expect(screen.getByText(/data may be incomplete/i)).toBeInTheDocument()
 

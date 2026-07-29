@@ -1,6 +1,5 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { Link } from "@tanstack/react-router"
-import { Database } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { GlobalSearch } from "../features/search/global-search"
 
@@ -11,9 +10,9 @@ export function AppHeader() {
 			<div className="app-container app-header__inner">
 				<Link aria-label={t("brand.overviewLabel")} className="brand" to="/">
 					<span aria-hidden="true" className="brand__mark">
-						<Database size={18} strokeWidth={2.25} />
+						<img alt="" height={24} src="/espace-icon.svg" width={24} />
 					</span>
-					<span>Conflux Storage Scan</span>
+					<span translate="no">Conflux Storage Scan</span>
 				</Link>
 				<nav aria-label={t("nav.aria")} className="primary-nav">
 					<Link activeOptions={{ exact: true }} activeProps={{ "aria-current": "page" }} to="/">

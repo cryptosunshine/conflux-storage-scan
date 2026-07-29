@@ -84,9 +84,13 @@ export const chineseResources = {
 			copiedTitle: "已复制",
 		},
 		footer: {
-			description: "只读存储浏览器",
+			contract: "FixedPriceFlow 0x3fF0…7199",
+			description: "FixedPriceFlow 存储提交的只读浏览器。",
 			language: "语言",
 			network: "Conflux eSpace 测试网",
+			readOnly: "只读",
+			resourcesAria: "浏览器资源",
+			source: "GitHub",
 		},
 		metadata: {
 			description: "浏览从 Conflux eSpace 测试网索引的 FixedPriceFlow 存储提交。",
@@ -128,8 +132,8 @@ export const chineseResources = {
 		search: {
 			aria: "浏览器搜索",
 			error: "请输入非负提交序号或 42 字符的 EVM 地址。",
-			label: "按提交序号或地址搜索",
-			placeholder: "序号 484 或 0x… 地址",
+			label: "按提交序号或提交者地址搜索",
+			placeholder: "提交序号 484 或 0x… 提交者地址",
 		},
 		skipToContent: "跳到主要内容",
 		sync: {
@@ -220,13 +224,13 @@ export const chineseResources = {
 		dashboard: {
 			allocatedDetail: "{{sectors}} × 256 字节扇区",
 			allocatedStorage: "已分配存储",
-			contractDetail: "FixedPriceFlow submissionIndex",
+			contractDetail: "FixedPriceFlow 提交序号计数",
 			contractSubmissions: "合约提交数",
-			description: "从 Conflux eSpace 测试网索引的规范提交。",
-			eyebrow: "FixedPriceFlow",
-			indexedDetail: "已验证 Submit 事件",
+			description: "浏览从 Conflux eSpace 测试网索引的 FixedPriceFlow 规范存储提交。",
+			eyebrow: "Conflux eSpace 存储",
+			indexedDetail: "已验证的规范 Submit 事件",
 			indexedLogicalData: "已索引逻辑数据",
-			indexedLogicalDetail: "submission.data.length 之和",
+			indexedLogicalDetail: "已索引提交声明的逻辑字节总量",
 			indexedSubmissions: "已索引提交数",
 			latestActivity: "最新活动",
 			loadingMetrics: "正在加载存储指标",
@@ -234,7 +238,7 @@ export const chineseResources = {
 			recentCaption: "最近提交",
 			recentSubmissions: "最近提交",
 			storageFee: "存储费用",
-			storageFeeDetail: "测试网产品常量",
+			storageFeeDetail: "当前测试网不收取存储费用",
 			title: "存储概览",
 		},
 		submission: {

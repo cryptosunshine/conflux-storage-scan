@@ -4,7 +4,9 @@ test("mobile keeps navigation, search, and submission details accessible without
 	await page.goto("/")
 
 	await expect(page.getByRole("navigation", { name: "Primary" })).toBeVisible()
-	await expect(page.getByRole("searchbox", { name: "Search by submission sequence or address" })).toBeVisible()
+	await expect(
+		page.getByRole("searchbox", { name: "Search by submission sequence or submitter address" }),
+	).toBeVisible()
 	await expect(page.getByRole("heading", { name: "Storage overview" })).toBeVisible()
 	expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(
 		true,

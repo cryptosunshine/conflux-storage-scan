@@ -48,10 +48,14 @@ describe("GlobalSearch", () => {
 	it("marks explorer input as a non-auth search field", async () => {
 		await renderSearch()
 
-		expect(screen.getByRole("searchbox")).toHaveAttribute("autocomplete", "off")
-		expect(screen.getByRole("searchbox")).toHaveAttribute("inputmode", "search")
-		expect(screen.getByRole("searchbox")).toHaveAttribute("name", "explorer-search")
-		expect(screen.getByRole("searchbox")).toHaveAttribute("spellcheck", "false")
+		const search = screen.getByRole("searchbox", {
+			name: "Search by submission sequence or submitter address",
+		})
+		expect(search).toHaveAttribute("autocomplete", "off")
+		expect(search).toHaveAttribute("inputmode", "search")
+		expect(search).toHaveAttribute("name", "explorer-search")
+		expect(search).toHaveAttribute("placeholder", "Sequence 484 or 0x… submitter")
+		expect(search).toHaveAttribute("spellcheck", "false")
 	})
 
 	it.each([
@@ -86,7 +90,9 @@ describe("GlobalSearch", () => {
 		const user = userEvent.setup()
 		const router = await renderSearch()
 
-		await user.type(screen.getByRole("searchbox", { name: "按提交序号或地址搜索" }), "-1")
+		const search = screen.getByRole("searchbox", { name: "按提交序号或提交者地址搜索" })
+		expect(search).toHaveAttribute("placeholder", "提交序号 484 或 0x… 提交者地址")
+		await user.type(search, "-1")
 		await user.keyboard("{Enter}")
 
 		expect(screen.getByRole("alert")).toHaveTextContent("请输入非负提交序号")

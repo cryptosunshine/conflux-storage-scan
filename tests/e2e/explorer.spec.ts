@@ -105,7 +105,9 @@ test("keyboard users can skip the repeated header", async ({ page }) => {
 test("global search resolves a sequence and an address", async ({ page }) => {
 	await page.goto("/")
 
-	const search = page.getByRole("searchbox", { name: "Search by submission sequence or address" })
+	const search = page.getByRole("searchbox", {
+		name: "Search by submission sequence or submitter address",
+	})
 	await search.fill("0")
 	await page.getByRole("button", { name: "Search" }).click()
 	await expect(page).toHaveURL(/\/submission\/0$/)

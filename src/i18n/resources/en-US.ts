@@ -82,9 +82,13 @@ export const englishResources = {
 			copiedTitle: "Copied",
 		},
 		footer: {
-			description: "Read-only storage explorer",
+			contract: "FixedPriceFlow 0x3fF0…7199",
+			description: "Read-only explorer for FixedPriceFlow storage submissions.",
 			language: "Language",
 			network: "Conflux eSpace Testnet",
+			readOnly: "Read-only",
+			resourcesAria: "Explorer resources",
+			source: "GitHub",
 		},
 		metadata: {
 			description: "Explore FixedPriceFlow storage submissions indexed from Conflux eSpace Testnet.",
@@ -126,8 +130,8 @@ export const englishResources = {
 		search: {
 			aria: "Explorer search",
 			error: "Enter a non-negative sequence or a 42-character EVM address.",
-			label: "Search by submission sequence or address",
-			placeholder: "Sequence 484 or 0x… address",
+			label: "Search by submission sequence or submitter address",
+			placeholder: "Sequence 484 or 0x… submitter",
 		},
 		skipToContent: "Skip to main content",
 		sync: {
@@ -219,13 +223,13 @@ export const englishResources = {
 		dashboard: {
 			allocatedDetail: "{{sectors}} × 256-byte sectors",
 			allocatedStorage: "Allocated storage",
-			contractDetail: "FixedPriceFlow submissionIndex",
+			contractDetail: "FixedPriceFlow sequence counter",
 			contractSubmissions: "Contract submissions",
-			description: "Canonical submissions indexed from Conflux eSpace Testnet.",
-			eyebrow: "FixedPriceFlow",
-			indexedDetail: "Validated Submit events",
+			description: "Explore canonical FixedPriceFlow submissions indexed from Conflux eSpace Testnet.",
+			eyebrow: "Conflux eSpace Storage",
+			indexedDetail: "Validated canonical Submit events",
 			indexedLogicalData: "Indexed logical data",
-			indexedLogicalDetail: "Sum of submission.data.length",
+			indexedLogicalDetail: "Total bytes declared by indexed submissions",
 			indexedSubmissions: "Indexed submissions",
 			latestActivity: "Latest activity",
 			loadingMetrics: "Loading storage metrics",
@@ -233,7 +237,7 @@ export const englishResources = {
 			recentCaption: "Recent submissions",
 			recentSubmissions: "Recent submissions",
 			storageFee: "Storage fee",
-			storageFeeDetail: "Testnet product constant",
+			storageFeeDetail: "No storage fee on this testnet",
 			title: "Storage overview",
 		},
 		submission: {

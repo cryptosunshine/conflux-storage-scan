@@ -4,6 +4,7 @@
 		"includes": [
 			"**",
 			"!src/routeTree.gen.ts",
+			"!public/espace-icon.svg",
 			"!.superpowers",
 			"!dist",
 			"!coverage",
