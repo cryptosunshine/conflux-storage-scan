@@ -118,6 +118,24 @@ test("global search resolves a sequence and an address", async ({ page }) => {
 	await expect(page.getByText(firstSubmitter, { exact: true })).toBeVisible()
 })
 
+test("submission detail wide fields fill the details grid", async ({ page }) => {
+	await page.setViewportSize({ height: 900, width: 1440 })
+	await page.goto("/submission/484")
+
+	const details = page.getByRole("region", { name: "Submission details" })
+	await expect(details).toBeVisible()
+	const gridBox = await details.locator(".detail-grid").boundingBox()
+	const submitterBox = await details.getByText("Submitter", { exact: true }).locator("..").boundingBox()
+	const identityBox = await details.getByText("Submission identity", { exact: true }).locator("..").boundingBox()
+
+	expect(gridBox).not.toBeNull()
+	expect(submitterBox).not.toBeNull()
+	expect(identityBox).not.toBeNull()
+	expect(Math.abs((submitterBox?.x ?? 0) - (gridBox?.x ?? 0))).toBeLessThanOrEqual(1)
+	expect(Math.abs((submitterBox?.width ?? 0) - (gridBox?.width ?? 0))).toBeLessThanOrEqual(1)
+	expect(Math.abs((submitterBox?.width ?? 0) - (identityBox?.width ?? 0))).toBeLessThanOrEqual(1)
+})
+
 test("an unknown sequence renders a clean empty state without query errors", async ({ page }) => {
 	const queryErrors: string[] = []
 	page.on("console", (message) => {
