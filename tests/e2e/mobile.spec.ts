@@ -1,5 +1,44 @@
 import { expect, test } from "@playwright/test"
 
+test("mobile primary navigation fits without its own scrollbars", async ({ page }) => {
+	await page.goto("/")
+
+	const navigation = page.getByRole("navigation", { name: "Primary" })
+	await expect(navigation).toBeVisible()
+
+	const metrics = await navigation.evaluate((element) => {
+		const style = getComputedStyle(element)
+		return {
+			clientHeight: element.clientHeight,
+			clientWidth: element.clientWidth,
+			offsetWidth: element.offsetWidth,
+			overflowX: style.overflowX,
+			overflowY: style.overflowY,
+			scrollHeight: element.scrollHeight,
+			scrollWidth: element.scrollWidth,
+		}
+	})
+
+	expect(metrics.overflowX).toBe("visible")
+	expect(metrics.overflowY).toBe("visible")
+	expect(metrics.scrollWidth).toBe(metrics.clientWidth)
+	expect(metrics.scrollHeight).toBe(metrics.clientHeight)
+	expect(metrics.offsetWidth).toBe(metrics.clientWidth)
+
+	const navigationBox = await navigation.boundingBox()
+	expect(navigationBox).not.toBeNull()
+	if (!navigationBox) {
+		throw new Error("Primary navigation geometry is unavailable")
+	}
+
+	for (const name of ["Overview", "Submissions", "My Submissions"]) {
+		const linkBox = await navigation.getByRole("link", { exact: true, name }).boundingBox()
+		expect(linkBox).not.toBeNull()
+		expect(linkBox?.x).toBeGreaterThanOrEqual(navigationBox.x)
+		expect((linkBox?.x ?? 0) + (linkBox?.width ?? 0)).toBeLessThanOrEqual(navigationBox.x + navigationBox.width)
+	}
+})
+
 test("mobile keeps navigation, search, and submission details accessible without page overflow", async ({ page }) => {
 	await page.goto("/")
 
