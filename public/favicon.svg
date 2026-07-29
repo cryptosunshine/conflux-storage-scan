@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <title>Conflux Storage Scan</title>
-  <rect width="64" height="64" rx="16" fill="#afe9d2"/>
-  <g fill="none" stroke="#05343f" stroke-linecap="round" stroke-linejoin="round" stroke-width="5">
-    <ellipse cx="32" cy="19" rx="17" ry="7"/>
-    <path d="M15 19v13c0 4 8 7 17 7s17-3 17-7V19"/>
-    <path d="M15 32v13c0 4 8 7 17 7s17-3 17-7V32"/>
-  </g>
-</svg>
