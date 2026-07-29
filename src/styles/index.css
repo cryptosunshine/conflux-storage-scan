@@ -328,7 +328,9 @@ a:hover {
 }
 
 .app-footer__inner {
-	display: grid;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 	padding-block: 1rem;
 	gap: 0.8rem;
 	color: var(--color-text-muted);
@@ -337,9 +339,10 @@ a:hover {
 
 .app-footer__identity {
 	display: flex;
+	min-width: 0;
 	align-items: center;
 	gap: 0.65rem 0.9rem;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 }
 
 .app-footer__identity strong {
@@ -350,7 +353,10 @@ a:hover {
 }
 
 .app-footer__identity p {
+	overflow: hidden;
 	margin: 0;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .app-footer__readonly {
@@ -1609,6 +1615,17 @@ a:hover {
 		align-items: flex-start;
 		flex-direction: column;
 		gap: 0.35rem;
+	}
+
+	.app-footer__inner {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	.app-footer__identity p {
+		overflow: visible;
+		text-overflow: clip;
+		white-space: normal;
 	}
 
 	.page-heading__status {

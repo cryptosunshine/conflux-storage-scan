@@ -82,38 +82,84 @@ test("localizes document metadata for explorer routes without live RPC", async (
 	expect(liveRpcRequests).toEqual([])
 })
 
-test("keeps read-only status and language on one footer row", async ({ page }) => {
-	for (const width of [1440, 1024, 390]) {
+test("keeps all footer content on one row at desktop and tablet widths", async ({ page }) => {
+	for (const width of [1440, 1024]) {
 		await page.setViewportSize({ height: 900, width })
 		await page.goto("/")
 
 		const footer = page.getByRole("contentinfo")
+		const brand = footer.getByText("Conflux Storage Scan", { exact: true })
+		const description = footer.getByText("FixedPriceFlow 存储提交的只读浏览器。", { exact: true })
 		const readOnly = footer.getByText("只读", { exact: true })
+		const languageLabel = footer.getByText("语言", { exact: true })
 		const language = footer.getByRole("combobox", { name: "语言" })
 		await footer.scrollIntoViewIfNeeded()
 
-		const [footerBox, readOnlyBox, languageBox] = await Promise.all([
+		const [footerBox, brandBox, descriptionBox, readOnlyBox, languageLabelBox, languageBox] = await Promise.all([
 			footer.boundingBox(),
+			brand.boundingBox(),
+			description.boundingBox(),
 			readOnly.boundingBox(),
+			languageLabel.boundingBox(),
 			language.boundingBox(),
 		])
 		expect(footerBox).not.toBeNull()
+		expect(brandBox).not.toBeNull()
+		expect(descriptionBox).not.toBeNull()
 		expect(readOnlyBox).not.toBeNull()
+		expect(languageLabelBox).not.toBeNull()
 		expect(languageBox).not.toBeNull()
-		if (!footerBox || !readOnlyBox || !languageBox) {
+		if (!footerBox || !brandBox || !descriptionBox || !readOnlyBox || !languageLabelBox || !languageBox) {
 			throw new Error("Footer control geometry is unavailable")
 		}
 
+		const brandCenter = brandBox.y + brandBox.height / 2
+		const descriptionCenter = descriptionBox.y + descriptionBox.height / 2
 		const readOnlyCenter = readOnlyBox.y + readOnlyBox.height / 2
+		const languageLabelCenter = languageLabelBox.y + languageLabelBox.height / 2
 		const languageCenter = languageBox.y + languageBox.height / 2
+		expect(Math.abs(brandCenter - languageCenter)).toBeLessThanOrEqual(1)
+		expect(Math.abs(descriptionCenter - languageCenter)).toBeLessThanOrEqual(1)
 		expect(Math.abs(readOnlyCenter - languageCenter)).toBeLessThanOrEqual(1)
-		expect(readOnlyBox.x).toBeGreaterThanOrEqual(footerBox.x)
+		expect(Math.abs(languageLabelCenter - languageCenter)).toBeLessThanOrEqual(1)
+		expect(brandBox.x).toBeGreaterThanOrEqual(footerBox.x)
 		expect(languageBox.x + languageBox.width).toBeLessThanOrEqual(footerBox.x + footerBox.width)
 		expect(await footer.getByRole("link").count()).toBe(0)
 		expect(
 			await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth),
 		).toBe(true)
 	}
+})
+
+test("keeps footer controls together without overflow on mobile", async ({ page }) => {
+	await page.setViewportSize({ height: 900, width: 390 })
+	await page.goto("/")
+
+	const footer = page.getByRole("contentinfo")
+	const readOnly = footer.getByText("只读", { exact: true })
+	const language = footer.getByRole("combobox", { name: "语言" })
+	await footer.scrollIntoViewIfNeeded()
+
+	const [footerBox, readOnlyBox, languageBox] = await Promise.all([
+		footer.boundingBox(),
+		readOnly.boundingBox(),
+		language.boundingBox(),
+	])
+	expect(footerBox).not.toBeNull()
+	expect(readOnlyBox).not.toBeNull()
+	expect(languageBox).not.toBeNull()
+	if (!footerBox || !readOnlyBox || !languageBox) {
+		throw new Error("Footer control geometry is unavailable")
+	}
+
+	const readOnlyCenter = readOnlyBox.y + readOnlyBox.height / 2
+	const languageCenter = languageBox.y + languageBox.height / 2
+	expect(Math.abs(readOnlyCenter - languageCenter)).toBeLessThanOrEqual(1)
+	expect(readOnlyBox.x).toBeGreaterThanOrEqual(footerBox.x)
+	expect(languageBox.x + languageBox.width).toBeLessThanOrEqual(footerBox.x + footerBox.width)
+	expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(
+		true,
+	)
 })
 
 test("keeps the language menu inside desktop, tablet, and mobile viewports", async ({ page }) => {
