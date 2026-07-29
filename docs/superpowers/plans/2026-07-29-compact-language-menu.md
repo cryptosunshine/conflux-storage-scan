@@ -26,8 +26,8 @@ const chineseOption = page.getByRole("option", { name: "中文（简体）" })
 await expect(chineseOption).toBeVisible()
 
 const menuMetrics = await chineseOption.evaluate((option) => {
-	const text = option.querySelector("[data-radix-select-item-text]")
-	if (!(text instanceof HTMLElement)) {
+	const text = option.querySelector("span")
+	if (!(text instanceof HTMLElement) || text.textContent !== "中文（简体）") {
 		throw new Error("Language option text is missing")
 	}
 

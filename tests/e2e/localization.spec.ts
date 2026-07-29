@@ -45,6 +45,33 @@ test("keeps the language menu inside desktop, tablet, and mobile viewports", asy
 		await language.click()
 		await expect(trigger).toHaveAttribute("aria-expanded", "true")
 
+		const chineseOption = page.getByRole("option", { name: "中文（简体）" })
+		await expect(chineseOption).toBeVisible()
+
+		const menuMetrics = await chineseOption.evaluate((option) => {
+			const text = option.querySelector("span")
+			if (!(text instanceof HTMLElement) || text.textContent !== "中文（简体）") {
+				throw new Error("Language option text is missing")
+			}
+
+			const style = getComputedStyle(option)
+			const range = document.createRange()
+			range.selectNodeContents(text)
+			const lineTops = new Set(Array.from(range.getClientRects(), (rect) => Math.round(rect.top)))
+
+			return {
+				fontSize: style.fontSize,
+				height: option.getBoundingClientRect().height,
+				lineCount: lineTops.size,
+				whiteSpace: style.whiteSpace,
+			}
+		})
+
+		expect(menuMetrics.fontSize).toBe("13px")
+		expect(menuMetrics.whiteSpace).toBe("nowrap")
+		expect(menuMetrics.lineCount).toBe(1)
+		expect(menuMetrics.height).toBeLessThanOrEqual(36)
+
 		const triggerBox = await trigger.boundingBox()
 		const englishOptionBox = await page.getByRole("option", { name: "English" }).boundingBox()
 		expect(triggerBox).not.toBeNull()
