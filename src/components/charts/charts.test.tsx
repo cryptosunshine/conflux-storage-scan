@@ -41,6 +41,7 @@ describe("storage analytics charts", () => {
 		expect(screen.getByRole("heading", { name: "每日提交活动" })).toBeInTheDocument()
 		expect(screen.getByText("每日提交")).toBeInTheDocument()
 		expect(screen.getAllByText("查看每日数据")).toHaveLength(2)
+		expect(screen.queryByLabelText(/legend icon/i)).not.toBeInTheDocument()
 	})
 
 	it("gives the storage chart a visible summary, named series, and exact daily values", () => {

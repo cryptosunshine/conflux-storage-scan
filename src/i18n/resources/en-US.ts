@@ -40,6 +40,7 @@ export const englishResources = {
 			dailyLogical: "Daily logical",
 			logicalData: "Logical data",
 			noHistory: "No indexed storage history is available.",
+			seriesAria: "Storage growth series",
 			summary: "Logical data reached {{logical}} of {{allocated}} allocated on {{date}} ({{utilization}} utilization).",
 			title: "Indexed storage growth",
 			totalLogical: "Total logical",

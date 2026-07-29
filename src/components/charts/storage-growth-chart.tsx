@@ -116,7 +116,20 @@ export function StorageGrowthChart({ compact = false, points }: StorageGrowthCha
 							width={compact ? 0 : 72}
 						/>
 						<Tooltip content={StorageTooltip} />
-						<Legend iconType="plainline" />
+						<Legend
+							content={() => (
+								<ul aria-label={t("storage.seriesAria")} className="chart-legend chart-legend--storage">
+									<li>
+										<span aria-hidden="true" className="chart-legend__line chart-legend__line--allocated" />
+										{t("storage.allocatedStorage")}
+									</li>
+									<li>
+										<span aria-hidden="true" className="chart-legend__line chart-legend__line--logical" />
+										{t("storage.logicalData")}
+									</li>
+								</ul>
+							)}
+						/>
 						<Line
 							dataKey="logical"
 							dot={false}

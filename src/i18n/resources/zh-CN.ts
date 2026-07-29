@@ -42,6 +42,7 @@ export const chineseResources = {
 			dailyLogical: "每日逻辑数据",
 			logicalData: "逻辑数据",
 			noHistory: "暂无已索引存储历史。",
+			seriesAria: "存储增长数据系列",
 			summary: "{{date}} 的逻辑数据达到 {{logical}}，已分配 {{allocated}}（利用率 {{utilization}}）。",
 			title: "已索引存储增长",
 			totalLogical: "逻辑数据总量",

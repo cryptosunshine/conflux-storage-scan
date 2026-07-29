@@ -1287,6 +1287,12 @@ a:hover {
 	gap: 0;
 }
 
+.chart-legend--storage li:last-child {
+	flex-direction: row;
+	align-items: center;
+	gap: 0.35rem;
+}
+
 .chart-legend small {
 	font-size: 0.625rem;
 }
@@ -1296,6 +1302,21 @@ a:hover {
 	height: 0.7rem;
 	border-radius: 0.2rem;
 	background: var(--color-interactive);
+}
+
+.chart-legend__line {
+	width: 1rem;
+	height: 0;
+	border-top: 2px solid;
+}
+
+.chart-legend__line--allocated {
+	border-color: #7789d3;
+	border-top-style: dashed;
+}
+
+.chart-legend__line--logical {
+	border-color: var(--color-success);
 }
 
 .analytics-page__intro {
