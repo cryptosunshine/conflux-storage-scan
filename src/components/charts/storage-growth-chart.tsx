@@ -1,4 +1,5 @@
 import { useId } from "react"
+import { useTranslation } from "react-i18next"
 import type { TooltipContentProps } from "recharts"
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import type { StorageTimelinePoint } from "../../analytics/types"
@@ -26,6 +27,8 @@ interface StorageChartDatum {
 }
 
 function StorageTooltip({ active, payload }: TooltipContentProps) {
+	const { i18n, t } = useTranslation("analytics")
+	const locale = i18n.resolvedLanguage ?? i18n.language
 	const datum = payload.at(0)?.payload as StorageChartDatum | undefined
 	if (!active || !datum) {
 		return null
@@ -33,22 +36,22 @@ function StorageTooltip({ active, payload }: TooltipContentProps) {
 
 	return (
 		<div className="chart-tooltip">
-			<time dateTime={`${datum.point.date}T00:00:00.000Z`}>{formatUtcDate(datum.point.date)}</time>
+			<time dateTime={`${datum.point.date}T00:00:00.000Z`}>{formatUtcDate(datum.point.date, locale)}</time>
 			<dl>
 				<div>
-					<dt>Daily logical</dt>
-					<dd>{formatBytes(datum.point.dailyLogicalBytes)}</dd>
+					<dt>{t("storage.dailyLogical")}</dt>
+					<dd>{formatBytes(datum.point.dailyLogicalBytes, locale)}</dd>
 				</div>
 				<div>
-					<dt>Total logical</dt>
-					<dd>{formatBytes(datum.point.cumulativeLogicalBytes)}</dd>
+					<dt>{t("storage.totalLogical")}</dt>
+					<dd>{formatBytes(datum.point.cumulativeLogicalBytes, locale)}</dd>
 				</div>
 				<div>
-					<dt>Allocated</dt>
-					<dd>{formatBytes(datum.point.allocatedBytes)}</dd>
+					<dt>{t("storage.allocated")}</dt>
+					<dd>{formatBytes(datum.point.allocatedBytes, locale)}</dd>
 				</div>
 				<div>
-					<dt>Utilization</dt>
+					<dt>{t("storage.utilization")}</dt>
 					<dd>{utilizationPercent(datum.point.cumulativeLogicalBytes, datum.point.allocatedBytes)}</dd>
 				</div>
 			</dl>
@@ -57,6 +60,8 @@ function StorageTooltip({ active, payload }: TooltipContentProps) {
 }
 
 export function StorageGrowthChart({ compact = false, points }: StorageGrowthChartProps) {
+	const { i18n, t } = useTranslation("analytics")
+	const locale = i18n.resolvedLanguage ?? i18n.language
 	const titleId = useId()
 	const descriptionId = useId()
 	const latest = points.at(-1)
@@ -68,24 +73,24 @@ export function StorageGrowthChart({ compact = false, points }: StorageGrowthCha
 		point,
 	}))
 	const summary = latest
-		? `Logical data reached ${formatBytes(latest.cumulativeLogicalBytes)} of ${formatBytes(
-				latest.allocatedBytes,
-			)} allocated on ${formatUtcDate(latest.date)} (${utilizationPercent(
-				latest.cumulativeLogicalBytes,
-				latest.allocatedBytes,
-			)} utilization).`
-		: "No indexed storage history is available."
+		? t("storage.summary", {
+				allocated: formatBytes(latest.allocatedBytes, locale),
+				date: formatUtcDate(latest.date, locale),
+				logical: formatBytes(latest.cumulativeLogicalBytes, locale),
+				utilization: utilizationPercent(latest.cumulativeLogicalBytes, latest.allocatedBytes),
+			})
+		: t("storage.noHistory")
 
 	return (
 		<figure aria-describedby={descriptionId} aria-labelledby={titleId} className="chart-shell">
 			<header className="chart-shell__header">
 				<div className="chart-shell__title-row">
-					<h2 id={titleId}>Indexed storage growth</h2>
-					{latest ? <strong>{formatBytes(latest.allocatedBytes)}</strong> : null}
+					<h2 id={titleId}>{t("storage.title")}</h2>
+					{latest ? <strong>{formatBytes(latest.allocatedBytes, locale)}</strong> : null}
 				</div>
 				<p id={descriptionId}>{summary}</p>
 			</header>
-			<section aria-label={`Storage growth chart in ${byteScale.label}`} className="chart-canvas">
+			<section aria-label={t("storage.chartAria", { unit: byteScale.label })} className="chart-canvas">
 				<ResponsiveContainer
 					height="100%"
 					initialDimension={{ height: compact ? 168 : 300, width: 720 }}
@@ -98,12 +103,14 @@ export function StorageGrowthChart({ compact = false, points }: StorageGrowthCha
 							axisLine={false}
 							dataKey="date"
 							minTickGap={compact ? 48 : 28}
-							tickFormatter={(date: string) => (compact ? formatUtcCompactDate(date) : formatUtcDate(date))}
+							tickFormatter={(date: string) =>
+								compact ? formatUtcCompactDate(date, locale) : formatUtcDate(date, locale)
+							}
 							tickLine={false}
 						/>
 						<YAxis
 							axisLine={false}
-							tickFormatter={(value: number) => formatChartTick(value)}
+							tickFormatter={(value: number) => formatChartTick(value, locale)}
 							tickLine={false}
 							unit={` ${byteScale.label}`}
 							width={compact ? 0 : 72}
@@ -114,7 +121,7 @@ export function StorageGrowthChart({ compact = false, points }: StorageGrowthCha
 							dataKey="logical"
 							dot={false}
 							isAnimationActive={false}
-							name="Logical data"
+							name={t("storage.logicalData")}
 							stroke="#17B38A"
 							strokeWidth={2.25}
 							type="monotone"
@@ -123,7 +130,7 @@ export function StorageGrowthChart({ compact = false, points }: StorageGrowthCha
 							dataKey="allocated"
 							dot={false}
 							isAnimationActive={false}
-							name="Allocated storage"
+							name={t("storage.allocatedStorage")}
 							stroke="#7789D3"
 							strokeDasharray="5 4"
 							strokeWidth={2}

@@ -28,8 +28,8 @@ export function RebuildIndexButton() {
 			await dataSource.sync()
 			await queryClient.invalidateQueries({ queryKey: storageKeys.all })
 			setIsConfirming(false)
-		} catch (caught) {
-			setError(caught instanceof Error ? caught.message : t("rebuild.failed", { ns: "errors" }))
+		} catch {
+			setError(t("rebuild.failed", { ns: "errors" }))
 		} finally {
 			setIsRebuilding(false)
 		}

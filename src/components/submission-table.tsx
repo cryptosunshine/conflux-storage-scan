@@ -73,7 +73,11 @@ export function SubmissionTable({ submissions, caption, compact = false, now }: 
 									<CopyButton label={t("table.copyTransaction")} value={submission.transactionHash} />
 								</span>
 							</td>
-							<td title={`${submission.logicalSizeBytes.toString(10)} bytes`}>
+							<td
+								title={t("table.bytes", {
+									count: formatInteger(submission.logicalSizeBytes, locale),
+								})}
+							>
 								{formatBytes(submission.logicalSizeBytes, locale)}
 							</td>
 							<td className="table-secondary">{formatInteger(submission.sectorCount, locale)}</td>

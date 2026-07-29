@@ -3,6 +3,7 @@ export const englishResources = {
 		activity: {
 			chartAria: "Daily submission activity chart",
 			cumulative: "Cumulative submissions",
+			cumulativeValue: "{{count}} cumulative",
 			daily: "Daily submissions",
 			included: "Included in each tooltip",
 			noHistory: "No indexed submission history is available.",
@@ -18,6 +19,8 @@ export const englishResources = {
 			intro: "UTC daily trends derived from the canonical local index.",
 			loading: "Loading storage analytics…",
 			rangeAria: "Analytics time range",
+			range30: "30D",
+			range7: "7D",
 			rangeAll: "All",
 			title: "Storage analytics",
 		},
@@ -73,6 +76,7 @@ export const englishResources = {
 			overviewLabel: "Conflux Storage Scan overview",
 		},
 		copy: {
+			copyLabel: "Copy {{label}}",
 			copied: "{{label}}, copied",
 			copiedTitle: "Copied",
 		},
@@ -142,6 +146,7 @@ export const englishResources = {
 			sequence: "Sequence",
 			submitter: "Submitter",
 			transaction: "Transaction",
+			bytes: "{{count}} bytes",
 			viewTransaction: "View transaction {{hash}} on ConfluxScan",
 		},
 	},

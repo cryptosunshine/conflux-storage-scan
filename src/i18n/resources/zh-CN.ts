@@ -5,6 +5,7 @@ export const chineseResources = {
 		activity: {
 			chartAria: "每日提交活动图表",
 			cumulative: "累计提交数",
+			cumulativeValue: "累计 {{count}} 条",
 			daily: "每日提交",
 			included: "包含在每个提示框中",
 			noHistory: "暂无已索引提交历史。",
@@ -20,6 +21,8 @@ export const chineseResources = {
 			intro: "从规范本地索引生成的 UTC 每日趋势。",
 			loading: "正在加载存储分析…",
 			rangeAria: "分析时间范围",
+			range30: "30 天",
+			range7: "7 天",
 			rangeAll: "全部",
 			title: "存储分析",
 		},
@@ -75,6 +78,7 @@ export const chineseResources = {
 			overviewLabel: "Conflux Storage Scan 概览",
 		},
 		copy: {
+			copyLabel: "复制{{label}}",
 			copied: "{{label}}，已复制",
 			copiedTitle: "已复制",
 		},
@@ -144,6 +148,7 @@ export const chineseResources = {
 			sequence: "序号",
 			submitter: "提交者",
 			transaction: "交易",
+			bytes: "{{count}} 字节",
 			viewTransaction: "在 ConfluxScan 查看交易 {{hash}}",
 		},
 	},

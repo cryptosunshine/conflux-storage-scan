@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import type { StorageTimelinePoint } from "../../analytics/types"
 import { formatBytes, formatInteger } from "../format"
 import { formatUtcDate } from "./chart-format"
@@ -8,28 +9,30 @@ interface ChartDataTableProps {
 }
 
 export function ChartDataTable({ kind, points }: ChartDataTableProps) {
+	const { i18n, t } = useTranslation("analytics")
+	const locale = i18n.resolvedLanguage ?? i18n.language
 	const storage = kind === "storage"
-	const caption = storage ? "Indexed storage growth daily values" : "Daily submission activity values"
+	const caption = storage ? t("table.storageCaption") : t("table.activityCaption")
 
 	return (
 		<details className="chart-data-disclosure">
-			<summary>View daily values</summary>
+			<summary>{t("table.viewDaily")}</summary>
 			<div className="chart-data-table-wrap">
 				<table aria-label={caption} className="chart-data-table">
 					<caption className="sr-only">{caption}</caption>
 					<thead>
 						<tr>
-							<th scope="col">UTC date</th>
+							<th scope="col">{t("table.date")}</th>
 							{storage ? (
 								<>
-									<th scope="col">Daily logical</th>
-									<th scope="col">Total logical</th>
-									<th scope="col">Allocated</th>
+									<th scope="col">{t("table.dailyLogical")}</th>
+									<th scope="col">{t("table.totalLogical")}</th>
+									<th scope="col">{t("table.allocated")}</th>
 								</>
 							) : (
 								<>
-									<th scope="col">Daily count</th>
-									<th scope="col">Total indexed</th>
+									<th scope="col">{t("table.dailyCount")}</th>
+									<th scope="col">{t("table.totalIndexed")}</th>
 								</>
 							)}
 						</tr>
@@ -38,18 +41,18 @@ export function ChartDataTable({ kind, points }: ChartDataTableProps) {
 						{points.map((point) => (
 							<tr key={point.date}>
 								<th scope="row">
-									<time dateTime={`${point.date}T00:00:00.000Z`}>{formatUtcDate(point.date)}</time>
+									<time dateTime={`${point.date}T00:00:00.000Z`}>{formatUtcDate(point.date, locale)}</time>
 								</th>
 								{storage ? (
 									<>
-										<td>{formatBytes(point.dailyLogicalBytes)}</td>
-										<td>{formatBytes(point.cumulativeLogicalBytes)}</td>
-										<td>{formatBytes(point.allocatedBytes)}</td>
+										<td>{formatBytes(point.dailyLogicalBytes, locale)}</td>
+										<td>{formatBytes(point.cumulativeLogicalBytes, locale)}</td>
+										<td>{formatBytes(point.allocatedBytes, locale)}</td>
 									</>
 								) : (
 									<>
-										<td>{formatInteger(point.dailySubmissionCount)}</td>
-										<td>{formatInteger(point.cumulativeSubmissionCount)}</td>
+										<td>{formatInteger(point.dailySubmissionCount, locale)}</td>
+										<td>{formatInteger(point.cumulativeSubmissionCount, locale)}</td>
 									</>
 								)}
 							</tr>

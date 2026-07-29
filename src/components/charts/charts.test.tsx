@@ -1,6 +1,7 @@
 import { render, screen, within } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 import type { StorageTimelinePoint } from "../../analytics/types"
+import { testI18n } from "../../test/i18n"
 import { StorageGrowthChart } from "./storage-growth-chart"
 import { SubmissionActivityChart } from "./submission-activity-chart"
 
@@ -26,6 +27,22 @@ const points: readonly StorageTimelinePoint[] = [
 ]
 
 describe("storage analytics charts", () => {
+	it("localizes visible and accessible chart content in Simplified Chinese", async () => {
+		await testI18n.changeLanguage("zh-CN")
+		render(
+			<>
+				<StorageGrowthChart points={points} />
+				<SubmissionActivityChart points={points} />
+			</>,
+		)
+
+		expect(screen.getByRole("heading", { name: "已索引存储增长" })).toBeInTheDocument()
+		expect(screen.getByRole("region", { name: /存储增长图表/ })).toBeInTheDocument()
+		expect(screen.getByRole("heading", { name: "每日提交活动" })).toBeInTheDocument()
+		expect(screen.getByText("每日提交")).toBeInTheDocument()
+		expect(screen.getAllByText("查看每日数据")).toHaveLength(2)
+	})
+
 	it("gives the storage chart a visible summary, named series, and exact daily values", () => {
 		render(<StorageGrowthChart points={points} />)
 

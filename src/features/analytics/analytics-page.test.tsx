@@ -13,6 +13,7 @@ import { describe, expect, it } from "vitest"
 import { AppProviders } from "../../app/providers"
 import { createFixtureDataSource } from "../../data/fixture-data-source"
 import { createSubmissionFixture } from "../../test/fixtures"
+import { testI18n } from "../../test/i18n"
 import { AnalyticsPage } from "./analytics-page"
 
 async function renderAnalyticsPage() {
@@ -56,6 +57,17 @@ async function renderAnalyticsPage() {
 }
 
 describe("AnalyticsPage", () => {
+	it("renders the analytics route in Simplified Chinese", async () => {
+		await testI18n.changeLanguage("zh-CN")
+		await renderAnalyticsPage()
+
+		expect(await screen.findByRole("heading", { name: "存储分析" })).toBeInTheDocument()
+		expect(screen.getByRole("heading", { name: "已索引存储增长" })).toBeInTheDocument()
+		expect(screen.getByRole("heading", { name: "每日提交活动" })).toBeInTheDocument()
+		expect(screen.getByRole("link", { name: "7 天" })).toHaveAttribute("aria-current", "page")
+		expect(screen.getByRole("navigation", { name: "分析时间范围" })).toBeInTheDocument()
+	})
+
 	it("shows both charts, preserves the selected range in the URL, and focuses the requested metric", async () => {
 		const router = await renderAnalyticsPage()
 		const user = userEvent.setup()

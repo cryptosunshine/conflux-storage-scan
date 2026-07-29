@@ -1,4 +1,5 @@
 import { useId } from "react"
+import { useTranslation } from "react-i18next"
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import type { StorageTimelinePoint } from "../../analytics/types"
 import { formatInteger } from "../format"
@@ -11,6 +12,9 @@ interface SubmissionActivityChartProps {
 }
 
 export function SubmissionActivityChart({ compact = false, points }: SubmissionActivityChartProps) {
+	const { i18n, t } = useTranslation("analytics")
+	const locale = i18n.resolvedLanguage ?? i18n.language
+	const dailyLabel = t("activity.daily")
 	const titleId = useId()
 	const descriptionId = useId()
 	const latest = points.at(-1)
@@ -20,21 +24,23 @@ export function SubmissionActivityChart({ compact = false, points }: SubmissionA
 		date: point.date,
 	}))
 	const summary = latest
-		? `${formatInteger(latest.dailySubmissionCount)} submissions on ${formatUtcDate(
-				latest.date,
-			)}; ${formatInteger(latest.cumulativeSubmissionCount)} indexed in total.`
-		: "No indexed submission history is available."
+		? t("activity.summary", {
+				daily: formatInteger(latest.dailySubmissionCount, locale),
+				date: formatUtcDate(latest.date, locale),
+				total: formatInteger(latest.cumulativeSubmissionCount, locale),
+			})
+		: t("activity.noHistory")
 
 	return (
 		<figure aria-describedby={descriptionId} aria-labelledby={titleId} className="chart-shell">
 			<header className="chart-shell__header">
 				<div className="chart-shell__title-row">
-					<h2 id={titleId}>Daily submission activity</h2>
-					{latest ? <strong>{formatInteger(latest.cumulativeSubmissionCount)}</strong> : null}
+					<h2 id={titleId}>{t("activity.title")}</h2>
+					{latest ? <strong>{formatInteger(latest.cumulativeSubmissionCount, locale)}</strong> : null}
 				</div>
 				<p id={descriptionId}>{summary}</p>
 			</header>
-			<section aria-label="Daily submission activity chart" className="chart-canvas">
+			<section aria-label={t("activity.chartAria")} className="chart-canvas">
 				<ResponsiveContainer
 					height="100%"
 					initialDimension={{ height: compact ? 168 : 300, width: 720 }}
@@ -47,13 +53,15 @@ export function SubmissionActivityChart({ compact = false, points }: SubmissionA
 							axisLine={false}
 							dataKey="date"
 							minTickGap={compact ? 48 : 28}
-							tickFormatter={(date: string) => (compact ? formatUtcCompactDate(date) : formatUtcDate(date))}
+							tickFormatter={(date: string) =>
+								compact ? formatUtcCompactDate(date, locale) : formatUtcDate(date, locale)
+							}
 							tickLine={false}
 						/>
 						<YAxis
 							allowDecimals={false}
 							axisLine={false}
-							tickFormatter={(value: number) => formatChartTick(value)}
+							tickFormatter={(value: number) => formatChartTick(value, locale)}
 							tickLine={false}
 							width={compact ? 0 : 48}
 						/>
@@ -67,26 +75,28 @@ export function SubmissionActivityChart({ compact = false, points }: SubmissionA
 								padding: "0.7rem 0.8rem",
 							}}
 							formatter={(value, name, item) => [
-								`${formatInteger(BigInt(Math.round(Number(value))))}${
-									name === "Daily submissions"
-										? ` · ${formatInteger(BigInt(Math.round(Number(item.payload.cumulative))))} cumulative`
+								`${formatInteger(BigInt(Math.round(Number(value))), locale)}${
+									name === dailyLabel
+										? ` · ${t("activity.cumulativeValue", {
+												count: formatInteger(BigInt(Math.round(Number(item.payload.cumulative))), locale),
+											})}`
 										: ""
 								}`,
 								String(name),
 							]}
-							labelFormatter={(date) => formatUtcDate(String(date))}
+							labelFormatter={(date) => formatUtcDate(String(date), locale)}
 						/>
 						<Legend
 							content={() => (
-								<ul aria-label="Submission activity series" className="chart-legend">
+								<ul aria-label={t("activity.seriesAria")} className="chart-legend">
 									<li>
 										<span aria-hidden="true" className="chart-legend__bar" />
-										Daily submissions
+										{dailyLabel}
 									</li>
 									{compact ? null : (
 										<li>
-											<span>Cumulative submissions</span>
-											<small>Included in each tooltip</small>
+											<span>{t("activity.cumulative")}</span>
+											<small>{t("activity.included")}</small>
 										</li>
 									)}
 								</ul>
@@ -97,7 +107,7 @@ export function SubmissionActivityChart({ compact = false, points }: SubmissionA
 							fill="#4665F0"
 							isAnimationActive={false}
 							maxBarSize={26}
-							name="Daily submissions"
+							name={dailyLabel}
 							radius={[4, 4, 0, 0]}
 						/>
 					</BarChart>

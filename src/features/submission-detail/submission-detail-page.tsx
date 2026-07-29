@@ -29,10 +29,11 @@ function DetailItem({
 }
 
 function ReadOnlyHash({ label, value }: { readonly label: string; readonly value: string }) {
+	const { t } = useTranslation("common")
 	return (
 		<span className="detail-hash" title={value}>
 			<code>{truncateMiddle(value, 12, 10)}</code>
-			<CopyButton label={`Copy ${label}`} value={value} />
+			<CopyButton label={t("copy.copyLabel", { label })} value={value} />
 		</span>
 	)
 }
@@ -49,7 +50,7 @@ function queryFailure(error: unknown) {
 	return {
 		error: {
 			code,
-			message: error instanceof Error ? error.message : "The local submission index could not be read.",
+			message: code,
 		},
 		gaps: [],
 		status: "partial" as const,
