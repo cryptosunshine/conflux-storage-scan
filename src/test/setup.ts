@@ -2,6 +2,7 @@ import "@testing-library/jest-dom/vitest"
 import "fake-indexeddb/auto"
 import { cleanup } from "@testing-library/react"
 import { afterEach } from "vitest"
+import { testI18n } from "./i18n"
 
 class TestResizeObserver {
 	readonly #callback: ResizeObserverCallback
@@ -32,4 +33,7 @@ class TestResizeObserver {
 
 globalThis.ResizeObserver = TestResizeObserver as unknown as typeof ResizeObserver
 
-afterEach(cleanup)
+afterEach(async () => {
+	cleanup()
+	await testI18n.changeLanguage("en-US")
+})

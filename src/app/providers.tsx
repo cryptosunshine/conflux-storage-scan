@@ -2,12 +2,23 @@ import "@rainbow-me/rainbowkit/styles.css"
 import { RainbowKitProvider } from "@rainbow-me/rainbowkit"
 import { type QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { createContext, type ReactNode, useContext } from "react"
+import { useTranslation } from "react-i18next"
 import { type Config, WagmiProvider } from "wagmi"
 import type { StorageDataSource } from "../data/storage-data-source"
 import { wagmiConfig as defaultWagmiConfig } from "../wallet/config"
 import { queryClient as defaultQueryClient } from "./query-client"
 
 const StorageDataSourceContext = createContext<StorageDataSource | null>(null)
+
+function LocalizedRainbowKitProvider({ children }: { readonly children: ReactNode }) {
+	const { i18n } = useTranslation()
+	const locale = (i18n.resolvedLanguage ?? i18n.language).toLowerCase().startsWith("zh") ? "zh-CN" : "en-US"
+	return (
+		<RainbowKitProvider locale={locale} modalSize="compact">
+			{children}
+		</RainbowKitProvider>
+	)
+}
 
 export interface AppProvidersProps {
 	readonly children: ReactNode
@@ -25,9 +36,9 @@ export function AppProviders({
 	return (
 		<WagmiProvider config={wagmiConfig}>
 			<QueryClientProvider client={queryClient}>
-				<RainbowKitProvider locale="en-US" modalSize="compact">
+				<LocalizedRainbowKitProvider>
 					<StorageDataSourceContext value={dataSource}>{children}</StorageDataSourceContext>
-				</RainbowKitProvider>
+				</LocalizedRainbowKitProvider>
 			</QueryClientProvider>
 		</WagmiProvider>
 	)

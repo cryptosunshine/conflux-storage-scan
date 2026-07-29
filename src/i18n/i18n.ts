@@ -22,13 +22,21 @@ function syncDocumentLanguage(instance: i18n) {
 	document.documentElement.lang = language
 }
 
-export async function createAppI18n({ detectLanguage = true }: { readonly detectLanguage?: boolean } = {}) {
+export async function createAppI18n({
+	detectLanguage = true,
+	registerReact = true,
+}: {
+	readonly detectLanguage?: boolean
+	readonly registerReact?: boolean
+} = {}) {
 	const instance = createInstance()
 
 	if (detectLanguage) {
 		instance.use(LanguageDetector)
 	}
-	instance.use(initReactI18next)
+	if (registerReact) {
+		instance.use(initReactI18next)
+	}
 
 	await instance.init({
 		defaultNS: "common",

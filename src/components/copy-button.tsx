@@ -1,5 +1,6 @@
 import { Check, Copy } from "lucide-react"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 export interface CopyButtonProps {
 	readonly value: string
@@ -7,6 +8,7 @@ export interface CopyButtonProps {
 }
 
 export function CopyButton({ value, label }: CopyButtonProps) {
+	const { t } = useTranslation("common")
 	const [copied, setCopied] = useState(false)
 
 	async function copyValue(): Promise<void> {
@@ -16,10 +18,10 @@ export function CopyButton({ value, label }: CopyButtonProps) {
 
 	return (
 		<button
-			aria-label={copied ? `${label}, copied` : label}
+			aria-label={copied ? t("copy.copied", { label }) : label}
 			className="icon-button"
 			onClick={copyValue}
-			title={copied ? "Copied" : label}
+			title={copied ? t("copy.copiedTitle") : label}
 			type="button"
 		>
 			{copied ? (

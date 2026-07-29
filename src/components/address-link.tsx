@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 import type { Address } from "viem"
 import { CopyButton } from "./copy-button"
 import { truncateMiddle } from "./format"
@@ -8,7 +9,8 @@ export interface AddressLinkProps {
 	readonly label?: string
 }
 
-export function AddressLink({ address, label = "submitter address" }: AddressLinkProps) {
+export function AddressLink({ address, label }: AddressLinkProps) {
+	const { t } = useTranslation("common")
 	return (
 		<span className="hash-value">
 			<Link
@@ -20,7 +22,7 @@ export function AddressLink({ address, label = "submitter address" }: AddressLin
 			>
 				{truncateMiddle(address)}
 			</Link>
-			<CopyButton label={`Copy ${label}`} value={address} />
+			<CopyButton label={label ?? t("table.copySubmitter")} value={address} />
 		</span>
 	)
 }

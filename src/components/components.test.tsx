@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
+import { testI18n } from "../test/i18n"
 import { CopyButton } from "./copy-button"
 import { DataState } from "./data-state"
 import { formatBytes, formatInteger, formatRelativeTime } from "./format"
@@ -69,6 +70,15 @@ describe("shared explorer components", () => {
 
 		expect(screen.getByRole("link", { name: /previous page/i })).toHaveAttribute("href", "/submissions?page=1")
 		expect(screen.getByRole("link", { name: /next page/i })).toHaveAttribute("href", "/submissions?page=3")
+	})
+
+	it("localizes shared navigation controls in Chinese", async () => {
+		await testI18n.changeLanguage("zh-CN")
+		render(<Pagination buildHref={(page) => `/submissions?page=${page}`} page={2} totalPages={4} />)
+
+		expect(screen.getByRole("navigation", { name: "分页" })).toBeInTheDocument()
+		expect(screen.getByRole("link", { name: "上一页" })).toHaveAttribute("href", "/submissions?page=1")
+		expect(screen.getByText("第 2 页，共 4 页")).toBeInTheDocument()
 	})
 
 	it("gives copy controls a readable label and has no theme toggle", () => {

@@ -1,11 +1,10 @@
 import { useRouter } from "@tanstack/react-router"
 import { Search } from "lucide-react"
 import { type FormEvent, useId, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { getAddress, isAddress } from "viem"
 
 const SEQUENCE_PATTERN = /^(?:0|[1-9]\d*)$/
-const SEARCH_ERROR = "Enter a non-negative sequence or a 42-character EVM address."
-
 export type SearchDestination = `/submission/${string}` | `/address/${string}`
 
 export interface GlobalSearchProps {
@@ -28,6 +27,7 @@ export function resolveSearchDestination(value: string): SearchDestination | und
 }
 
 export function GlobalSearch({ onNavigate, compact = false }: GlobalSearchProps) {
+	const { t } = useTranslation("common")
 	const router = useRouter()
 	const errorId = useId()
 	const [value, setValue] = useState("")
@@ -37,7 +37,7 @@ export function GlobalSearch({ onNavigate, compact = false }: GlobalSearchProps)
 		event.preventDefault()
 		const destination = resolveSearchDestination(value)
 		if (!destination) {
-			setError(SEARCH_ERROR)
+			setError(t("search.error"))
 			return
 		}
 
@@ -51,12 +51,12 @@ export function GlobalSearch({ onNavigate, compact = false }: GlobalSearchProps)
 
 	return (
 		<form
-			aria-label="Explorer search"
+			aria-label={t("search.aria")}
 			className={compact ? "global-search global-search--compact" : "global-search"}
 			onSubmit={submit}
 		>
 			<label className="sr-only" htmlFor={errorId}>
-				Search by submission sequence or address
+				{t("search.label")}
 			</label>
 			<div className="global-search__control">
 				<Search aria-hidden="true" size={17} strokeWidth={2} />
@@ -71,12 +71,12 @@ export function GlobalSearch({ onNavigate, compact = false }: GlobalSearchProps)
 						setValue(event.target.value)
 						if (error) setError(undefined)
 					}}
-					placeholder="Sequence 484 or 0x… address"
+					placeholder={t("search.placeholder")}
 					spellCheck={false}
 					type="search"
 					value={value}
 				/>
-				<button type="submit">Search</button>
+				<button type="submit">{t("actions.search")}</button>
 			</div>
 			{error ? (
 				<p className="global-search__error" id={`${errorId}-error`} role="alert">

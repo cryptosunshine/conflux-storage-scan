@@ -1,15 +1,16 @@
+import { useTranslation } from "react-i18next"
 import type { SyncState } from "../chain/sync/sync-submissions"
 
-const labels: Readonly<Record<SyncState["status"], string>> = {
-	idle: "Not synced",
-	syncing: "Syncing",
-	fresh: "Up to date",
-	stale: "Cached",
-	partial: "Partial",
-	"incompatible-contract": "Verification required",
-}
-
 export function SyncStatus({ state }: { readonly state: SyncState }) {
+	const { t } = useTranslation("common")
+	const labels: Readonly<Record<SyncState["status"], string>> = {
+		fresh: t("sync.status.fresh"),
+		idle: t("sync.status.idle"),
+		"incompatible-contract": t("sync.status.incompatible"),
+		partial: t("sync.status.partial"),
+		stale: t("sync.status.cached"),
+		syncing: t("sync.status.syncing"),
+	}
 	return (
 		<span className={`sync-status sync-status--${state.status}`}>
 			<span aria-hidden="true" className="sync-status__dot" />

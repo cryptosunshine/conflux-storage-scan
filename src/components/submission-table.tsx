@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router"
 import { ExternalLink } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { CONFLUX_ESPACE_TESTNET_EXPLORER_URL } from "../chain/config"
 import type { StorageSubmission } from "../chain/types"
 import { AddressLink } from "./address-link"
@@ -18,25 +19,27 @@ export interface SubmissionTableProps {
 }
 
 export function SubmissionTable({ submissions, caption, compact = false, now }: SubmissionTableProps) {
+	const { i18n, t } = useTranslation("common")
+	const locale = i18n.resolvedLanguage ?? i18n.language
 	return (
 		<div className={compact ? "data-table-wrap data-table-wrap--compact" : "data-table-wrap"}>
 			<table aria-label={caption} className="data-table">
 				<caption className="sr-only">{caption}</caption>
 				<thead>
 					<tr>
-						<th scope="col">Sequence</th>
-						<th scope="col">Submitter</th>
+						<th scope="col">{t("table.sequence")}</th>
+						<th scope="col">{t("table.submitter")}</th>
 						<th className="table-secondary" scope="col">
-							Transaction
+							{t("table.transaction")}
 						</th>
-						<th scope="col">Logical size</th>
+						<th scope="col">{t("table.logicalSize")}</th>
 						<th className="table-secondary" scope="col">
-							Sectors
+							{t("table.sectors")}
 						</th>
 						<th className="table-secondary" scope="col">
-							Fee
+							{t("table.fee")}
 						</th>
-						<th scope="col">Age</th>
+						<th scope="col">{t("table.age")}</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -48,7 +51,7 @@ export function SubmissionTable({ submissions, caption, compact = false, now }: 
 									params={{ sequence: submission.sequence.toString(10) }}
 									to="/submission/$sequence"
 								>
-									#{formatInteger(submission.sequence)}
+									#{formatInteger(submission.sequence, locale)}
 								</Link>
 							</td>
 							<td>
@@ -57,7 +60,7 @@ export function SubmissionTable({ submissions, caption, compact = false, now }: 
 							<td className="table-secondary">
 								<span className="hash-value">
 									<a
-										aria-label={`View transaction ${submission.transactionHash} on ConfluxScan`}
+										aria-label={t("table.viewTransaction", { hash: submission.transactionHash })}
 										className="hash-value__link"
 										href={confluxScanTransactionUrl(submission.transactionHash)}
 										rel="noopener noreferrer"
@@ -67,22 +70,22 @@ export function SubmissionTable({ submissions, caption, compact = false, now }: 
 										{truncateMiddle(submission.transactionHash)}
 										<ExternalLink aria-hidden="true" size={12} />
 									</a>
-									<CopyButton label="Copy transaction hash" value={submission.transactionHash} />
+									<CopyButton label={t("table.copyTransaction")} value={submission.transactionHash} />
 								</span>
 							</td>
 							<td title={`${submission.logicalSizeBytes.toString(10)} bytes`}>
-								{formatBytes(submission.logicalSizeBytes)}
+								{formatBytes(submission.logicalSizeBytes, locale)}
 							</td>
-							<td className="table-secondary">{formatInteger(submission.sectorCount)}</td>
+							<td className="table-secondary">{formatInteger(submission.sectorCount, locale)}</td>
 							<td className="table-secondary">
 								<span className="zero-fee">0 CFX</span>
 							</td>
 							<td>
 								<time
 									dateTime={timestampIso(submission.timestamp)}
-									title={new Date(submission.timestamp * 1_000).toLocaleString()}
+									title={new Date(submission.timestamp * 1_000).toLocaleString(locale)}
 								>
-									{formatRelativeTime(submission.timestamp, now)}
+									{formatRelativeTime(submission.timestamp, now, locale)}
 								</time>
 							</td>
 						</tr>

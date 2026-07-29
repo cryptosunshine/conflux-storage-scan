@@ -1,70 +1,73 @@
 import { createRootRoute, type ErrorComponentProps, Link, Outlet } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
+import { AppFooter } from "../components/app-footer"
 import { AppHeader } from "../components/app-header"
 import { GlobalSearch } from "../features/search/global-search"
 
 function RootLayout() {
+	const { t } = useTranslation("common")
 	return (
 		<div className="app-shell">
 			<a className="skip-link" href="#main-content">
-				Skip to main content
+				{t("skipToContent")}
 			</a>
 			<AppHeader />
 			<main className="app-container app-main" id="main-content" tabIndex={-1}>
 				<Outlet />
 			</main>
-			<footer className="app-footer">
-				<div className="app-container app-footer__inner">
-					<span>Conflux eSpace Testnet</span>
-					<span>Read-only storage explorer</span>
-				</div>
-			</footer>
+			<AppFooter />
 		</div>
 	)
 }
 
 function NotFoundPage() {
+	const { t } = useTranslation("common")
 	return (
 		<section className="not-found">
 			<p className="eyebrow">404</p>
-			<h1>That explorer page does not exist</h1>
-			<p>Search for a valid submission sequence or eSpace address.</p>
+			<h1>{t("routes.notFoundTitle")}</h1>
+			<p>{t("routes.notFoundDescription")}</p>
 			<GlobalSearch />
 			<Link className="secondary-button not-found__home" to="/">
-				Return to overview
+				{t("actions.returnToOverview")}
 			</Link>
 		</section>
 	)
 }
 
 function RouteErrorPage({ error, reset }: ErrorComponentProps) {
+	const { t } = useTranslation(["common", "errors"])
 	const validationError =
 		error instanceof TypeError ||
 		/sequence must be a non-negative integer|address must be a 42-character EVM address/i.test(error.message)
 	const message = validationError
-		? error.message
-		: "This explorer page could not be loaded. Retry the route or search for another record."
+		? /sequence/i.test(error.message)
+			? t("route.invalidSequence", { ns: "errors" })
+			: t("route.invalidAddress", { ns: "errors" })
+		: t("routes.errorMessage")
 
 	return (
 		<div className="app-shell">
 			<AppHeader />
 			<main className="app-container app-main">
 				<section className="not-found">
-					<p className="eyebrow">{validationError ? "Invalid route parameter" : "Explorer error"}</p>
-					<h1>{validationError ? "Invalid Explorer Link" : "Explorer Temporarily Unavailable"}</h1>
+					<p className="eyebrow">{validationError ? t("routes.invalidEyebrow") : t("routes.errorEyebrow")}</p>
+					<h1>{validationError ? t("routes.invalidTitle") : t("routes.errorTitle")}</h1>
 					<p>{message}</p>
 					<GlobalSearch />
 					<div className="route-error-actions">
 						{validationError ? null : (
 							<button className="secondary-button" onClick={reset} type="button">
-								Retry Route
+								{t("actions.retryRoute")}
 							</button>
 						)}
 						<Link className="secondary-button" to="/">
-							Return to Overview
+							{t("actions.returnToOverview")}
 						</Link>
 					</div>
 				</section>
 			</main>
+			<AppFooter />
 		</div>
 	)
 }

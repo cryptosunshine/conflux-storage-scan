@@ -12,7 +12,7 @@ describe("application i18n", () => {
 	})
 
 	it("supports English and Simplified Chinese with English fallback", async () => {
-		const instance = await createAppI18n({ detectLanguage: false })
+		const instance = await createAppI18n({ detectLanguage: false, registerReact: false })
 
 		expect(supportedLanguages).toEqual(["en-US", "zh-CN"])
 		expect(instance.options.fallbackLng).toEqual(["en-US"])
