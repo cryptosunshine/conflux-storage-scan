@@ -5,6 +5,7 @@ const requiredFiles = [
 	".agents/skills/develop-conflux-storage-data/SKILL.md",
 	".agents/skills/integrate-rainbowkit-wallets/SKILL.md",
 	".agents/skills/design-conflux-storage-ui/SKILL.md",
+	"package.json",
 ]
 
 const requiredRules = new Map([
@@ -18,6 +19,7 @@ const requiredRules = new Map([
 			"integrate-rainbowkit-wallets",
 			"design-conflux-storage-ui",
 			"pnpm verify",
+			"pnpm verify:ui",
 		],
 	],
 	[
@@ -30,8 +32,20 @@ const requiredRules = new Map([
 	],
 	[
 		".agents/skills/design-conflux-storage-ui/SKILL.md",
-		["Light Theme", "#17B38A", "/submissions", "/history", "/analytics", "no additional RPC", "download", "mining"],
+		[
+			"Light Theme",
+			"#17B38A",
+			"/submissions",
+			"/history",
+			"/analytics",
+			"no additional RPC",
+			"download",
+			"mining",
+			"boundingBox",
+			"CSS classes",
+		],
 	],
+	["package.json", ['"verify:ui"', "pnpm harness:validate && pnpm verify && pnpm test:e2e"]],
 ])
 
 for (const file of requiredFiles) {

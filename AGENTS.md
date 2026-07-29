@@ -36,6 +36,7 @@
 - Create a `codex/` feature branch for each functional module, push it to `origin`, and keep unrelated modules out of the branch.
 - Follow TDD for product behavior: observe the failing test, implement the minimum change, then rerun the focused and affected suites.
 - Run `corepack pnpm verify`; run `corepack pnpm test:e2e` for user-flow changes.
+- Run `corepack pnpm verify:ui` before completing any UI, layout, style, or responsive change.
 - Merge a functional branch into `master` only after its required tests pass, then push the updated `master`.
 - Live commands are `corepack pnpm harness:probe` and `corepack pnpm harness:capture`; deterministic tests must never call live RPC.
 - Never overwrite an accepted fixture version or automatically commit or push captured fixtures.

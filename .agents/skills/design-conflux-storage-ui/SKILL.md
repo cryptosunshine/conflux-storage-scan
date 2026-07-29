@@ -84,13 +84,17 @@ Write a failing user-facing test first. Cover keyboard names, route state, criti
 absence of mining/download UI, mobile access to details, and every data state. Prefer queries by role
 and accessible name over test IDs.
 
+For Grid, Flexbox, or responsive layout changes, add a Playwright geometry regression that locates
+the expected element by text or accessible name and compares its `boundingBox` with the intended
+container. Never derive the complete set of elements to verify solely from existing CSS classes.
+
 ## Verification
 
 ```bash
 corepack pnpm test src/components src/features
 corepack pnpm typecheck
 corepack pnpm lint
-corepack pnpm test:e2e
+corepack pnpm verify:ui
 ```
 
 Inspect 1440px, 1024px, and 390px widths in a real browser. Fix visual or accessibility defects with

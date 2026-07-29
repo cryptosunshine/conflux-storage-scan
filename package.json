@@ -18,6 +18,7 @@
 		"test:watch": "vitest",
 		"test:e2e": "playwright test",
 		"verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+		"verify:ui": "pnpm harness:validate && pnpm verify && pnpm test:e2e",
 		"harness:validate": "node scripts/validate-agent-harness.mjs",
 		"harness:probe": "tsx scripts/harness/probe.ts",
 		"harness:capture": "tsx scripts/harness/capture.ts"
