@@ -128,7 +128,7 @@ export function SubmissionDetailPage({ sequence }: SubmissionDetailPageProps) {
 					</div>
 				</header>
 				<dl className="detail-grid">
-					<DetailItem label="Submitter">
+					<DetailItem label="Submitter" wide>
 						<AddressLink address={record.submitter} />
 					</DetailItem>
 					<DetailItem label="Submission identity" wide>
