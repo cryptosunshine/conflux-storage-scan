@@ -53,7 +53,7 @@ export function SubmissionActivityChart({ compact = false, points }: SubmissionA
 						<YAxis
 							allowDecimals={false}
 							axisLine={false}
-							tickFormatter={formatChartTick}
+							tickFormatter={(value: number) => formatChartTick(value)}
 							tickLine={false}
 							width={compact ? 0 : 48}
 						/>

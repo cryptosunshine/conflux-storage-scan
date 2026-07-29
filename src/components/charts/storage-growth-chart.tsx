@@ -103,7 +103,7 @@ export function StorageGrowthChart({ compact = false, points }: StorageGrowthCha
 						/>
 						<YAxis
 							axisLine={false}
-							tickFormatter={formatChartTick}
+							tickFormatter={(value: number) => formatChartTick(value)}
 							tickLine={false}
 							unit={` ${byteScale.label}`}
 							width={compact ? 0 : 72}

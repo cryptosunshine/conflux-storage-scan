@@ -3,9 +3,20 @@ import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 import { CopyButton } from "./copy-button"
 import { DataState } from "./data-state"
+import { formatBytes, formatInteger, formatRelativeTime } from "./format"
 import { Pagination } from "./pagination"
 
 describe("shared explorer components", () => {
+	it("formats explorer values with the active locale", () => {
+		const now = Date.UTC(2026, 6, 28, 12)
+
+		expect(formatInteger(12_345n, "en-US")).toBe("12,345")
+		expect(formatInteger(12_345n, "zh-CN")).toBe("12,345")
+		expect(formatBytes(1_572_864n, "zh-CN")).toBe("1.5 MiB")
+		expect(formatRelativeTime(now / 1_000 - 3_600, now, "en-US")).toBe("1 hour ago")
+		expect(formatRelativeTime(now / 1_000 - 3_600, now, "zh-CN")).toBe("1小时前")
+	})
+
 	it("keeps stale data visible with the last sync time and a retry action", async () => {
 		const user = userEvent.setup()
 		const retry = vi.fn()

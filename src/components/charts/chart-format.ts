@@ -13,8 +13,8 @@ export interface ChartByteScale {
 	readonly label: string
 }
 
-export function formatUtcDate(date: string): string {
-	return new Intl.DateTimeFormat("en-US", {
+export function formatUtcDate(date: string, locale = "en-US"): string {
+	return new Intl.DateTimeFormat(locale, {
 		day: "numeric",
 		month: "short",
 		timeZone: "UTC",
@@ -22,8 +22,8 @@ export function formatUtcDate(date: string): string {
 	}).format(new Date(`${date}T00:00:00.000Z`))
 }
 
-export function formatUtcCompactDate(date: string): string {
-	const parts = new Intl.DateTimeFormat("en-US", {
+export function formatUtcCompactDate(date: string, locale = "en-US"): string {
+	const parts = new Intl.DateTimeFormat(locale, {
 		day: "2-digit",
 		month: "2-digit",
 		timeZone: "UTC",
@@ -59,8 +59,8 @@ export function bigintToChartNumber(value: bigint, divisor = 1n): number {
 	return whole + Number(value % divisor) / Number(divisor)
 }
 
-export function formatChartTick(value: number): string {
-	return new Intl.NumberFormat("en-US", {
+export function formatChartTick(value: number, locale = "en-US"): string {
+	return new Intl.NumberFormat(locale, {
 		compactDisplay: "short",
 		maximumFractionDigits: 1,
 		notation: "compact",
