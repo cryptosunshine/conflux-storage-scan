@@ -4,6 +4,7 @@ overrides:
   use-sync-external-store: 1.6.0
 allowBuilds:
   bufferutil: false
+  es5-ext: false
   esbuild: true
   keccak: true
   msw: false

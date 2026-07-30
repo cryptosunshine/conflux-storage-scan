@@ -155,7 +155,7 @@ import { describe, expect, it } from "vitest"
 
 describe("0G browser SDK", () => {
 	it("builds a Merkle root from a browser File", async () => {
-		const file = new File([Uint8Array.of(0x71)], "one-byte.bin")
+		const file = new File([Uint8Array.of(0)], "one-byte.bin")
 		const [tree, error] = await new ZgBlob(file).merkleTree()
 
 		expect(error).toBeNull()
