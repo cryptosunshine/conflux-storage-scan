@@ -36,6 +36,8 @@ export interface DeploymentIdentity {
 	readonly market: Address
 }
 
+export type CoreDeploymentIdentity = Omit<DeploymentIdentity, "market">
+
 function requireCode(bytecode: Hex | undefined, code: DeploymentErrorCode, label: string): void {
 	if (!bytecode || bytecode === "0x") {
 		throw new DeploymentVerificationError(code, `${label} has no deployed bytecode`)
@@ -56,7 +58,7 @@ function requireAddress(actual: Address, expected: Address, code: DeploymentErro
 	}
 }
 
-export async function verifyDeployment(client: PublicClient): Promise<DeploymentIdentity> {
+export async function verifyCoreDeployment(client: PublicClient): Promise<CoreDeploymentIdentity> {
 	const chainId = await client.getChainId()
 	if (chainId !== CONFLUX_ESPACE_TESTNET_CHAIN_ID) {
 		throw new DeploymentVerificationError(
@@ -90,6 +92,16 @@ export async function verifyDeployment(client: PublicClient): Promise<Deployment
 		"FixedPriceFlow implementation",
 	)
 
+	return {
+		chainId: CONFLUX_ESPACE_TESTNET_CHAIN_ID,
+		proxy: FIXED_PRICE_FLOW_PROXY,
+		beacon,
+		implementation,
+	}
+}
+
+export async function verifyDeployment(client: PublicClient): Promise<DeploymentIdentity> {
+	const coreIdentity = await verifyCoreDeployment(client)
 	const market = await client.readContract({
 		abi: fixedPriceFlowAbi,
 		address: FIXED_PRICE_FLOW_PROXY,
@@ -98,10 +110,7 @@ export async function verifyDeployment(client: PublicClient): Promise<Deployment
 	requireAddress(market, FIXED_PRICE_FLOW_MARKET, "MARKET_MISMATCH", "FixedPriceFlow market")
 
 	return {
-		chainId: CONFLUX_ESPACE_TESTNET_CHAIN_ID,
-		proxy: FIXED_PRICE_FLOW_PROXY,
-		beacon,
-		implementation,
+		...coreIdentity,
 		market,
 	}
 }

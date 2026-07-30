@@ -10,7 +10,12 @@ export type StoragePocErrorCode =
 	| "NO_HEALTHY_NODE"
 	| "RPC_ERROR"
 	| "SDK_ERROR"
+	| "SUBMIT_EVENT_MISSING"
+	| "SUBMITTER_MISMATCH"
 	| "TIMEOUT"
+	| "TRANSACTION_REVERTED"
+	| "WALLET_REJECTED"
+	| "WRONG_WALLET_CHAIN"
 
 export class StoragePocError extends Error {
 	readonly code: StoragePocErrorCode
