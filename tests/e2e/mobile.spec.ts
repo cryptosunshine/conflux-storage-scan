@@ -31,7 +31,7 @@ test("mobile primary navigation fits without its own scrollbars", async ({ page 
 		throw new Error("Primary navigation geometry is unavailable")
 	}
 
-	for (const name of ["Overview", "Submissions", "My Submissions"]) {
+	for (const name of ["Overview", "Submissions", "My Submissions", "Storage POC"]) {
 		const linkBox = await navigation.getByRole("link", { exact: true, name }).boundingBox()
 		expect(linkBox).not.toBeNull()
 		expect(linkBox?.x).toBeGreaterThanOrEqual(navigationBox.x)
@@ -92,4 +92,22 @@ test("tablet width preserves primary route navigation", async ({ page }) => {
 	await expect(page.getByRole("navigation", { name: "Primary" })).toBeVisible()
 	await expect(page.getByRole("link", { name: "Submissions", exact: true })).toBeVisible()
 	expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(1024)
+})
+
+test("mobile storage POC stacks operations without horizontal overflow", async ({ page }) => {
+	await page.goto("/storage")
+
+	await expect(page.getByRole("heading", { name: "Direct Storage Node POC" })).toBeVisible()
+	const upload = page.getByRole("region", { name: "Prepare & upload" })
+	const download = page.getByRole("region", { name: "Download & verify" })
+	await expect(upload).toBeVisible()
+	await expect(download).toBeVisible()
+
+	const [uploadBox, downloadBox] = await Promise.all([upload.boundingBox(), download.boundingBox()])
+	expect(uploadBox).not.toBeNull()
+	expect(downloadBox).not.toBeNull()
+	expect(downloadBox?.y).toBeGreaterThan((uploadBox?.y ?? 0) + (uploadBox?.height ?? 0) - 1)
+	expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(
+		true,
+	)
 })
