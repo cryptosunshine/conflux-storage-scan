@@ -165,7 +165,7 @@ export class HttpStorageNodeClient implements StorageNodeClient {
 
 	constructor(url: string, options: HttpStorageNodeClientOptions = {}) {
 		this.url = url
-		this.#fetch = options.fetch ?? globalThis.fetch
+		this.#fetch = options.fetch ?? globalThis.fetch.bind(globalThis)
 		this.#timeoutMs = options.timeoutMs ?? STORAGE_NODE_TIMEOUT_MS
 	}
 

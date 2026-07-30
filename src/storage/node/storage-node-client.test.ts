@@ -9,6 +9,28 @@ function jsonRpcResponse(result: unknown): Response {
 }
 
 describe("HttpStorageNodeClient", () => {
+	it("preserves the browser receiver when using the default fetch", async () => {
+		const originalFetch = globalThis.fetch
+		const browserFetch: typeof globalThis.fetch = function browserFetch(this: typeof globalThis) {
+			if (this !== globalThis) {
+				throw new TypeError("Illegal invocation")
+			}
+			return Promise.resolve(jsonRpcResponse({ numShard: 1, shardId: 0 }))
+		}
+		vi.stubGlobal("fetch", browserFetch)
+
+		try {
+			const client = new HttpStorageNodeClient(nodeUrl)
+
+			await expect(client.getShardConfig()).resolves.toEqual({
+				numShard: 1,
+				shardId: 0,
+			})
+		} finally {
+			vi.stubGlobal("fetch", originalFetch)
+		}
+	})
+
 	it("sends zgs_getFileInfoByTxSeq with a safe numeric sequence", async () => {
 		const requests: unknown[] = []
 		const client = new HttpStorageNodeClient(nodeUrl, {
