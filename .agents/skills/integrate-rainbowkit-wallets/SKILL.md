@@ -56,6 +56,16 @@ Do not add:
 - a requirement to connect before searching or opening explorer routes;
 - wallet-provider RPC as a fallback for public indexing.
 
+## Branch-only POC exception
+
+On `codex/direct-storage-node-poc` only, `/storage` may request one user-confirmed FixedPriceFlow `submit`
+transaction after file preparation and strict deployment verification. The connected account is both the
+transaction sender and `submission.submitter`; the transaction uses chain ID `71` and `value: 0n`.
+
+This exception does not authorize message signing, approvals, allowances, arbitrary contract calls,
+automated wallet actions, or wallet-provider fallback for explorer reads. Download and Node health remain
+usable without a wallet, and recovery must never submit a second transaction automatically.
+
 ## Test workflow
 
 Write failing tests for:

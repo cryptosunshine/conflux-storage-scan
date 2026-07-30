@@ -37,6 +37,18 @@ Use `superpowers:systematic-debugging` for unexpected RPC, build, or test failur
 - Display storage fee as `0 CFX`. Never call `pricePerSector` or derive it from gas.
 - Never add `submit`, `batchSubmit`, signing, approval, or transaction-sending code.
 
+## Branch-only direct Storage Node POC
+
+Only on `codex/direct-storage-node-poc`, the approved `/storage` POC may add:
+
+- one user-confirmed FixedPriceFlow `submit` call with `value: 0n`;
+- direct Storage Node status, FileInfo, Segment upload, and Segment download RPC;
+- metadata-only IndexedDB recovery for the POC upload session.
+
+Keep `StorageDataSource` and explorer routes read-only. Verify chain ID, proxy, Beacon, and implementation
+before the transaction. Never call `pricePerSector`, use the upstream high-level uploader, automate a real
+write, or retry the contract transaction after a receipt has been recorded.
+
 ## Data workflow
 
 1. Write a focused failing test from a fixture.
@@ -75,3 +87,5 @@ VITE_CONFLUX_ESPACE_RPC_URL=https://evmtestnet.confluxrpc.com corepack pnpm harn
 ```
 
 Do not accept a live probe as a substitute for fixture-backed regression tests.
+The Storage Node probe must remain read-only; a real POC upload is permitted only through a user-confirmed
+browser wallet action.

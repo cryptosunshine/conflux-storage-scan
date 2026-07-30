@@ -37,6 +37,16 @@ Support:
 Never add mining, rewards, upload, download, `/tool`, miner routes, or an internal transaction
 detail page. Link transaction hashes to Conflux eSpace Testnet Scan.
 
+## Branch-only `/storage` POC
+
+Only on `codex/direct-storage-node-poc`, add `/storage` as a normal navigation route for a Local HTTP POC.
+It may expose one-file upload and verified download, with a `100 MiB` limit. Keep all existing explorer
+routes unchanged and read-only.
+
+The page must visibly say `Local HTTP POC`, explain that raw HTTP Storage Nodes cannot work from an HTTPS
+deployment, distinguish `0 CFX` storage fee from network gas, and keep Node health/download usable without
+a wallet. Do not imply production durability, availability, privacy, or multi-replica guarantees.
+
 Build analytics from the canonical local submission index with no additional RPC requests. Use UTC
 daily buckets, keep `bigint` facts outside chart coordinates, and preserve cached charts during
 stale or partial sync states.
