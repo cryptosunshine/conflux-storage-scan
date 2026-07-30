@@ -1,53 +1,31 @@
 import type { Address } from "viem"
 import { CONFLUX_STORAGE_NODE_URLS } from "./config"
 import {
-	downloadAndVerifyStorageFile,
 	type DownloadAndVerifyStorageFileInput,
+	downloadAndVerifyStorageFile,
 	type StorageDownloadResult,
 } from "./download/download-file"
 import {
-	inspectStorageNodes,
-	selectStorageNode,
 	type HealthyStorageNode,
+	inspectStorageNodes,
 	type StorageNodeHealth,
+	selectStorageNode,
 } from "./node/node-pool"
-import {
-	HttpStorageNodeClient,
-	type StorageNodeClient,
-} from "./node/storage-node-client"
+import { HttpStorageNodeClient, type StorageNodeClient } from "./node/storage-node-client"
 import { createStoragePocFixtureRuntime } from "./runtime-fixture"
-import {
-	prepareStorageFile,
-	type PreparedStorageFile,
-} from "./sdk/prepare-file"
-import {
-	createStorageSessionStore,
-	type StorageSessionStore,
-} from "./session/storage-session-store"
-import {
-	uploadPreparedSegments,
-	type UploadPreparedSegmentsInput,
-} from "./upload/upload-segments"
-import {
-	waitForNodeFileInfo,
-	type WaitForNodeFileInfoInput,
-} from "./upload/wait-for-node"
+import { type PreparedStorageFile, prepareStorageFile } from "./sdk/prepare-file"
+import { createStorageSessionStore, type StorageSessionStore } from "./session/storage-session-store"
 import type { StorageNodeFileInfo } from "./types"
+import { type UploadPreparedSegmentsInput, uploadPreparedSegments } from "./upload/upload-segments"
+import { type WaitForNodeFileInfoInput, waitForNodeFileInfo } from "./upload/wait-for-node"
 
 export interface StoragePocRuntime {
+	readonly mode: "fixture" | "live"
 	readonly sessions: StorageSessionStore
-	download(
-		input: DownloadAndVerifyStorageFileInput,
-	): Promise<StorageDownloadResult>
-	inspectNodes(
-		chainHead: bigint,
-		requiredTxSeq?: number,
-	): Promise<readonly StorageNodeHealth[]>
+	download(input: DownloadAndVerifyStorageFileInput): Promise<StorageDownloadResult>
+	inspectNodes(chainHead: bigint, requiredTxSeq?: number): Promise<readonly StorageNodeHealth[]>
 	prepareFile(file: File, submitter: Address): Promise<PreparedStorageFile>
-	selectNode(
-		chainHead: bigint,
-		requiredTxSeq?: number,
-	): Promise<HealthyStorageNode>
+	selectNode(chainHead: bigint, requiredTxSeq?: number): Promise<HealthyStorageNode>
 	upload(input: UploadPreparedSegmentsInput): Promise<void>
 	waitForFile(input: WaitForNodeFileInfoInput): Promise<StorageNodeFileInfo>
 }
@@ -72,6 +50,7 @@ function createLiveStoragePocRuntime({
 				clients,
 				...(requiredTxSeq === undefined ? {} : { requiredTxSeq }),
 			}),
+		mode: "live",
 		prepareFile: prepareStorageFile,
 		selectNode: (chainHead, requiredTxSeq) =>
 			selectStorageNode({
@@ -85,21 +64,15 @@ function createLiveStoragePocRuntime({
 	}
 }
 
-export function createStoragePocRuntime(
-	options: CreateStoragePocRuntimeOptions,
-): StoragePocRuntime {
+export function createStoragePocRuntime(options: CreateStoragePocRuntimeOptions): StoragePocRuntime {
 	if (options.fixture) {
 		return createStoragePocFixtureRuntime({
-			...(options.sessionStore === undefined
-				? {}
-				: { sessionStore: options.sessionStore }),
+			...(options.sessionStore === undefined ? {} : { sessionStore: options.sessionStore }),
 		})
 	}
 	return createLiveStoragePocRuntime(options)
 }
 
 export const storagePocRuntime = createStoragePocRuntime({
-	fixture:
-		import.meta.env.MODE === "test" &&
-		import.meta.env.VITE_DATA_SOURCE === "fixture",
+	fixture: import.meta.env.MODE === "test" && import.meta.env.VITE_DATA_SOURCE === "fixture",
 })

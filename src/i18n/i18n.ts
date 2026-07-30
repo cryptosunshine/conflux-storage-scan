@@ -53,7 +53,7 @@ export async function createAppI18n({
 			escapeValue: false,
 		},
 		lng: detectLanguage ? undefined : "en-US",
-		ns: ["common", "explorer", "analytics", "errors", "wallet"],
+		ns: ["common", "explorer", "analytics", "errors", "wallet", "storagePoc"],
 		resources,
 		supportedLngs: supportedLanguages,
 	})

@@ -1,30 +1,16 @@
 import { encodeBase64 } from "ethers"
-import { type Address, zeroHash, type Hex } from "viem"
+import { type Address, type Hex, zeroAddress, zeroHash } from "viem"
 import { FIXED_PRICE_FLOW_PROXY } from "../chain/config"
-import type {
-	DownloadAndVerifyStorageFileInput,
-	StorageDownloadResult,
-} from "./download/download-file"
-import type {
-	HealthyStorageNode,
-	StorageNodeHealth,
-} from "./node/node-pool"
+import type { DownloadAndVerifyStorageFileInput, StorageDownloadResult } from "./download/download-file"
+import type { HealthyStorageNode, StorageNodeHealth } from "./node/node-pool"
 import type { StorageNodeClient } from "./node/storage-node-client"
 import type { StoragePocRuntime } from "./runtime"
-import {
-	prepareStorageFile,
-	type PreparedStorageFile,
-} from "./sdk/prepare-file"
+import { type PreparedStorageFile, prepareStorageFile } from "./sdk/prepare-file"
 import type { StorageSessionStore } from "./session/storage-session-store"
 import type { StorageUploadSession } from "./session/upload-session"
+import type { StorageNodeFileInfo, StorageNodeStatus, StorageSegmentWithProof, StorageShardConfig } from "./types"
 import type { UploadPreparedSegmentsInput } from "./upload/upload-segments"
 import type { WaitForNodeFileInfoInput } from "./upload/wait-for-node"
-import type {
-	StorageNodeFileInfo,
-	StorageNodeStatus,
-	StorageSegmentWithProof,
-	StorageShardConfig,
-} from "./types"
 
 const FIXTURE_NODE_URL = "fixture://conflux-storage-node"
 
@@ -41,9 +27,7 @@ function createMemoryStorageSessionStore(): StorageSessionStore {
 			return sessions.get(id)
 		},
 		async getLatest() {
-			return [...sessions.values()].sort(
-				(left, right) => right.updatedAt - left.updatedAt,
-			)[0]
+			return [...sessions.values()].sort((left, right) => right.updatedAt - left.updatedAt)[0]
 		},
 		async put(session) {
 			sessions.set(session.id, structuredClone(session))
@@ -74,10 +58,13 @@ const fixtureShard: StorageShardConfig = {
 
 class FixtureStorageNodeClient implements StorageNodeClient {
 	readonly url = FIXTURE_NODE_URL
-	readonly #files = new Map<number, {
-		readonly file: File
-		readonly info: StorageNodeFileInfo
-	}>()
+	readonly #files = new Map<
+		number,
+		{
+			readonly file: File
+			readonly info: StorageNodeFileInfo
+		}
+	>()
 
 	add(txSeq: number, prepared: PreparedStorageFile): StorageNodeFileInfo {
 		const info: StorageNodeFileInfo = {
@@ -108,37 +95,26 @@ class FixtureStorageNodeClient implements StorageNodeClient {
 	}
 
 	async getFileInfo(root: Hex, _needAvailable: boolean) {
-		return [...this.#files.values()].find(
-			(entry) =>
-				entry.info.tx.dataMerkleRoot.toLowerCase() === root.toLowerCase(),
-		)?.info ?? null
+		return (
+			[...this.#files.values()].find((entry) => entry.info.tx.dataMerkleRoot.toLowerCase() === root.toLowerCase())
+				?.info ?? null
+		)
 	}
 
 	async getFileInfoByTxSeq(txSeq: number) {
 		return this.#files.get(txSeq)?.info ?? null
 	}
 
-	async uploadSegmentsByTxSeq(
-		_segments: readonly StorageSegmentWithProof[],
-		_txSeq: number,
-	) {
+	async uploadSegmentsByTxSeq(_segments: readonly StorageSegmentWithProof[], _txSeq: number) {
 		return 0
 	}
 
-	async downloadSegmentByTxSeq(
-		txSeq: number,
-		startChunk: number,
-		endChunk: number,
-	) {
+	async downloadSegmentByTxSeq(txSeq: number, startChunk: number, endChunk: number) {
 		const entry = this.#files.get(txSeq)
 		if (!entry) {
 			return ""
 		}
-		const bytes = new Uint8Array(
-			await entry.file
-				.slice(startChunk * 256, endChunk * 256)
-				.arrayBuffer(),
-		)
+		const bytes = new Uint8Array(await entry.file.slice(startChunk * 256, endChunk * 256).arrayBuffer())
 		return encodeBase64(bytes)
 	}
 }
@@ -154,10 +130,7 @@ export function createStoragePocFixtureRuntime({
 	let lastPrepared: PreparedStorageFile | undefined
 
 	const health = (chainHead: bigint): HealthyStorageNode => ({
-		blockLag:
-			chainHead > fixtureStatus.logSyncHeight
-				? chainHead - fixtureStatus.logSyncHeight
-				: 0n,
+		blockLag: chainHead > fixtureStatus.logSyncHeight ? chainHead - fixtureStatus.logSyncHeight : 0n,
 		client,
 		healthy: true,
 		latencyMs: 1,
@@ -166,13 +139,18 @@ export function createStoragePocFixtureRuntime({
 	})
 
 	return {
-		async download(
-			input: DownloadAndVerifyStorageFileInput,
-		): Promise<StorageDownloadResult> {
-			const info =
+		async download(input: DownloadAndVerifyStorageFileInput): Promise<StorageDownloadResult> {
+			let info =
 				"txSeq" in input.target
 					? await client.getFileInfoByTxSeq(input.target.txSeq)
 					: await client.getFileInfo(input.target.root, true)
+			if (!info && "txSeq" in input.target && input.target.txSeq === 485) {
+				const fixtureFile = new File([Uint8Array.of(0)], "fixture-485.bin", {
+					type: "application/octet-stream",
+				})
+				lastPrepared = await prepareStorageFile(fixtureFile, zeroAddress)
+				info = client.add(485, lastPrepared)
+			}
 			if (!info) {
 				throw new Error("Fixture file is unavailable")
 			}
@@ -191,6 +169,7 @@ export function createStoragePocFixtureRuntime({
 		async inspectNodes(chainHead): Promise<readonly StorageNodeHealth[]> {
 			return [health(chainHead)]
 		},
+		mode: "fixture",
 		async prepareFile(file: File, submitter: Address) {
 			lastPrepared = await prepareStorageFile(file, submitter)
 			return lastPrepared

@@ -30,6 +30,8 @@ export function RouteMetadata() {
 		title = t("metadata.title.history")
 	} else if (pathname === "/analytics") {
 		title = t("metadata.title.analytics")
+	} else if (pathname === "/storage") {
+		title = t("metadata.title.storage")
 	} else {
 		title = t("metadata.title.explorer")
 	}
