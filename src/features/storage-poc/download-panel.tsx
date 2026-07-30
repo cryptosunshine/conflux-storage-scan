@@ -1,11 +1,11 @@
-import { CheckCircle2 } from "lucide-react"
+import { CheckCircle2, Loader2 } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { formatBytes } from "../../components/format"
 import type { StorageDownloadResult } from "../../storage/download/download-file"
 
 export interface DownloadPanelProps {
-	readonly busy: boolean
+	readonly downloadBusy: boolean
 	readonly errorCode?: string
 	readonly onDownload: () => void
 	readonly onTarget: (value: string) => void
@@ -13,7 +13,7 @@ export interface DownloadPanelProps {
 	readonly target: string
 }
 
-export function DownloadPanel({ busy, errorCode, onDownload, onTarget, result, target }: DownloadPanelProps) {
+export function DownloadPanel({ downloadBusy, errorCode, onDownload, onTarget, result, target }: DownloadPanelProps) {
 	const { i18n, t } = useTranslation("storagePoc")
 	const locale = i18n.resolvedLanguage ?? i18n.language
 	const [objectUrl, setObjectUrl] = useState<string>()
@@ -47,7 +47,7 @@ export function DownloadPanel({ busy, errorCode, onDownload, onTarget, result, t
 						aria-errormessage={errorCode === "INVALID_ARGUMENT" ? "storage-page-error" : undefined}
 						aria-invalid={errorCode === "INVALID_ARGUMENT"}
 						autoComplete="off"
-						disabled={busy}
+						disabled={downloadBusy}
 						id="storage-page-download-target"
 						inputMode="text"
 						name="storageDownloadTarget"
@@ -60,12 +60,14 @@ export function DownloadPanel({ busy, errorCode, onDownload, onTarget, result, t
 					<small id="storage-page-download-hint">{t("download.inputHint")}</small>
 				</div>
 				<button
-					className="primary-button storage-page__primary-action"
-					disabled={busy || target.trim() === ""}
+					aria-busy={downloadBusy}
+					className={`primary-button storage-page__primary-action${downloadBusy ? " primary-button--loading" : ""}`}
+					disabled={downloadBusy || target.trim() === ""}
 					onClick={onDownload}
 					type="button"
 				>
-					{t("download.action")}
+					{downloadBusy ? <Loader2 aria-hidden="true" className="primary-button__spinner" size={16} /> : null}
+					{downloadBusy ? t("download.processing") : t("download.action")}
 				</button>
 			</div>
 			{result ? (

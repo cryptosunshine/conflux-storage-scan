@@ -89,4 +89,31 @@ describe("Storage upload session state machine", () => {
 		expect(resumed.txHash).toBe(txHash)
 		expect(resumed.txSeq).toBe(485)
 	})
+
+	it("marks a recoverable session complete after external verification", () => {
+		const errored = {
+			...createStorageUploadSession({
+				account,
+				fileName: "fixture.bin",
+				fileSize: 1,
+				id: "session-1",
+				now: 1,
+			}),
+			errorCode: "UPLOAD_FAILED",
+			identity,
+			phase: "recoverable-error" as const,
+			root,
+			totalSegments: 1,
+			txHash,
+			txSeq: 490,
+		}
+
+		const completed = reduceStorageUploadSession(errored, { type: "verified-externally" })
+
+		expect(completed).toMatchObject({
+			errorCode: undefined,
+			phase: "completed",
+			txSeq: 490,
+		})
+	})
 })

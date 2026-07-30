@@ -1,3 +1,4 @@
+import { CheckCircle2 } from "lucide-react"
 import { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 import { DownloadPanel } from "./download-panel"
@@ -5,7 +6,12 @@ import { NodeHealthPanel } from "./node-health-panel"
 import { UploadPanel } from "./upload-panel"
 import { type StoragePocUiError, useStoragePoc } from "./use-storage-poc"
 
-function errorMessage(error: StoragePocUiError, t: (key: string) => string): string {
+function uploadFailedSegment(message: string): string | undefined {
+	const match = /Segment (\d+)/.exec(message)
+	return match?.[1]
+}
+
+function errorMessage(error: StoragePocUiError, t: (key: string, options?: Record<string, unknown>) => string): string {
 	if (error.code === "EMPTY_FILE") {
 		return t("errors.empty")
 	}
@@ -18,7 +24,35 @@ function errorMessage(error: StoragePocUiError, t: (key: string) => string): str
 	if (error.code === "INVALID_ARGUMENT") {
 		return t("errors.invalidTarget")
 	}
+	if (error.code === "UPLOAD_FAILED") {
+		const segment = uploadFailedSegment(error.message) ?? "0"
+		const base = t("errors.uploadFailed", { segment })
+		if (error.detail) {
+			return `${base} ${t("errors.uploadFailedDetail", { detail: error.detail })}`
+		}
+		return base
+	}
+	if (error.code === "NO_HEALTHY_NODE") {
+		return t("errors.noHealthyNode")
+	}
+	if (error.code === "NODE_SYNC_TIMEOUT") {
+		return t("errors.nodeSyncTimeout")
+	}
 	return error.message || t("errors.unknown")
+}
+
+function errorHint(
+	error: StoragePocUiError,
+	t: (key: string, options?: Record<string, unknown>) => string,
+	txSeq?: number,
+): string | undefined {
+	if (
+		txSeq !== undefined &&
+		(error.code === "UPLOAD_FAILED" || error.code === "NO_HEALTHY_NODE" || error.code === "NODE_SYNC_TIMEOUT")
+	) {
+		return t("errors.contractConfirmedRetry", { txSeq })
+	}
+	return undefined
 }
 
 export function StoragePage() {
@@ -30,19 +64,21 @@ export function StoragePage() {
 			errorRef.current?.focus()
 		}
 	}, [storage.error])
-	let status: string | undefined
-	if (storage.preparing) {
-		status = t("status.preparing")
-	} else if (storage.session?.phase === "waiting-node-sync") {
-		status = t("status.waiting", { txSeq: storage.session.txSeq })
-	} else if (storage.session?.phase === "uploading") {
-		status = t("status.uploading")
-	} else if (storage.session?.phase === "downloading-for-verification") {
-		status = t("status.downloading")
-	} else if (storage.session?.phase === "completed") {
-		status = t("status.completed")
-	} else if (storage.session?.txHash !== undefined && !storage.downloadResult) {
-		status = t("status.recovered")
+	let uploadStatus: string | undefined
+	if (storage.uploadBusy) {
+		if (storage.preparing) {
+			uploadStatus = t("status.preparing")
+		} else if (storage.session?.phase === "awaiting-wallet" || storage.session?.phase === "transaction-pending") {
+			uploadStatus = t("status.submitting")
+		} else if (storage.session?.phase === "waiting-node-sync") {
+			uploadStatus = t("status.waiting", { txSeq: storage.session.txSeq })
+		} else if (storage.session?.phase === "uploading" || storage.session?.phase === "verifying-node") {
+			uploadStatus = t("status.uploading")
+		} else if (storage.session?.phase === "downloading-for-verification") {
+			uploadStatus = t("status.downloading")
+		} else {
+			uploadStatus = t("upload.processing")
+		}
 	}
 
 	return (
@@ -62,8 +98,37 @@ export function StoragePage() {
 
 			{storage.error ? (
 				<div className="storage-page__error" id="storage-page-error" ref={errorRef} role="alert" tabIndex={-1}>
-					<strong>{errorMessage(storage.error, t)}</strong>
-					{storage.error.code ? <code>{storage.error.code}</code> : null}
+					<div>
+						<strong>{errorMessage(storage.error, t)}</strong>
+						{errorHint(storage.error, t, storage.session?.txSeq) ? (
+							<p>{errorHint(storage.error, t, storage.session?.txSeq)}</p>
+						) : null}
+					</div>
+				</div>
+			) : null}
+
+			{storage.session?.phase === "completed" && storage.session.txSeq !== undefined && storage.prepared ? (
+				<div className="storage-page__success" role="status">
+					<div className="storage-page__success-title">
+						<CheckCircle2 aria-hidden="true" size={18} />
+						<strong>{t("success.title")}</strong>
+					</div>
+					<p>{t("success.description")}</p>
+					<dl>
+						<div>
+							<dt>{t("success.txSeq")}</dt>
+							<dd translate="no">{storage.session.txSeq}</dd>
+						</div>
+						<div>
+							<dt>{t("success.root")}</dt>
+							<dd>
+								<code title={storage.prepared.root} translate="no">
+									{storage.prepared.root}
+								</code>
+							</dd>
+						</div>
+					</dl>
+					<p className="storage-page__success-hint">{t("success.hint")}</p>
 				</div>
 			) : null}
 
@@ -82,9 +147,9 @@ export function StoragePage() {
 				</header>
 				<div className="storage-workspace__panels">
 					<UploadPanel
-						busy={storage.busy}
 						chainId={storage.chainId}
 						connected={storage.account.isConnected}
+						downloadResult={storage.downloadResult}
 						errorCode={storage.error?.code}
 						file={storage.file}
 						onFile={(file) => void storage.selectFile(file)}
@@ -92,11 +157,12 @@ export function StoragePage() {
 						prepared={storage.prepared}
 						preparing={storage.preparing}
 						session={storage.session}
-						status={status}
+						status={uploadStatus}
+						uploadBusy={storage.uploadBusy}
 						uploadProgress={storage.uploadProgress}
 					/>
 					<DownloadPanel
-						busy={storage.busy}
+						downloadBusy={storage.downloadBusy}
 						errorCode={storage.error?.code}
 						onDownload={() => void storage.download()}
 						onTarget={storage.setDownloadTarget}

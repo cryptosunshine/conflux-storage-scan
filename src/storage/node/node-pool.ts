@@ -109,7 +109,7 @@ function isHealthyStorageNode(health: StorageNodeHealth): health is HealthyStora
 	return health.healthy && health.status !== undefined && health.shard !== undefined && health.blockLag !== undefined
 }
 
-export async function selectStorageNode(input: SelectStorageNodeInput): Promise<HealthyStorageNode> {
+export async function selectHealthyStorageNodes(input: SelectStorageNodeInput): Promise<readonly HealthyStorageNode[]> {
 	const healthyNodes = (await inspectStorageNodes(input)).filter(isHealthyStorageNode)
 	healthyNodes.sort((left, right) => {
 		if (left.status.logSyncHeight !== right.status.logSyncHeight) {
@@ -117,8 +117,11 @@ export async function selectStorageNode(input: SelectStorageNodeInput): Promise<
 		}
 		return left.latencyMs - right.latencyMs
 	})
+	return healthyNodes
+}
 
-	const selected = healthyNodes[0]
+export async function selectStorageNode(input: SelectStorageNodeInput): Promise<HealthyStorageNode> {
+	const selected = (await selectHealthyStorageNodes(input))[0]
 	if (!selected) {
 		throw new StoragePocError("NO_HEALTHY_NODE", "No healthy Conflux Storage Node is available")
 	}

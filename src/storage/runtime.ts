@@ -9,6 +9,7 @@ import {
 	type HealthyStorageNode,
 	inspectStorageNodes,
 	type StorageNodeHealth,
+	selectHealthyStorageNodes,
 	selectStorageNode,
 } from "./node/node-pool"
 import { HttpStorageNodeClient, type StorageNodeClient } from "./node/storage-node-client"
@@ -25,6 +26,7 @@ export interface StoragePocRuntime {
 	download(input: DownloadAndVerifyStorageFileInput): Promise<StorageDownloadResult>
 	inspectNodes(chainHead: bigint, requiredTxSeq?: number): Promise<readonly StorageNodeHealth[]>
 	prepareFile(file: File, submitter: Address): Promise<PreparedStorageFile>
+	selectHealthyNodes(chainHead: bigint, requiredTxSeq?: number): Promise<readonly HealthyStorageNode[]>
 	selectNode(chainHead: bigint, requiredTxSeq?: number): Promise<HealthyStorageNode>
 	upload(input: UploadPreparedSegmentsInput): Promise<void>
 	waitForFile(input: WaitForNodeFileInfoInput): Promise<StorageNodeFileInfo>
@@ -52,6 +54,12 @@ function createLiveStoragePocRuntime({
 			}),
 		mode: "live",
 		prepareFile: prepareStorageFile,
+		selectHealthyNodes: (chainHead, requiredTxSeq) =>
+			selectHealthyStorageNodes({
+				chainHead,
+				clients,
+				...(requiredTxSeq === undefined ? {} : { requiredTxSeq }),
+			}),
 		selectNode: (chainHead, requiredTxSeq) =>
 			selectStorageNode({
 				chainHead,

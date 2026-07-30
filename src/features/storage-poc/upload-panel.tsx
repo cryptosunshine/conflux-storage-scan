@@ -1,15 +1,16 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit"
-import { CheckCircle2 } from "lucide-react"
+import { CheckCircle2, Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { formatBytes } from "../../components/format"
+import type { StorageDownloadResult } from "../../storage/download/download-file"
 import type { PreparedStorageFile } from "../../storage/sdk/prepare-file"
 import type { StorageUploadSession } from "../../storage/session/upload-session"
 import type { StorageUploadProgress } from "../../storage/upload/upload-segments"
 
 export interface UploadPanelProps {
-	readonly busy: boolean
 	readonly chainId: number
 	readonly connected: boolean
+	readonly downloadResult?: StorageDownloadResult
 	readonly errorCode?: string
 	readonly file?: File
 	readonly onFile: (file?: File) => void
@@ -18,13 +19,14 @@ export interface UploadPanelProps {
 	readonly preparing: boolean
 	readonly session?: StorageUploadSession
 	readonly status?: string
+	readonly uploadBusy: boolean
 	readonly uploadProgress?: StorageUploadProgress
 }
 
 export function UploadPanel({
-	busy,
 	chainId,
 	connected,
+	downloadResult,
 	errorCode,
 	file,
 	onFile,
@@ -33,17 +35,35 @@ export function UploadPanel({
 	preparing,
 	session,
 	status,
+	uploadBusy,
 	uploadProgress,
 }: UploadPanelProps) {
 	const { i18n, t } = useTranslation("storagePoc")
 	const locale = i18n.resolvedLanguage ?? i18n.language
-	const resumesSubmittedSession = session?.txHash !== undefined && session.txSeq !== undefined
+	const resumesSubmittedSession =
+		session?.txHash !== undefined && session.txSeq !== undefined && session.phase !== "completed"
+	const uploadCompleted = session?.phase === "completed"
+	const resourceVerifiedOnNode =
+		uploadCompleted ||
+		(downloadResult?.verified === true && session?.txSeq !== undefined && downloadResult.txSeq === session.txSeq)
+	const showUploadPendingNotice =
+		session?.phase === "recoverable-error" &&
+		session.txHash !== undefined &&
+		session.txSeq !== undefined &&
+		!resourceVerifiedOnNode
 	const wrongNetwork = connected && chainId !== 71
 	const fileInvalid =
 		errorCode === "EMPTY_FILE" ||
 		errorCode === "FILE_TOO_LARGE" ||
 		errorCode === "INTEGRITY_MISMATCH" ||
 		errorCode === "INVALID_FILE_METADATA"
+
+	const actionLabel = resumesSubmittedSession
+		? t("upload.resume")
+		: wrongNetwork
+			? t("upload.switchNetwork")
+			: t("upload.action")
+	const buttonLabel = uploadBusy ? (status ?? t("upload.processing")) : actionLabel
 
 	return (
 		<div className="storage-workspace__panel storage-workspace__panel--upload">
@@ -64,7 +84,7 @@ export function UploadPanel({
 						aria-describedby="storage-page-file-hint"
 						aria-errormessage={fileInvalid ? "storage-page-error" : undefined}
 						aria-invalid={fileInvalid}
-						disabled={busy || preparing}
+						disabled={uploadBusy || preparing}
 						id="storage-page-file"
 						name="storageFile"
 						onChange={(event) => onFile(event.target.files?.[0])}
@@ -129,13 +149,39 @@ export function UploadPanel({
 					</div>
 				) : null}
 
-				{status ? (
+				{uploadCompleted ? (
+					<div className="storage-page__prepared storage-page__prepared--completed" role="status">
+						<div className="storage-page__success-title">
+							<CheckCircle2 aria-hidden="true" size={17} />
+							<strong>{t("success.title")}</strong>
+						</div>
+						{session?.txSeq !== undefined ? (
+							<p>
+								{t("success.txSeq")}: <span translate="no">{session.txSeq}</span>
+							</p>
+						) : null}
+					</div>
+				) : null}
+
+				{showUploadPendingNotice ? (
+					<div className="storage-page__contract-notice storage-page__contract-notice--warning" role="status">
+						<strong>{t("upload.contractConfirmedTitle")}</strong>
+						<p>
+							{t("upload.contractConfirmedBody", {
+								txSeq: session.txSeq,
+							})}
+						</p>
+						<p>{t("upload.contractConfirmedRetry")}</p>
+					</div>
+				) : null}
+
+				{status && !uploadCompleted && uploadBusy ? (
 					<p aria-live="polite" className="storage-page__phase" role="status">
 						{status}
 					</p>
 				) : null}
 
-				{prepared && !connected && !resumesSubmittedSession ? (
+				{prepared && !connected && !resumesSubmittedSession && !uploadCompleted ? (
 					<ConnectButton.Custom>
 						{({ openConnectModal }) => (
 							<button className="primary-button storage-page__primary-action" onClick={openConnectModal} type="button">
@@ -143,18 +189,16 @@ export function UploadPanel({
 							</button>
 						)}
 					</ConnectButton.Custom>
-				) : (
+				) : uploadCompleted ? null : (
 					<button
-						className="primary-button storage-page__primary-action"
-						disabled={!prepared || busy || preparing}
+						aria-busy={uploadBusy}
+						className={`primary-button storage-page__primary-action${uploadBusy ? " primary-button--loading" : ""}`}
+						disabled={!prepared || uploadBusy || preparing}
 						onClick={onSubmit}
 						type="button"
 					>
-						{resumesSubmittedSession
-							? t("upload.resume")
-							: wrongNetwork
-								? t("upload.switchNetwork")
-								: t("upload.action")}
+						{uploadBusy ? <Loader2 aria-hidden="true" className="primary-button__spinner" size={16} /> : null}
+						{buttonLabel}
 					</button>
 				)}
 			</div>

@@ -36,6 +36,7 @@ export interface StorageUploadSession {
 
 export type StorageUploadSessionAction =
 	| { readonly type: "completed" }
+	| { readonly type: "verified-externally" }
 	| {
 			readonly confirmedSegmentIndexes: readonly number[]
 			readonly type: "upload-progress"
@@ -150,6 +151,18 @@ export function reduceStorageUploadSession(
 			return updateSession(session, { phase: "downloading-for-verification" })
 		case "completed":
 			requirePhase(session, action.type, ["downloading-for-verification"])
+			return updateSession(session, {
+				errorCode: undefined,
+				phase: "completed",
+			})
+		case "verified-externally":
+			requirePhase(session, action.type, [
+				"recoverable-error",
+				"waiting-node-sync",
+				"uploading",
+				"verifying-node",
+				"downloading-for-verification",
+			])
 			return updateSession(session, {
 				errorCode: undefined,
 				phase: "completed",

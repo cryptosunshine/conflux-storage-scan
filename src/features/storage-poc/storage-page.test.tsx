@@ -165,6 +165,90 @@ describe("StoragePage", () => {
 		expect(await screen.findByRole("alert")).toHaveTextContent("File must be 100 MiB or smaller")
 	})
 
+	it("shows contract-confirmed guidance when a submitted session is recovered", async () => {
+		const user = userEvent.setup()
+		const runtime = createStoragePocFixtureRuntime()
+		const file = new File([Uint8Array.of(0)], "recovery.bin")
+		const prepared = await runtime.prepareFile(file, zeroAddress)
+		await runtime.sessions.put({
+			account: zeroAddress,
+			confirmedSegmentIndexes: [],
+			createdAt: 1,
+			errorCode: "NO_HEALTHY_NODE",
+			fileName: file.name,
+			fileSize: file.size,
+			id: "recovery-session",
+			identity: prepared.identity,
+			phase: "recoverable-error",
+			root: prepared.root,
+			schemaVersion: 1,
+			totalSegments: prepared.segmentCount,
+			txHash: zeroHash,
+			txSeq: 485,
+			updatedAt: 2,
+		})
+
+		await renderWithDataSource(<StoragePage />, dataSource(), {
+			storagePocRuntime: runtime,
+		})
+		await user.upload(screen.getByLabelText("Choose file"), file)
+
+		expect(await screen.findByText("On-chain submission complete")).toBeInTheDocument()
+		expect(screen.getByText(/TxSeq 485 is recorded on FixedPriceFlow/)).toBeInTheDocument()
+		expect(screen.getByRole("button", { name: "Continue upload" })).toBeEnabled()
+	})
+
+	it("hides the upload pending notice after a verified download for the same TxSeq", async () => {
+		const user = userEvent.setup()
+		const runtime = createStoragePocFixtureRuntime()
+		const file = new File([Uint8Array.of(0x63)], "CHANGES.txt", {
+			type: "text/plain",
+		})
+		const prepared = await runtime.prepareFile(file, zeroAddress)
+		vi.spyOn(runtime, "download").mockResolvedValue({
+			bytesEqual: true,
+			file: new File([await file.arrayBuffer()], file.name, { type: file.type }),
+			fileMetadataRecovered: true,
+			root: prepared.root,
+			txSeq: 490,
+			verified: true,
+		})
+		await runtime.sessions.put({
+			account: zeroAddress,
+			confirmedSegmentIndexes: [],
+			createdAt: 1,
+			errorCode: "UPLOAD_FAILED",
+			fileName: file.name,
+			fileSize: file.size,
+			id: "recovery-session",
+			identity: prepared.identity,
+			phase: "recoverable-error",
+			root: prepared.root,
+			schemaVersion: 1,
+			totalSegments: prepared.segmentCount,
+			txHash: zeroHash,
+			txSeq: 490,
+			updatedAt: 2,
+		})
+
+		await renderWithDataSource(<StoragePage />, dataSource(), {
+			storagePocRuntime: runtime,
+		})
+		await user.upload(screen.getByLabelText("Choose file"), file)
+		expect(await screen.findByText("On-chain submission complete")).toBeInTheDocument()
+
+		await user.type(screen.getByLabelText("TxSeq or Merkle Root"), "490")
+		await user.click(screen.getByRole("button", { name: "Download resource" }))
+
+		expect(await screen.findByText("Merkle Root verified")).toBeInTheDocument()
+		expect(screen.queryByText(/TxSeq 490 is recorded on FixedPriceFlow/)).not.toBeInTheDocument()
+		expect(screen.getAllByText("Upload successful").length).toBeGreaterThan(0)
+		expect(await runtime.sessions.getLatest()).toMatchObject({
+			phase: "completed",
+			txSeq: 490,
+		})
+	})
+
 	it("resumes a submitted session without sending a second transaction", async () => {
 		const user = userEvent.setup()
 		const runtime = createStoragePocFixtureRuntime()
@@ -205,6 +289,8 @@ describe("StoragePage", () => {
 		await user.click(resume)
 
 		expect(await screen.findByText("Merkle Root verified")).toBeInTheDocument()
+		expect(screen.getAllByText("Upload successful").length).toBeGreaterThan(0)
+		expect(screen.getByLabelText("TxSeq or Merkle Root")).toHaveValue("485")
 		expect(screen.getByRole("link", { name: "Save file" })).toHaveAttribute("href", "blob:verified")
 		expect(submitStorageFile).not.toHaveBeenCalled()
 		expect(await runtime.sessions.getLatest()).toMatchObject({

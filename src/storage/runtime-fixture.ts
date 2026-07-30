@@ -175,6 +175,9 @@ export function createStoragePocFixtureRuntime({
 			lastPrepared = await prepareStorageFile(file, submitter)
 			return lastPrepared
 		},
+		async selectHealthyNodes(chainHead) {
+			return [health(chainHead)]
+		},
 		async selectNode(chainHead) {
 			return health(chainHead)
 		},

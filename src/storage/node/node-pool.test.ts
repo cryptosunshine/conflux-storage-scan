@@ -1,7 +1,7 @@
 import type { Address, Hex } from "viem"
 import { describe, expect, it } from "vitest"
 import type { StorageNodeFileInfo, StorageNodeStatus, StorageSegmentWithProof, StorageShardConfig } from "../types"
-import { inspectStorageNodes, selectStorageNode } from "./node-pool"
+import { inspectStorageNodes, selectHealthyStorageNodes, selectStorageNode } from "./node-pool"
 import type { StorageNodeClient } from "./storage-node-client"
 
 const proxy = "0x3fF03285AA79027Ecc552432336FCB85eaD7199e" as Address
@@ -72,6 +72,27 @@ describe("Storage Node pool", () => {
 		expect(selected.client.url).toBe("http://47.84.224.253:5678")
 		expect(selected.blockLag).toBe(46n)
 		expect(selected.healthy).toBe(true)
+	})
+
+	it("returns only healthy nodes and excludes lagging node 0", async () => {
+		const healthyNodes = await selectHealthyStorageNodes({
+			chainHead: 258_467_910n,
+			clients: [
+				fakeNode({
+					logSyncHeight: 258_200_000n,
+					nextTxSeq: 491,
+					url: "http://47.84.225.228:5678",
+				}),
+				fakeNode({
+					logSyncHeight: 258_467_864n,
+					nextTxSeq: 491,
+					url: "http://47.84.224.253:5678",
+				}),
+			],
+			requiredTxSeq: 490,
+		})
+
+		expect(healthyNodes.map(({ client }) => client.url)).toEqual(["http://47.84.224.253:5678"])
 	})
 
 	it("reports identity, lag, shard, synchronization, and network failures separately", async () => {

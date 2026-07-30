@@ -15,12 +15,14 @@ import {
 } from "../../storage/session/upload-session"
 import { StoragePocError } from "../../storage/types"
 import type { StorageUploadProgress } from "../../storage/upload/upload-segments"
+import { uploadViaHealthyNodes } from "../../storage/upload/upload-via-healthy-nodes"
 
 const FIXTURE_CHAIN_HEAD = 253_160_999n
 const UNSIGNED_DECIMAL = /^(?:0|[1-9]\d*)$/
 
 export interface StoragePocUiError {
 	readonly code?: string
+	readonly detail?: string
 	readonly message: string
 }
 
@@ -28,6 +30,7 @@ function toUiError(error: unknown): StoragePocUiError {
 	if (error instanceof StoragePocError) {
 		return {
 			code: error.code,
+			detail: error.cause instanceof Error ? error.cause.message : undefined,
 			message: error.message,
 		}
 	}
@@ -74,13 +77,15 @@ export function useStoragePoc() {
 	const [nodeHealth, setNodeHealth] = useState<readonly StorageNodeHealth[]>()
 	const [nodeChecking, setNodeChecking] = useState(false)
 	const [preparing, setPreparing] = useState(false)
-	const [busy, setBusy] = useState(false)
+	const [uploadBusy, setUploadBusy] = useState(false)
+	const [downloadBusy, setDownloadBusy] = useState(false)
 	const [error, setError] = useState<StoragePocUiError>()
 	const [uploadProgress, setUploadProgress] = useState<StorageUploadProgress>()
 	const [downloadTarget, setDownloadTarget] = useState("")
 	const [downloadResult, setDownloadResult] = useState<StorageDownloadResult>()
 	const prepareSequence = useRef(0)
-	const flowInFlight = useRef(false)
+	const uploadInFlight = useRef(false)
+	const downloadInFlight = useRef(false)
 
 	const getChainHead = useCallback(async () => {
 		if (runtime.mode === "fixture") {
@@ -210,20 +215,17 @@ export function useStoragePoc() {
 			if (working.phase === "recoverable-error" || working.phase === "paused") {
 				working = await persistTransition(working, { type: "resume" })
 			}
+			await checkNodes(txSeq)
 			const chainHead = await getChainHead()
-			const selected = await runtime.selectNode(chainHead, txSeq)
-			await runtime.waitForFile({
-				client: selected.client,
-				expectedRoot: preparedFile.root,
-				expectedSize: preparedFile.source.size,
-				txSeq,
-			})
-			working = await persistTransition(working, {
-				nodeUrl: selected.client.url,
-				type: "node-synchronized",
-			})
-			await runtime.upload({
-				client: selected.client,
+			const healthyNodes = await runtime.selectHealthyNodes(chainHead, txSeq)
+			const selected = await uploadViaHealthyNodes({
+				nodes: healthyNodes,
+				onNodeReady: async (node) => {
+					working = await persistTransition(working, {
+						nodeUrl: node.client.url,
+						type: "node-synchronized",
+					})
+				},
 				onProgress: (progress) => {
 					setUploadProgress(progress)
 					const confirmedSegmentIndexes = Array.from({ length: progress.confirmedSegments }, (_, index) => index)
@@ -236,6 +238,8 @@ export function useStoragePoc() {
 				},
 				prepared: preparedFile,
 				txSeq,
+				upload: runtime.upload,
+				waitForFile: runtime.waitForFile,
 			})
 			await runtime.sessions.put(working)
 			working = await persistTransition(working, {
@@ -250,6 +254,8 @@ export function useStoragePoc() {
 				target: { txSeq },
 			})
 			setDownloadResult(result)
+			setDownloadTarget(String(txSeq))
+			setError(undefined)
 			await persistTransition(working, { type: "completed" })
 			await checkNodes(txSeq)
 		},
@@ -257,11 +263,11 @@ export function useStoragePoc() {
 	)
 
 	const submitOrResume = useCallback(async () => {
-		if (!prepared || !file || flowInFlight.current) {
+		if (!prepared || !file || uploadInFlight.current) {
 			return
 		}
-		flowInFlight.current = true
-		setBusy(true)
+		uploadInFlight.current = true
+		setUploadBusy(true)
 		setError(undefined)
 		try {
 			if (session?.txHash !== undefined && session.txSeq !== undefined) {
@@ -338,8 +344,8 @@ export function useStoragePoc() {
 				return current
 			})
 		} finally {
-			flowInFlight.current = false
-			setBusy(false)
+			uploadInFlight.current = false
+			setUploadBusy(false)
 		}
 	}, [
 		account.address,
@@ -357,11 +363,11 @@ export function useStoragePoc() {
 	])
 
 	const download = useCallback(async () => {
-		if (busy || flowInFlight.current) {
+		if (downloadInFlight.current) {
 			return
 		}
-		flowInFlight.current = true
-		setBusy(true)
+		downloadInFlight.current = true
+		setDownloadBusy(true)
 		setError(undefined)
 		setDownloadResult(undefined)
 		try {
@@ -379,35 +385,49 @@ export function useStoragePoc() {
 					: undefined
 			const chainHead = await getChainHead()
 			const selected = await runtime.selectNode(chainHead, "txSeq" in target ? target.txSeq : undefined)
-			setDownloadResult(
-				await runtime.download({
-					client: selected.client,
-					...(matchingOriginalFile === undefined ? {} : { originalFile: matchingOriginalFile }),
-					resolveSubmission: resolveDownloadSubmission,
-					target,
-				}),
-			)
+			const result = await runtime.download({
+				client: selected.client,
+				...(matchingOriginalFile === undefined ? {} : { originalFile: matchingOriginalFile }),
+				resolveSubmission: resolveDownloadSubmission,
+				target,
+			})
+			setDownloadResult(result)
+			if (
+				session &&
+				session.phase !== "completed" &&
+				session.txSeq !== undefined &&
+				result.verified &&
+				(("txSeq" in target && target.txSeq === session.txSeq) ||
+					("root" in target && session.root?.toLowerCase() === target.root.toLowerCase()) ||
+					result.txSeq === session.txSeq)
+			) {
+				setSession(await persistTransition(session, { type: "verified-externally" }))
+				setError(undefined)
+				if (session.txSeq !== undefined) {
+					setDownloadTarget(String(session.txSeq))
+				}
+			}
 		} catch (cause) {
 			setError(toUiError(cause))
 		} finally {
-			flowInFlight.current = false
-			setBusy(false)
+			downloadInFlight.current = false
+			setDownloadBusy(false)
 		}
 	}, [
-		busy,
 		downloadTarget,
 		file,
 		getChainHead,
+		persistTransition,
 		prepared?.root,
 		resolveDownloadSubmission,
 		runtime,
-		session?.root,
-		session?.txSeq,
+		session,
 	])
 
 	return {
 		account,
-		busy,
+		downloadBusy,
+		uploadBusy,
 		checkNodes,
 		chainId,
 		download,
