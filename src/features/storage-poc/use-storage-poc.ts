@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { type Address, isHex, size, zeroAddress } from "viem"
 import { useAccount, useChainId, usePublicClient, useSwitchChain, useWalletClient } from "wagmi"
-import { useStoragePocRuntime } from "../../app/providers"
+import { useStorageDataSource, useStoragePocRuntime } from "../../app/providers"
 import { CONFLUX_ESPACE_TESTNET_CHAIN_ID } from "../../chain/config"
 import { submitStorageFile } from "../../storage/contract/submit-storage"
 import type { StorageDownloadResult, StorageDownloadTarget } from "../../storage/download/download-file"
@@ -52,6 +52,7 @@ function parseDownloadTarget(value: string): StorageDownloadTarget {
 
 export function useStoragePoc() {
 	const runtime = useStoragePocRuntime()
+	const dataSource = useStorageDataSource()
 	const account = useAccount()
 	const chainId = useChainId()
 	const { switchChainAsync } = useSwitchChain()
@@ -82,6 +83,27 @@ export function useStoragePoc() {
 		}
 		return publicClient.getBlockNumber()
 	}, [publicClient, runtime.mode])
+
+	const resolveDownloadSubmission = useCallback(
+		async (txSeq: number) => {
+			try {
+				let submission = await dataSource.getSubmission(BigInt(txSeq))
+				if (!submission) {
+					await dataSource.sync()
+					submission = await dataSource.getSubmission(BigInt(txSeq))
+				}
+				return submission
+					? {
+							logicalSizeBytes: submission.logicalSizeBytes,
+							tags: submission.tags,
+						}
+					: undefined
+			} catch {
+				return undefined
+			}
+		},
+		[dataSource],
+	)
 
 	const checkNodes = useCallback(
 		async (requiredTxSeq?: number) => {
@@ -352,6 +374,7 @@ export function useStoragePoc() {
 				await runtime.download({
 					client: selected.client,
 					...(matchingOriginalFile === undefined ? {} : { originalFile: matchingOriginalFile }),
+					resolveSubmission: resolveDownloadSubmission,
 					target,
 				}),
 			)
@@ -361,7 +384,17 @@ export function useStoragePoc() {
 			flowInFlight.current = false
 			setBusy(false)
 		}
-	}, [busy, downloadTarget, file, getChainHead, prepared?.root, runtime, session?.root, session?.txSeq])
+	}, [
+		busy,
+		downloadTarget,
+		file,
+		getChainHead,
+		prepared?.root,
+		resolveDownloadSubmission,
+		runtime,
+		session?.root,
+		session?.txSeq,
+	])
 
 	return {
 		account,

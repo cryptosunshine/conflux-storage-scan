@@ -75,6 +75,7 @@ export function DownloadPanel({ busy, errorCode, onDownload, onTarget, result, t
 					<p>
 						{t("download.name")}: {result.file.name} · {formatBytes(BigInt(result.file.size), locale)}
 					</p>
+					{result.fileMetadataRecovered ? null : <p>{t("download.metadataFallback")}</p>}
 					<code translate="no">{result.root}</code>
 					{objectUrl ? (
 						<a className="secondary-button" download={result.file.name} href={objectUrl}>

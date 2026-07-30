@@ -13,6 +13,9 @@ function errorMessage(error: StoragePocUiError, t: (key: string) => string): str
 	if (error.code === "FILE_TOO_LARGE") {
 		return t("errors.oversized")
 	}
+	if (error.code === "INVALID_FILE_METADATA") {
+		return t("errors.metadata")
+	}
 	if (error.code === "INVALID_ARGUMENT") {
 		return t("errors.invalidTarget")
 	}

@@ -161,6 +161,7 @@ export function createStoragePocFixtureRuntime({
 			return {
 				bytesEqual: true,
 				file: new File([await original.arrayBuffer()], `storage-${info.tx.seq}.bin`),
+				fileMetadataRecovered: input.originalFile !== undefined,
 				root: info.tx.dataMerkleRoot,
 				txSeq: info.tx.seq,
 				verified: true,

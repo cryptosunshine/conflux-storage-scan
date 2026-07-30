@@ -2,6 +2,7 @@ import { encodeBase64 } from "ethers"
 import { type Hex, zeroAddress } from "viem"
 import { describe, expect, it, vi } from "vitest"
 import { STORAGE_POC_MAX_FILE_BYTES } from "../config"
+import { encodeStorageFileMetadata } from "../metadata/file-metadata"
 import type { StorageNodeClient } from "../node/storage-node-client"
 import { prepareStorageFile } from "../sdk/prepare-file"
 import type { StorageNodeFileInfo } from "../types"
@@ -101,6 +102,59 @@ describe("downloadAndVerifyStorageFile", () => {
 		expect(result.bytesEqual).toBe(true)
 	})
 
+	it("restores the public file name and media type without the original File", async () => {
+		const bytes = Uint8Array.of(0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a)
+		const source = new File([blobPart(bytes)], "t.png", {
+			type: "image/png",
+		})
+		const prepared = await prepareStorageFile(source, zeroAddress)
+		const padded = new Uint8Array(256)
+		padded.set(bytes)
+		const node = client({
+			info: fileInfo(prepared.root, bytes.length, 486),
+			segments: new Map([["486:0:1", encodeBase64(padded)]]),
+		})
+
+		const result = await downloadAndVerifyStorageFile({
+			client: node,
+			resolveSubmission: async (txSeq) => {
+				expect(txSeq).toBe(486)
+				return {
+					logicalSizeBytes: BigInt(bytes.length),
+					tags: encodeStorageFileMetadata(source),
+				}
+			},
+			target: { root: prepared.root },
+		})
+
+		expect(result.file.name).toBe("t.png")
+		expect(result.file.type).toBe("image/png")
+		expect(result.fileMetadataRecovered).toBe(true)
+	})
+
+	it("uses a generic filename for an old tags=0x submission", async () => {
+		const bytes = fixtureBytes(1)
+		const prepared = await prepareStorageFile(new File([blobPart(bytes)], "source.bin"), zeroAddress)
+		const padded = new Uint8Array(256)
+		padded.set(bytes)
+
+		const result = await downloadAndVerifyStorageFile({
+			client: client({
+				info: fileInfo(prepared.root, bytes.length, 486),
+				segments: new Map([["486:0:1", encodeBase64(padded)]]),
+			}),
+			resolveSubmission: async () => ({
+				logicalSizeBytes: 1n,
+				tags: "0x",
+			}),
+			target: { txSeq: 486 },
+		})
+
+		expect(result.file.name).toBe("storage-486.bin")
+		expect(result.file.type).toBe("application/octet-stream")
+		expect(result.fileMetadataRecovered).toBe(false)
+	})
+
 	it("downloads multiple Segments by Root with exact Chunk ranges", async () => {
 		const bytes = fixtureBytes(262_145)
 		const prepared = await prepareStorageFile(new File([blobPart(bytes)], "source.bin"), zeroAddress)
@@ -171,5 +225,28 @@ describe("downloadAndVerifyStorageFile", () => {
 				target: { txSeq: 485 },
 			}),
 		).rejects.toMatchObject({ code: "INTEGRITY_MISMATCH" })
+	})
+
+	it("rejects a canonical Submit size that conflicts with FileInfo", async () => {
+		const bytes = fixtureBytes(1)
+		const prepared = await prepareStorageFile(new File([blobPart(bytes)], "source.bin"), zeroAddress)
+		const download = vi.fn(async () => encodeBase64(new Uint8Array(256)))
+
+		await expect(
+			downloadAndVerifyStorageFile({
+				client: {
+					...client({
+						info: fileInfo(prepared.root, bytes.length, 486),
+					}),
+					downloadSegmentByTxSeq: download,
+				},
+				resolveSubmission: async () => ({
+					logicalSizeBytes: 2n,
+					tags: "0x",
+				}),
+				target: { txSeq: 486 },
+			}),
+		).rejects.toMatchObject({ code: "FILE_INFO_MISMATCH" })
+		expect(download).not.toHaveBeenCalled()
 	})
 })

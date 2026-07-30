@@ -8,6 +8,7 @@ import {
 	STORAGE_SEGMENT_BYTES,
 	STORAGE_SEGMENT_CHUNKS,
 } from "../config"
+import { encodeStorageFileMetadata } from "../metadata/file-metadata"
 import { StoragePocError, type StorageSegmentProof, type StorageSegmentWithProof } from "../types"
 
 export interface PreparedStorageSubmission {
@@ -17,7 +18,7 @@ export interface PreparedStorageSubmission {
 			readonly height: bigint
 			readonly root: Hex
 		}[]
-		readonly tags: "0x"
+		readonly tags: Hex
 	}
 	readonly submitter: Address
 }
@@ -81,7 +82,8 @@ export async function prepareStorageFile(file: File, submitter: Address): Promis
 		})
 	}
 	const root = requireHash(tree.rootHash(), "Merkle Root")
-	const [sdkSubmission, submissionError] = await sdkFile.createSubmission("0x", normalizedSubmitter)
+	const tags = encodeStorageFileMetadata(file)
+	const [sdkSubmission, submissionError] = await sdkFile.createSubmission(tags, normalizedSubmitter)
 	if (submissionError || !sdkSubmission) {
 		throw new StoragePocError("SDK_ERROR", "0G SDK failed to create the storage Submission", {
 			cause: submissionError ?? undefined,
@@ -96,7 +98,7 @@ export async function prepareStorageFile(file: File, submitter: Address): Promis
 		data: {
 			length: BigInt(file.size),
 			nodes,
-			tags: "0x",
+			tags,
 		},
 		submitter: normalizedSubmitter,
 	}

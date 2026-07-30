@@ -114,7 +114,12 @@ export async function submitStorageFile({
 			log.args.identity?.toLowerCase() === prepared.identity.toLowerCase(),
 	)
 	const submissionIndex = matchingLog?.args.submissionIndex
-	if (submissionIndex === undefined || submissionIndex > BigInt(Number.MAX_SAFE_INTEGER)) {
+	const eventTags = matchingLog?.args.submission?.tags
+	if (
+		submissionIndex === undefined ||
+		submissionIndex > BigInt(Number.MAX_SAFE_INTEGER) ||
+		eventTags?.toLowerCase() !== prepared.submission.data.tags.toLowerCase()
+	) {
 		throw new StoragePocError("SUBMIT_EVENT_MISSING", "Transaction receipt does not contain the prepared Submit event")
 	}
 

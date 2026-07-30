@@ -39,7 +39,11 @@ export function UploadPanel({
 	const locale = i18n.resolvedLanguage ?? i18n.language
 	const resumesSubmittedSession = session?.txHash !== undefined && session.txSeq !== undefined
 	const wrongNetwork = connected && chainId !== 71
-	const fileInvalid = errorCode === "EMPTY_FILE" || errorCode === "FILE_TOO_LARGE" || errorCode === "INTEGRITY_MISMATCH"
+	const fileInvalid =
+		errorCode === "EMPTY_FILE" ||
+		errorCode === "FILE_TOO_LARGE" ||
+		errorCode === "INTEGRITY_MISMATCH" ||
+		errorCode === "INVALID_FILE_METADATA"
 
 	return (
 		<section aria-labelledby="storage-upload-title" className="storage-poc__operation">

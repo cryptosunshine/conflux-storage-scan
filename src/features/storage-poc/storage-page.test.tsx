@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest"
 import { createFixtureDataSource } from "../../data/fixture-data-source"
 import { STORAGE_POC_MAX_FILE_BYTES } from "../../storage/config"
 import { submitStorageFile } from "../../storage/contract/submit-storage"
+import { encodeStorageFileMetadata } from "../../storage/metadata/file-metadata"
 import { createStoragePocFixtureRuntime } from "../../storage/runtime-fixture"
 import { renderWithDataSource } from "../../test/render"
 import { StoragePage } from "./storage-page"
@@ -31,6 +32,7 @@ describe("StoragePage", () => {
 		expect(screen.getByText("Local HTTP POC")).toBeInTheDocument()
 		expect(screen.getByText("0 CFX", { exact: true })).toBeInTheDocument()
 		expect(screen.getByText(/network gas is separate/i)).toBeInTheDocument()
+		expect(screen.getByText(/file name and type are public/i)).toBeInTheDocument()
 		expect(screen.getByLabelText("TxSeq or Merkle Root")).toBeEnabled()
 
 		await waitFor(() => {
@@ -76,6 +78,7 @@ describe("StoragePage", () => {
 			return {
 				...(input.originalFile ? { bytesEqual: true } : {}),
 				file: downloaded,
+				fileMetadataRecovered: input.originalFile !== undefined,
 				root: prepared.root,
 				txSeq: 486,
 				verified: true,
@@ -95,6 +98,52 @@ describe("StoragePage", () => {
 			expect.objectContaining({
 				originalFile: file,
 				target: { root: prepared.root },
+			}),
+		)
+	})
+
+	it("resolves public metadata from the canonical submission index", async () => {
+		const user = userEvent.setup()
+		const source = dataSource()
+		const getSubmission = vi.spyOn(source, "getSubmission").mockResolvedValue({
+			logicalSizeBytes: 4n,
+			tags: encodeStorageFileMetadata({
+				name: "t.png",
+				type: "image/png",
+			}),
+		} as never)
+		const runtime = createStoragePocFixtureRuntime()
+		const download = vi.spyOn(runtime, "download").mockImplementation(async (input) => {
+			const submission = await input.resolveSubmission?.(486)
+			expect(submission?.tags).toBe(
+				encodeStorageFileMetadata({
+					name: "t.png",
+					type: "image/png",
+				}),
+			)
+			return {
+				file: new File([Uint8Array.of(0x89, 0x50, 0x4e, 0x47)], "t.png", {
+					type: "image/png",
+				}),
+				fileMetadataRecovered: true,
+				root: `0x${"11".repeat(32)}`,
+				txSeq: 486,
+				verified: true,
+			}
+		})
+
+		await renderWithDataSource(<StoragePage />, source, {
+			storagePocRuntime: runtime,
+		})
+		await user.type(screen.getByLabelText("TxSeq or Merkle Root"), "486")
+		await user.click(screen.getByRole("button", { name: "Download and verify" }))
+
+		expect(await screen.findByText(/Downloaded file: t\.png/)).toBeInTheDocument()
+		expect(getSubmission).toHaveBeenCalledWith(486n)
+		expect(download).toHaveBeenCalledWith(
+			expect.objectContaining({
+				resolveSubmission: expect.any(Function),
+				target: { txSeq: 486 },
 			}),
 		)
 	})

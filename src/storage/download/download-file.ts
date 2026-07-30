@@ -1,6 +1,7 @@
 import { decodeBase64 } from "ethers"
 import { type Hex, zeroAddress } from "viem"
 import { STORAGE_CHUNK_BYTES, STORAGE_POC_MAX_FILE_BYTES, STORAGE_SEGMENT_CHUNKS } from "../config"
+import { resolveStorageDownloadMetadata } from "../metadata/file-metadata"
 import type { StorageNodeClient } from "../node/storage-node-client"
 import { prepareStorageFile } from "../sdk/prepare-file"
 import { type StorageNodeFileInfo, StoragePocError } from "../types"
@@ -10,12 +11,19 @@ export type StorageDownloadTarget = { readonly root: Hex } | { readonly txSeq: n
 export interface DownloadAndVerifyStorageFileInput {
 	readonly client: StorageNodeClient
 	readonly originalFile?: File
+	readonly resolveSubmission?: (txSeq: number) => Promise<StorageDownloadSubmission | undefined>
 	readonly target: StorageDownloadTarget
+}
+
+export interface StorageDownloadSubmission {
+	readonly logicalSizeBytes: bigint
+	readonly tags: Hex
 }
 
 export interface StorageDownloadResult {
 	readonly bytesEqual?: boolean
 	readonly file: File
+	readonly fileMetadataRecovered: boolean
 	readonly root: Hex
 	readonly txSeq: number
 	readonly verified: true
@@ -56,6 +64,7 @@ async function compareFiles(left: File, right: File): Promise<boolean> {
 export async function downloadAndVerifyStorageFile({
 	client,
 	originalFile,
+	resolveSubmission,
 	target,
 }: DownloadAndVerifyStorageFileInput): Promise<StorageDownloadResult> {
 	const info = await resolveFileInfo(client, target)
@@ -68,6 +77,22 @@ export async function downloadAndVerifyStorageFile({
 			`File exceeds the ${STORAGE_POC_MAX_FILE_BYTES}-byte POC download limit`,
 		)
 	}
+	let submission: StorageDownloadSubmission | undefined
+	try {
+		submission = await resolveSubmission?.(info.tx.seq)
+	} catch {
+		submission = undefined
+	}
+	if (submission && submission.logicalSizeBytes !== BigInt(info.tx.size)) {
+		throw new StoragePocError("FILE_INFO_MISMATCH", "Canonical Submit size does not match Storage Node FileInfo")
+	}
+	const downloadMetadata = originalFile
+		? {
+				fileName: originalFile.name,
+				mediaType: originalFile.type || "application/octet-stream",
+				recovered: true,
+			}
+		: resolveStorageDownloadMetadata(submission?.tags, info.tx.seq)
 
 	const chunkCount = Math.ceil(info.tx.size / STORAGE_CHUNK_BYTES)
 	const segmentCount = Math.ceil(chunkCount / STORAGE_SEGMENT_CHUNKS)
@@ -92,8 +117,8 @@ export async function downloadAndVerifyStorageFile({
 	if (downloaded.size !== info.tx.size) {
 		throw new StoragePocError("DOWNLOAD_FAILED", "Storage Node returned fewer bytes than FileInfo declares")
 	}
-	const file = new File([downloaded], originalFile?.name ?? `storage-${info.tx.seq}.bin`, {
-		type: originalFile?.type || "application/octet-stream",
+	const file = new File([downloaded], downloadMetadata.fileName, {
+		type: downloadMetadata.mediaType,
 	})
 	const prepared = await prepareStorageFile(file, zeroAddress)
 	if (prepared.root.toLowerCase() !== info.tx.dataMerkleRoot.toLowerCase()) {
@@ -108,6 +133,7 @@ export async function downloadAndVerifyStorageFile({
 	return {
 		...(bytesEqual === undefined ? {} : { bytesEqual }),
 		file,
+		fileMetadataRecovered: downloadMetadata.recovered,
 		root: prepared.root,
 		txSeq: info.tx.seq,
 		verified: true,

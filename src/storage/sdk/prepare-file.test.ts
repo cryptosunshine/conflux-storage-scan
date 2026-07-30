@@ -2,6 +2,7 @@ import { decodeBase64 } from "ethers"
 import { getAddress } from "viem"
 import { describe, expect, it } from "vitest"
 import { STORAGE_POC_MAX_FILE_BYTES } from "../config"
+import { decodeStorageFileMetadata } from "../metadata/file-metadata"
 import { storageSdkFixtureRoots } from "./fixtures"
 import { createStorageSegment, prepareStorageFile } from "./prepare-file"
 
@@ -36,7 +37,10 @@ describe("prepareStorageFile", () => {
 
 			expect(prepared.root).toBe(expectedRoot)
 			expect(prepared.submission.data.length).toBe(BigInt(size))
-			expect(prepared.submission.data.tags).toBe("0x")
+			expect(decodeStorageFileMetadata(prepared.submission.data.tags)).toEqual({
+				name: `fixture-${size}.bin`,
+				type: "application/octet-stream",
+			})
 			expect(prepared.submission.submitter).toBe(submitter)
 		})
 	}
