@@ -50,6 +50,14 @@ function parseDownloadTarget(value: string): StorageDownloadTarget {
 	throw new StoragePocError("INVALID_ARGUMENT", "Enter a valid TxSeq or 32-byte Merkle Root")
 }
 
+function sessionMatchesFile(session: StorageUploadSession, file: File, root: string): boolean {
+	return (
+		session.fileName === file.name &&
+		session.fileSize === file.size &&
+		(session.root === undefined || session.root.toLowerCase() === root.toLowerCase())
+	)
+}
+
 export function useStoragePoc() {
 	const runtime = useStoragePocRuntime()
 	const dataSource = useStorageDataSource()
@@ -161,13 +169,14 @@ export function useStoragePoc() {
 				if (prepareSequence.current !== sequence) {
 					return
 				}
-				setPrepared(result)
-				if (session?.root && session.root.toLowerCase() !== result.root.toLowerCase()) {
-					setError({
-						code: "INTEGRITY_MISMATCH",
-						message: "The selected file does not match the recovered transaction",
-					})
+				if (session && !sessionMatchesFile(session, nextFile, result.root)) {
+					await runtime.sessions.delete(session.id)
+					if (prepareSequence.current !== sequence) {
+						return
+					}
+					setSession(undefined)
 				}
+				setPrepared(result)
 			} catch (cause) {
 				if (prepareSequence.current === sequence) {
 					setError(toUiError(cause))
@@ -178,7 +187,7 @@ export function useStoragePoc() {
 				}
 			}
 		},
-		[runtime, session?.root],
+		[runtime, session],
 	)
 
 	const persistTransition = useCallback(

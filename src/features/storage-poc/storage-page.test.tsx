@@ -214,4 +214,48 @@ describe("StoragePage", () => {
 			txSeq: 485,
 		})
 	})
+
+	it("starts a new upload after choosing a different file than the recovered session", async () => {
+		const user = userEvent.setup()
+		const runtime = createStoragePocFixtureRuntime()
+		const recoveredFile = new File([Uint8Array.of(0)], "recovery.bin")
+		const recoveredPrepared = await runtime.prepareFile(recoveredFile, zeroAddress)
+		await runtime.sessions.put({
+			account: zeroAddress,
+			confirmedSegmentIndexes: [],
+			createdAt: 1,
+			fileName: recoveredFile.name,
+			fileSize: recoveredFile.size,
+			id: "recovery-session",
+			identity: recoveredPrepared.identity,
+			phase: "waiting-node-sync",
+			root: recoveredPrepared.root,
+			schemaVersion: 1,
+			totalSegments: recoveredPrepared.segmentCount,
+			txHash: zeroHash,
+			txSeq: 485,
+			updatedAt: 2,
+		})
+
+		await renderWithDataSource(<StoragePage />, dataSource(), {
+			storagePocRuntime: runtime,
+		})
+		await screen.findByRole("button", {
+			name: "Resume direct upload",
+		})
+
+		await user.upload(
+			screen.getByLabelText("Choose file"),
+			new File([Uint8Array.of(1)], "new-file.bin", {
+				type: "application/octet-stream",
+			}),
+		)
+
+		expect(await screen.findByText("Merkle Root ready")).toBeInTheDocument()
+		expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+		expect(screen.getByRole("button", { name: "Connect wallet to continue" })).toBeEnabled()
+		await waitFor(async () => {
+			expect(await runtime.sessions.get("recovery-session")).toBeUndefined()
+		})
+	})
 })
