@@ -58,7 +58,7 @@
 | 文件数量 | 每次一个文件 |
 | 文件大小 | 大于 `0 B` 且不超过 `100 MiB` |
 | 加密 | 第一版不支持 |
-| Tags | 固定为 `0x` |
+| Tags | 公开保存版本化文件名和 MIME 元数据 |
 | 存储费 | 固定 `0 CFX`，交易 `value: 0n` |
 | 网络 Gas | 由钱包正常支付，并与存储费明确区分 |
 | 钱包 | 现有 RainbowKit、wagmi、viem |
@@ -259,10 +259,12 @@ idle
 
 - 拒绝空文件；
 - 拒绝大于 `100 MiB` 的文件；
-- `tags` 固定为 `0x`；
+- 把文件名和 MIME 编码为版本化 JSON tags，文件字节和 Merkle Root 保持不变；
+- tags 总长度最多 `512` 字节，文件名最多 `255` 个 UTF-8 字节；
 - 计算 Root、Submission 和 Segment 数量；
 - 准备完成前不请求钱包签名；
 - 页面显示文件名、字节数、Root、Segment 数量和预计步骤；
+- 页面提示文件名和 MIME 将公开写入测试网；
 - “存储费用”显示 `0 CFX`；
 - 单独提示需要 eSpace 网络 Gas。
 
@@ -310,15 +312,18 @@ idle
 2. 与目标 Data Root 比较；
 3. Root 不一致时，不创建成功状态；
 4. 如果上传用的原始 File 仍在当前会话内，再执行逐字节比较；
-5. 校验成功后才启用保存操作。
+5. 从对应 Submit 事件的 tags 恢复文件名和 MIME；
+6. 校验成功后才启用保存操作。
 
-通用下载文件名为：
+tags 使用 UTF-8 JSON：
 
-```text
-storage-<txSeq>.bin
+```json
+{"protocol":"cfx-storage-file","version":1,"name":"t.png","type":"image/png"}
 ```
 
-按 Root 下载且无法确定 TxSeq 时，使用 Root 的短格式构造文件名。
+下载端只解析已知 protocol 和 version，并清理路径分隔符、控制字符及 `..`。旧提交、
+空 tags、损坏或未知格式统一回退为 `storage-<txSeq>.bin` 和
+`application/octet-stream`。已上链且 `tags=0x` 的 TxSeq `486` 无法补写原始名称。
 
 ## 11. 会话持久化与恢复
 
@@ -397,8 +402,9 @@ Local HTTP 警告必须明确说明：
 
 ## 14. 安全与隐私
 
-- 原始文件名不进入链上 tags；
-- `tags` 固定为 `0x`；
+- 原始文件名和 MIME 以明文进入链上 tags，并永久公开；
+- tags 只保存版本、文件名和 MIME，不保存本地路径或其他文件系统信息；
+- 下载文件名必须清理路径分隔符、控制字符和路径穿越语义；
 - 不持久化文件内容；
 - 不读取或处理私钥；
 - 只使用钱包标准交易请求；
@@ -432,6 +438,7 @@ Local HTTP 警告必须明确说明：
 - 文件内容生成规则；
 - Root；
 - Submission nodes；
+- 版本化文件名和 MIME tags；
 - Segment 数量；
 - 首尾 Segment Proof；
 - 上游 SDK 版本和源码 commit。
@@ -482,6 +489,9 @@ Local HTTP 警告必须明确说明：
 - 可恢复错误和重试；
 - TxSeq/Root 下载；
 - Root 校验成功和失败；
+- 公开元数据提示；
+- 从 tags 恢复文件名和 MIME；
+- 旧提交或非法 tags 回退为 `.bin`；
 - 中英文；
 - 移动端布局。
 
@@ -521,7 +531,8 @@ Local HTTP 警告必须明确说明：
 15. `corepack pnpm verify` 通过；
 16. 适用的 `corepack pnpm test:e2e` 通过；
 17. 真实上传仅由用户钱包手动验证；
-18. 功能分支推送到 origin，但不合并 `master`。
+18. 新提交可以从 tags 恢复原文件名和 MIME，旧提交安全回退为 `.bin`；
+19. 功能分支推送到 origin，但不合并 `master`。
 
 ## 17. 明确不做
 
@@ -531,7 +542,7 @@ Local HTTP 警告必须明确说明：
 - 多文件队列；
 - 大于 `100 MiB` 的上传或下载；
 - 文件加密；
-- 链上文件名或 MIME 标签；
+- 文件描述、目录结构或自定义任意 tags；
 - 主动双节点复制；
 - 后台 Service Worker 上传；
 - 跨浏览器文件内容恢复；
@@ -546,8 +557,7 @@ POC 验证成功后可以分别评审：
 1. 为 Storage Node 配置 HTTPS 域名或增加同源代理；
 2. 接入 Indexer 和可信节点选择；
 3. 将文件计算与 Node Client 抽取成 Conflux Storage SDK；
-4. 增加版本化 Tags、文件名和 MIME；
-5. 增加断点上传、多文件队列和更大的流式下载；
-6. 决定生产上传产品是否与只读 Storage Scan 合并。
+4. 增加断点上传、多文件队列和更大的流式下载；
+5. 决定生产上传产品是否与只读 Storage Scan 合并。
 
 这些演进不属于当前 POC，也不能因为本设计获得隐式授权。
