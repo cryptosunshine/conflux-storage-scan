@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import { CONFLUX_STORAGE_NODE_URLS } from "./config"
+import { resolveStorageNodeClientUrls } from "./config"
 import { createStoragePocRuntime, type StoragePocRuntime } from "./runtime"
 
 describe("storage POC runtime", () => {
@@ -13,7 +13,7 @@ describe("storage POC runtime", () => {
 			fixture: false,
 		})
 
-		expect(clientFactory.mock.calls.map(([url]) => url)).toEqual([...CONFLUX_STORAGE_NODE_URLS])
+		expect(clientFactory.mock.calls.map(([url]) => url)).toEqual([...resolveStorageNodeClientUrls()])
 	})
 
 	it("never constructs an HTTP client in fixture mode", async () => {

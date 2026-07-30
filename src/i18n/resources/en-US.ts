@@ -352,9 +352,13 @@ export const englishResources = {
 			title: "Prepare & upload",
 		},
 		warning: {
-			description:
-				"The configured nodes expose plain HTTP. This experiment works only from a local HTTP page; Cloudflare or any HTTPS deployment will block direct requests as mixed content.",
-			title: "Local HTTP POC",
+			descriptionDirect:
+				"The configured nodes expose plain HTTP. Local HTTP development connects directly; HTTPS deployments relay JSON-RPC through the same-origin Worker proxy.",
+			descriptionProxy:
+				"The configured nodes expose plain HTTP. This HTTPS page reaches them through a same-origin Cloudflare Worker proxy instead of mixed-content browser requests.",
+			title: "Experimental POC",
+			titleDirect: "Local HTTP POC",
+			titleProxy: "HTTPS proxy POC",
 		},
 	},
 	wallet: {

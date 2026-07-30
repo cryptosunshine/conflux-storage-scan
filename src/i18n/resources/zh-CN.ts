@@ -351,9 +351,13 @@ export const chineseResources = {
 			title: "准备与上传",
 		},
 		warning: {
-			description:
-				"当前节点只提供明文 HTTP。本实验仅能从本地 HTTP 页面运行；Cloudflare 或其他 HTTPS 部署会因混合内容策略阻止直连请求。",
-			title: "仅限本地 HTTP 的 POC",
+			descriptionDirect:
+				"当前节点只提供明文 HTTP。本地 HTTP 开发环境会直连节点；Cloudflare 等 HTTPS 部署会通过同源 Worker 代理转发 JSON-RPC。",
+			descriptionProxy:
+				"当前节点只提供明文 HTTP。此 HTTPS 页面通过 Cloudflare Worker 同源代理访问节点，不会向浏览器暴露节点 IP。",
+			title: "实验性 POC",
+			titleDirect: "仅限本地 HTTP 的 POC",
+			titleProxy: "HTTPS 代理 POC",
 		},
 	},
 	wallet: {

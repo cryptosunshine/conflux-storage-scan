@@ -1,5 +1,5 @@
 import type { Address } from "viem"
-import { CONFLUX_STORAGE_NODE_URLS } from "./config"
+import { resolveStorageNodeClientUrls } from "./config"
 import {
 	type DownloadAndVerifyStorageFileInput,
 	downloadAndVerifyStorageFile,
@@ -40,7 +40,7 @@ function createLiveStoragePocRuntime({
 	clientFactory = (url) => new HttpStorageNodeClient(url),
 	sessionStore = createStorageSessionStore(),
 }: Omit<CreateStoragePocRuntimeOptions, "fixture">): StoragePocRuntime {
-	const clients = CONFLUX_STORAGE_NODE_URLS.map((url) => clientFactory(url))
+	const clients = resolveStorageNodeClientUrls().map((url) => clientFactory(url))
 
 	return {
 		download: downloadAndVerifyStorageFile,

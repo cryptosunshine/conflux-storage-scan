@@ -26,6 +26,9 @@ export function StoragePage() {
 	const { t } = useTranslation("storagePoc")
 	const storage = useStoragePoc()
 	const errorRef = useRef<HTMLDivElement>(null)
+	const usesProxy = globalThis.location?.protocol === "https:"
+	const warningTitle = usesProxy ? t("warning.titleProxy") : t("warning.titleDirect")
+	const warningDescription = usesProxy ? t("warning.descriptionProxy") : t("warning.descriptionDirect")
 	useEffect(() => {
 		if (storage.error) {
 			errorRef.current?.focus()
@@ -59,8 +62,8 @@ export function StoragePage() {
 			<div className="storage-poc__warning" role="note">
 				<AlertTriangle aria-hidden="true" size={18} />
 				<div>
-					<strong>{t("warning.title")}</strong>
-					<p>{t("warning.description")}</p>
+					<strong>{warningTitle}</strong>
+					<p>{warningDescription}</p>
 				</div>
 			</div>
 
