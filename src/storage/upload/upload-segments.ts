@@ -1,13 +1,7 @@
 import { STORAGE_SEGMENT_BYTES, STORAGE_UPLOAD_CONCURRENCY, STORAGE_UPLOAD_MAX_ATTEMPTS } from "../config"
 import type { StorageNodeClient } from "../node/storage-node-client"
-import {
-	createStorageSegment,
-	type PreparedStorageFile,
-} from "../sdk/prepare-file"
-import {
-	StoragePocError,
-	type StorageSegmentWithProof,
-} from "../types"
+import { createStorageSegment, type PreparedStorageFile } from "../sdk/prepare-file"
+import { StoragePocError, type StorageSegmentWithProof } from "../types"
 
 export interface StorageUploadProgress {
 	readonly confirmedBytes: number
@@ -19,10 +13,7 @@ export interface StorageUploadProgress {
 export interface UploadPreparedSegmentsInput {
 	readonly client: StorageNodeClient
 	readonly concurrency?: number
-	readonly createSegment?: (
-		prepared: PreparedStorageFile,
-		segmentIndex: number,
-	) => Promise<StorageSegmentWithProof>
+	readonly createSegment?: (prepared: PreparedStorageFile, segmentIndex: number) => Promise<StorageSegmentWithProof>
 	readonly maxAttempts?: number
 	readonly onProgress?: (progress: StorageUploadProgress) => void
 	readonly prepared: PreparedStorageFile
@@ -62,21 +53,14 @@ async function uploadSegmentWithRetry(input: {
 				return
 			}
 			if (!isRetryable(cause) || attempt === input.maxAttempts) {
-				throw new StoragePocError(
-					"UPLOAD_FAILED",
-					`Storage Node rejected Segment ${input.segment.index}`,
-					{ cause },
-				)
+				throw new StoragePocError("UPLOAD_FAILED", `Storage Node rejected Segment ${input.segment.index}`, { cause })
 			}
 			await input.sleep(500 * 2 ** (attempt - 1))
 		}
 	}
 }
 
-function confirmedLogicalBytes(
-	confirmed: ReadonlySet<number>,
-	fileSize: number,
-): number {
+function confirmedLogicalBytes(confirmed: ReadonlySet<number>, fileSize: number): number {
 	let total = 0
 	for (const segmentIndex of confirmed) {
 		const offset = segmentIndex * STORAGE_SEGMENT_BYTES

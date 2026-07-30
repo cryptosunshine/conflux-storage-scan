@@ -1,17 +1,7 @@
-import {
-	encodeAbiParameters,
-	encodeEventTopics,
-	getAddress,
-	type Address,
-	type Hex,
-} from "viem"
+import { type Address, encodeAbiParameters, encodeEventTopics, getAddress, type Hex } from "viem"
 import { describe, expect, it, vi } from "vitest"
 import { fixedPriceFlowAbi } from "../../chain/abi/fixed-price-flow"
-import {
-	FIXED_PRICE_FLOW_BEACON,
-	FIXED_PRICE_FLOW_IMPLEMENTATION,
-	FIXED_PRICE_FLOW_PROXY,
-} from "../../chain/config"
+import { FIXED_PRICE_FLOW_BEACON, FIXED_PRICE_FLOW_IMPLEMENTATION, FIXED_PRICE_FLOW_PROXY } from "../../chain/config"
 import { calculateSubmissionIdentity } from "../../chain/normalize/submission-identity"
 import type { PreparedStorageFile } from "../sdk/prepare-file"
 import { submitStorageFile } from "./submit-storage"
@@ -95,9 +85,7 @@ function publicClient(logs = [submitLog()], status: "success" | "reverted" = "su
 	return {
 		getBytecode: vi.fn().mockResolvedValue("0x6000"),
 		getChainId: vi.fn().mockResolvedValue(71),
-		getStorageAt: vi
-			.fn()
-			.mockResolvedValue(`0x${"0".repeat(24)}${FIXED_PRICE_FLOW_BEACON.slice(2).toLowerCase()}`),
+		getStorageAt: vi.fn().mockResolvedValue(`0x${"0".repeat(24)}${FIXED_PRICE_FLOW_BEACON.slice(2).toLowerCase()}`),
 		readContract: vi.fn().mockResolvedValue(FIXED_PRICE_FLOW_IMPLEMENTATION),
 		waitForTransactionReceipt: vi.fn().mockResolvedValue({
 			logs,
@@ -139,9 +127,7 @@ describe("submitStorageFile", () => {
 				value: 0n,
 			}),
 		)
-		expect(publicRpc.readContract).not.toHaveBeenCalledWith(
-			expect.objectContaining({ functionName: "pricePerSector" }),
-		)
+		expect(publicRpc.readContract).not.toHaveBeenCalledWith(expect.objectContaining({ functionName: "pricePerSector" }))
 	})
 
 	it("blocks a wallet connected to another chain", async () => {

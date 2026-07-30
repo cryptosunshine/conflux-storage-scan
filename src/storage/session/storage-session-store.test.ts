@@ -1,8 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest"
-import {
-	createStorageSessionStore,
-	type StorageSessionStore,
-} from "./storage-session-store"
+import { createStorageSessionStore, type StorageSessionStore } from "./storage-session-store"
 import type { StorageUploadSession } from "./upload-session"
 
 let databaseNumber = 0

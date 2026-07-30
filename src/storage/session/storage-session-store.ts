@@ -25,9 +25,7 @@ export interface CreateStorageSessionStoreOptions {
 	readonly databaseName?: string
 }
 
-function toPersistedSession(
-	session: StorageUploadSession,
-): StorageUploadSession {
+function toPersistedSession(session: StorageUploadSession): StorageUploadSession {
 	return {
 		account: session.account,
 		confirmedSegmentIndexes: [...session.confirmedSegmentIndexes],
@@ -41,9 +39,7 @@ function toPersistedSession(
 		phase: session.phase,
 		...(session.root === undefined ? {} : { root: session.root }),
 		schemaVersion: 1,
-		...(session.totalSegments === undefined
-			? {}
-			: { totalSegments: session.totalSegments }),
+		...(session.totalSegments === undefined ? {} : { totalSegments: session.totalSegments }),
 		...(session.txHash === undefined ? {} : { txHash: session.txHash }),
 		...(session.txSeq === undefined ? {} : { txSeq: session.txSeq }),
 		updatedAt: session.updatedAt,
@@ -52,27 +48,21 @@ function toPersistedSession(
 
 class IndexedDbStorageSessionStore implements StorageSessionStore {
 	readonly #databaseName: string
-	#databasePromise:
-		| Promise<IDBPDatabase<StorageSessionDbSchema>>
-		| undefined
+	#databasePromise: Promise<IDBPDatabase<StorageSessionDbSchema>> | undefined
 
 	constructor({ databaseName = DEFAULT_DATABASE_NAME }: CreateStorageSessionStoreOptions) {
 		this.#databaseName = databaseName
 	}
 
 	#database(): Promise<IDBPDatabase<StorageSessionDbSchema>> {
-		this.#databasePromise ??= openDB<StorageSessionDbSchema>(
-			this.#databaseName,
-			1,
-			{
-				upgrade(database) {
-					const sessions = database.createObjectStore("sessions", {
-						keyPath: "id",
-					})
-					sessions.createIndex("updatedAt", "updatedAt")
-				},
+		this.#databasePromise ??= openDB<StorageSessionDbSchema>(this.#databaseName, 1, {
+			upgrade(database) {
+				const sessions = database.createObjectStore("sessions", {
+					keyPath: "id",
+				})
+				sessions.createIndex("updatedAt", "updatedAt")
 			},
-		)
+		})
 		return this.#databasePromise
 	}
 
@@ -88,10 +78,7 @@ class IndexedDbStorageSessionStore implements StorageSessionStore {
 
 	async getLatest(): Promise<StorageUploadSession | undefined> {
 		const database = await this.#database()
-		const cursor = await database
-			.transaction("sessions")
-			.store.index("updatedAt")
-			.openCursor(null, "prev")
+		const cursor = await database.transaction("sessions").store.index("updatedAt").openCursor(null, "prev")
 		return cursor?.value
 	}
 
@@ -106,8 +93,6 @@ class IndexedDbStorageSessionStore implements StorageSessionStore {
 	}
 }
 
-export function createStorageSessionStore(
-	options: CreateStorageSessionStoreOptions = {},
-): StorageSessionStore {
+export function createStorageSessionStore(options: CreateStorageSessionStoreOptions = {}): StorageSessionStore {
 	return new IndexedDbStorageSessionStore(options)
 }

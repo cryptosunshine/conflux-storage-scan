@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest"
-import {
-	createStorageUploadSession,
-	reduceStorageUploadSession,
-} from "./upload-session"
+import { createStorageUploadSession, reduceStorageUploadSession } from "./upload-session"
 
 const account = "0x0000000000000000000000000000000000000071"
 const root = `0x${"11".repeat(32)}` as const
@@ -63,9 +60,9 @@ describe("Storage upload session state machine", () => {
 			phase: "completed" as const,
 		}
 
-		expect(() =>
-			reduceStorageUploadSession(completed, { type: "transaction-started" }),
-		).toThrowError(/cannot transition from completed/i)
+		expect(() => reduceStorageUploadSession(completed, { type: "transaction-started" })).toThrowError(
+			/cannot transition from completed/i,
+		)
 	})
 
 	it("resumes a transaction-confirmed recoverable session at node sync without resubmitting", () => {

@@ -1,10 +1,7 @@
 import type { Hex } from "viem"
 import { describe, expect, it } from "vitest"
+import { type StorageNodeClient, StorageNodeRpcError } from "../node/storage-node-client"
 import type { PreparedStorageFile } from "../sdk/prepare-file"
-import {
-	StorageNodeRpcError,
-	type StorageNodeClient,
-} from "../node/storage-node-client"
 import type { StorageSegmentWithProof } from "../types"
 import { uploadPreparedSegments } from "./upload-segments"
 
@@ -36,9 +33,7 @@ function segment(index: number, fileSize: number): StorageSegmentWithProof {
 	}
 }
 
-function fakeClient(
-	upload: StorageNodeClient["uploadSegmentsByTxSeq"],
-): StorageNodeClient {
+function fakeClient(upload: StorageNodeClient["uploadSegmentsByTxSeq"]): StorageNodeClient {
 	return {
 		url: "http://node",
 		downloadSegmentByTxSeq: async () => "",

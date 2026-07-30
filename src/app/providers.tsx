@@ -5,10 +5,7 @@ import { createContext, type ReactNode, useContext } from "react"
 import { useTranslation } from "react-i18next"
 import { type Config, WagmiProvider } from "wagmi"
 import type { StorageDataSource } from "../data/storage-data-source"
-import {
-	storagePocRuntime as defaultStoragePocRuntime,
-	type StoragePocRuntime,
-} from "../storage/runtime"
+import { storagePocRuntime as defaultStoragePocRuntime, type StoragePocRuntime } from "../storage/runtime"
 import { wagmiConfig as defaultWagmiConfig } from "../wallet/config"
 import { queryClient as defaultQueryClient } from "./query-client"
 
@@ -45,9 +42,7 @@ export function AppProviders({
 			<QueryClientProvider client={queryClient}>
 				<LocalizedRainbowKitProvider>
 					<StorageDataSourceContext value={dataSource}>
-						<StoragePocRuntimeContext value={storagePocRuntime}>
-							{children}
-						</StoragePocRuntimeContext>
+						<StoragePocRuntimeContext value={storagePocRuntime}>{children}</StoragePocRuntimeContext>
 					</StorageDataSourceContext>
 				</LocalizedRainbowKitProvider>
 			</QueryClientProvider>

@@ -1,8 +1,7 @@
 import { isAddressEqual } from "viem"
-import { FIXED_PRICE_FLOW_PROXY } from "../../chain/config"
-import { CONFLUX_ESPACE_TESTNET_CHAIN_ID } from "../../chain/config"
+import { CONFLUX_ESPACE_TESTNET_CHAIN_ID, FIXED_PRICE_FLOW_PROXY } from "../../chain/config"
 import { STORAGE_NODE_MAX_BLOCK_LAG } from "../config"
-import { StoragePocError, type StorageNodeStatus, type StorageShardConfig } from "../types"
+import { type StorageNodeStatus, StoragePocError, type StorageShardConfig } from "../types"
 import type { StorageNodeClient } from "./storage-node-client"
 
 export type StorageNodeHealthReason =

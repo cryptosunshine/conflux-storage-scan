@@ -9,7 +9,4 @@ export const STORAGE_NODE_MAX_BLOCK_LAG = 512n
 export const STORAGE_UPLOAD_CONCURRENCY = 2
 export const STORAGE_UPLOAD_MAX_ATTEMPTS = 3
 
-export const CONFLUX_STORAGE_NODE_URLS = [
-	"http://47.84.225.228:5678",
-	"http://47.84.224.253:5678",
-] as const
+export const CONFLUX_STORAGE_NODE_URLS = ["http://47.84.225.228:5678", "http://47.84.224.253:5678"] as const

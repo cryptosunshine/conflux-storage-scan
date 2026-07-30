@@ -97,10 +97,7 @@ function requirePhase(
 	}
 }
 
-function updateSession(
-	session: StorageUploadSession,
-	patch: Partial<StorageUploadSession>,
-): StorageUploadSession {
+function updateSession(session: StorageUploadSession, patch: Partial<StorageUploadSession>): StorageUploadSession {
 	return {
 		...session,
 		...patch,
@@ -143,9 +140,7 @@ export function reduceStorageUploadSession(
 		case "upload-progress":
 			requirePhase(session, action.type, ["uploading"])
 			return updateSession(session, {
-				confirmedSegmentIndexes: [...new Set(action.confirmedSegmentIndexes)].sort(
-					(left, right) => left - right,
-				),
+				confirmedSegmentIndexes: [...new Set(action.confirmedSegmentIndexes)].sort((left, right) => left - right),
 			})
 		case "node-verified":
 			requirePhase(session, action.type, ["uploading"])

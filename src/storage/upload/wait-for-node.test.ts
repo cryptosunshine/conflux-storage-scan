@@ -1,7 +1,7 @@
 import type { Hex } from "viem"
 import { describe, expect, it } from "vitest"
-import type { StorageNodeFileInfo } from "../types"
 import type { StorageNodeClient } from "../node/storage-node-client"
+import type { StorageNodeFileInfo } from "../types"
 import { waitForNodeFileInfo } from "./wait-for-node"
 
 const root = `0x${"11".repeat(32)}` as Hex

@@ -16,11 +16,7 @@ describe("renderWithDataSource", () => {
 
 		function RuntimeProbe() {
 			const selectedRuntime = useStoragePocRuntime()
-			return (
-				<output>
-					{selectedRuntime === runtime ? "injected runtime" : "wrong runtime"}
-				</output>
-			)
+			return <output>{selectedRuntime === runtime ? "injected runtime" : "wrong runtime"}</output>
 		}
 
 		await renderWithDataSource(<RuntimeProbe />, dataSource, {

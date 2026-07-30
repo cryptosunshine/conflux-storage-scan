@@ -26,9 +26,7 @@ describe("verifyDeployment", () => {
 		const client = {
 			getChainId: vi.fn().mockResolvedValue(71),
 			getBytecode: vi.fn().mockResolvedValue("0x6000"),
-			getStorageAt: vi
-				.fn()
-				.mockResolvedValue(`0x${"0".repeat(24)}${FIXED_PRICE_FLOW_BEACON.slice(2).toLowerCase()}`),
+			getStorageAt: vi.fn().mockResolvedValue(`0x${"0".repeat(24)}${FIXED_PRICE_FLOW_BEACON.slice(2).toLowerCase()}`),
 			readContract,
 		}
 

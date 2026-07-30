@@ -1,4 +1,4 @@
-import { getAddress, isAddress, isHex, size, type Hex } from "viem"
+import { getAddress, type Hex, isAddress, isHex, size } from "viem"
 import { STORAGE_NODE_TIMEOUT_MS } from "../config"
 import {
 	type StorageNodeFileInfo,
@@ -187,15 +187,9 @@ export class HttpStorageNodeClient implements StorageNodeClient {
 		return parseFileInfo(await this.#request("zgs_getFileInfoByTxSeq", [txSeq]))
 	}
 
-	async uploadSegmentsByTxSeq(
-		segments: readonly StorageSegmentWithProof[],
-		txSeq: number,
-	): Promise<number> {
+	async uploadSegmentsByTxSeq(segments: readonly StorageSegmentWithProof[], txSeq: number): Promise<number> {
 		requireArgumentInteger(txSeq, "txSeq")
-		return requireSafeInteger(
-			await this.#request("zgs_uploadSegmentsByTxSeq", [segments, txSeq]),
-			"upload result",
-		)
+		return requireSafeInteger(await this.#request("zgs_uploadSegmentsByTxSeq", [segments, txSeq]), "upload result")
 	}
 
 	async downloadSegmentByTxSeq(txSeq: number, startChunk: number, endChunk: number): Promise<string> {
@@ -253,7 +247,11 @@ export class HttpStorageNodeClient implements StorageNodeClient {
 			throw malformed(`${method} envelope`)
 		}
 		if ("error" in payload) {
-			if (!isRecord(payload.error) || typeof payload.error.code !== "number" || typeof payload.error.message !== "string") {
+			if (
+				!isRecord(payload.error) ||
+				typeof payload.error.code !== "number" ||
+				typeof payload.error.message !== "string"
+			) {
 				throw malformed(`${method} error`)
 			}
 			throw new StorageNodeRpcError(

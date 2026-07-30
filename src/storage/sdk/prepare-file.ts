@@ -1,16 +1,6 @@
-import {
-	Blob as ZgBlob,
-	type MerkleTree,
-} from "@0gfoundation/0g-storage-ts-sdk/browser"
+import { type MerkleTree, Blob as ZgBlob } from "@0gfoundation/0g-storage-ts-sdk/browser"
 import { encodeBase64 } from "ethers"
-import {
-	getAddress,
-	isAddress,
-	isHex,
-	size,
-	type Address,
-	type Hex,
-} from "viem"
+import { type Address, getAddress, type Hex, isAddress, isHex, size } from "viem"
 import { calculateSubmissionIdentity } from "../../chain/normalize/submission-identity"
 import {
 	STORAGE_CHUNK_BYTES,
@@ -18,11 +8,7 @@ import {
 	STORAGE_SEGMENT_BYTES,
 	STORAGE_SEGMENT_CHUNKS,
 } from "../config"
-import {
-	StoragePocError,
-	type StorageSegmentProof,
-	type StorageSegmentWithProof,
-} from "../types"
+import { StoragePocError, type StorageSegmentProof, type StorageSegmentWithProof } from "../types"
 
 export interface PreparedStorageSubmission {
 	readonly data: {
@@ -75,18 +61,12 @@ function normalizeProof(lemma: readonly unknown[], path: readonly boolean[]): St
 	}
 }
 
-export async function prepareStorageFile(
-	file: File,
-	submitter: Address,
-): Promise<PreparedStorageFile> {
+export async function prepareStorageFile(file: File, submitter: Address): Promise<PreparedStorageFile> {
 	if (file.size === 0) {
 		throw new StoragePocError("EMPTY_FILE", "Choose a non-empty file")
 	}
 	if (file.size > STORAGE_POC_MAX_FILE_BYTES) {
-		throw new StoragePocError(
-			"FILE_TOO_LARGE",
-			`File exceeds the ${STORAGE_POC_MAX_FILE_BYTES}-byte POC limit`,
-		)
+		throw new StoragePocError("FILE_TOO_LARGE", `File exceeds the ${STORAGE_POC_MAX_FILE_BYTES}-byte POC limit`)
 	}
 	if (!isAddress(submitter)) {
 		throw new StoragePocError("INVALID_ARGUMENT", "Submitter must be a valid EVM address")
@@ -137,11 +117,7 @@ export async function createStorageSegment(
 	prepared: PreparedStorageFile,
 	segmentIndex: number,
 ): Promise<StorageSegmentWithProof> {
-	if (
-		!Number.isSafeInteger(segmentIndex) ||
-		segmentIndex < 0 ||
-		segmentIndex >= prepared.segmentCount
-	) {
+	if (!Number.isSafeInteger(segmentIndex) || segmentIndex < 0 || segmentIndex >= prepared.segmentCount) {
 		throw new StoragePocError("INVALID_ARGUMENT", "Segment index is outside the prepared Merkle tree")
 	}
 

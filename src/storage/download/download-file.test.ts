@@ -1,5 +1,5 @@
 import { encodeBase64 } from "ethers"
-import { zeroAddress, type Hex } from "viem"
+import { type Hex, zeroAddress } from "viem"
 import { describe, expect, it, vi } from "vitest"
 import { STORAGE_POC_MAX_FILE_BYTES } from "../config"
 import type { StorageNodeClient } from "../node/storage-node-client"

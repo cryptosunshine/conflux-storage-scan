@@ -1,13 +1,7 @@
 import type { Hex } from "viem"
-import {
-	STORAGE_NODE_POLL_INTERVAL_MS,
-	STORAGE_NODE_SYNC_TIMEOUT_MS,
-} from "../config"
+import { STORAGE_NODE_POLL_INTERVAL_MS, STORAGE_NODE_SYNC_TIMEOUT_MS } from "../config"
 import type { StorageNodeClient } from "../node/storage-node-client"
-import {
-	StoragePocError,
-	type StorageNodeFileInfo,
-} from "../types"
+import { type StorageNodeFileInfo, StoragePocError } from "../types"
 
 export interface WaitForNodeFileInfoInput {
 	readonly client: StorageNodeClient
@@ -25,21 +19,13 @@ const sleepFor = (milliseconds: number) =>
 		setTimeout(resolve, milliseconds)
 	})
 
-function validateFileInfo(
-	info: StorageNodeFileInfo,
-	txSeq: number,
-	expectedRoot: Hex,
-	expectedSize: number,
-): void {
+function validateFileInfo(info: StorageNodeFileInfo, txSeq: number, expectedRoot: Hex, expectedSize: number): void {
 	if (
 		info.tx.seq !== txSeq ||
 		info.tx.dataMerkleRoot.toLowerCase() !== expectedRoot.toLowerCase() ||
 		info.tx.size !== expectedSize
 	) {
-		throw new StoragePocError(
-			"FILE_INFO_MISMATCH",
-			"Storage Node FileInfo does not match the submitted file",
-		)
+		throw new StoragePocError("FILE_INFO_MISMATCH", "Storage Node FileInfo does not match the submitted file")
 	}
 }
 
@@ -68,8 +54,5 @@ export async function waitForNodeFileInfo({
 		await sleep(Math.min(pollIntervalMs, remaining))
 	}
 
-	throw new StoragePocError(
-		"NODE_SYNC_TIMEOUT",
-		`Storage Node did not synchronize TxSeq ${txSeq} before the timeout`,
-	)
+	throw new StoragePocError("NODE_SYNC_TIMEOUT", `Storage Node did not synchronize TxSeq ${txSeq} before the timeout`)
 }

@@ -32,14 +32,7 @@ const requiredRules = new Map([
 	],
 	[
 		".agents/skills/integrate-rainbowkit-wallets/SKILL.md",
-		[
-			"RainbowKit",
-			"wagmi",
-			"EIP-6963",
-			"multiInjectedProviderDiscovery",
-			"read-only",
-			"user-confirmed",
-		],
+		["RainbowKit", "wagmi", "EIP-6963", "multiInjectedProviderDiscovery", "read-only", "user-confirmed"],
 	],
 	[
 		".agents/skills/design-conflux-storage-ui/SKILL.md",

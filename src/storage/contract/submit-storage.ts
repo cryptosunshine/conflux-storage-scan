@@ -1,16 +1,6 @@
-import {
-	isAddressEqual,
-	parseEventLogs,
-	type Address,
-	type Hex,
-	type PublicClient,
-	type WalletClient,
-} from "viem"
+import { type Address, type Hex, isAddressEqual, type PublicClient, parseEventLogs, type WalletClient } from "viem"
 import { fixedPriceFlowAbi } from "../../chain/abi/fixed-price-flow"
-import {
-	CONFLUX_ESPACE_TESTNET_CHAIN_ID,
-	FIXED_PRICE_FLOW_PROXY,
-} from "../../chain/config"
+import { CONFLUX_ESPACE_TESTNET_CHAIN_ID, FIXED_PRICE_FLOW_PROXY } from "../../chain/config"
 import { verifyCoreDeployment } from "../../chain/proxy/verify-deployment"
 import type { PreparedStorageFile } from "../sdk/prepare-file"
 import { StoragePocError } from "../types"
@@ -75,10 +65,7 @@ export async function submitStorageFile({
 	walletClient,
 }: SubmitStorageFileInput): Promise<SubmittedStorageFile> {
 	if (!isAddressEqual(account, prepared.submission.submitter)) {
-		throw new StoragePocError(
-			"SUBMITTER_MISMATCH",
-			"Connected account must match the prepared Submission submitter",
-		)
+		throw new StoragePocError("SUBMITTER_MISMATCH", "Connected account must match the prepared Submission submitter")
 	}
 
 	const walletChainId = walletClient.chain?.id ?? (await walletClient.getChainId())
@@ -128,10 +115,7 @@ export async function submitStorageFile({
 	)
 	const submissionIndex = matchingLog?.args.submissionIndex
 	if (submissionIndex === undefined || submissionIndex > BigInt(Number.MAX_SAFE_INTEGER)) {
-		throw new StoragePocError(
-			"SUBMIT_EVENT_MISSING",
-			"Transaction receipt does not contain the prepared Submit event",
-		)
+		throw new StoragePocError("SUBMIT_EVENT_MISSING", "Transaction receipt does not contain the prepared Submit event")
 	}
 
 	return {

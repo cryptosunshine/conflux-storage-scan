@@ -55,12 +55,7 @@ describe("prepareStorageFile", () => {
 		expect(secondBytes[0]).toBe(100)
 		expect(secondBytes.slice(1).every((byte) => byte === 0)).toBe(true)
 		expect(
-			prepared.tree.proofAt(1).validateHash(
-				prepared.root,
-				second.proof.lemma[0] ?? "0x",
-				1,
-				prepared.segmentCount,
-			),
+			prepared.tree.proofAt(1).validateHash(prepared.root, second.proof.lemma[0] ?? "0x", 1, prepared.segmentCount),
 		).toBeNull()
 	})
 

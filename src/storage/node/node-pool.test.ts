@@ -1,11 +1,6 @@
 import type { Address, Hex } from "viem"
 import { describe, expect, it } from "vitest"
-import type {
-	StorageNodeFileInfo,
-	StorageNodeStatus,
-	StorageSegmentWithProof,
-	StorageShardConfig,
-} from "../types"
+import type { StorageNodeFileInfo, StorageNodeStatus, StorageSegmentWithProof, StorageShardConfig } from "../types"
 import { inspectStorageNodes, selectStorageNode } from "./node-pool"
 import type { StorageNodeClient } from "./storage-node-client"
 
