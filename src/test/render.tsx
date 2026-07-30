@@ -11,6 +11,11 @@ import { type RenderOptions, render } from "@testing-library/react"
 import type { ReactElement, ReactNode } from "react"
 import { AppProviders } from "../app/providers"
 import type { StorageDataSource } from "../data/storage-data-source"
+import type { StoragePocRuntime } from "../storage/runtime"
+
+interface RenderWithDataSourceOptions extends Omit<RenderOptions, "wrapper"> {
+	readonly storagePocRuntime?: StoragePocRuntime
+}
 
 export function renderWithQuery(ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) {
 	const queryClient = new QueryClient({
@@ -34,8 +39,9 @@ export function renderWithQuery(ui: ReactElement, options?: Omit<RenderOptions, 
 export async function renderWithDataSource(
 	ui: ReactElement,
 	dataSource: StorageDataSource,
-	options?: Omit<RenderOptions, "wrapper">,
+	options?: RenderWithDataSourceOptions,
 ) {
+	const { storagePocRuntime, ...renderOptions } = options ?? {}
 	const queryClient = new QueryClient({
 		defaultOptions: {
 			queries: {
@@ -75,10 +81,14 @@ export async function renderWithDataSource(
 		queryClient,
 		router,
 		...render(
-			<AppProviders dataSource={dataSource} queryClient={queryClient}>
+			<AppProviders
+				dataSource={dataSource}
+				queryClient={queryClient}
+				{...(storagePocRuntime === undefined ? {} : { storagePocRuntime })}
+			>
 				<RouterProvider router={router} />
 			</AppProviders>,
-			options,
+			renderOptions,
 		),
 	}
 }
