@@ -7,6 +7,7 @@ export interface StorageNodeProxyConfig {
 export interface StorageNodeProxyDependencies {
 	readonly config: StorageNodeProxyConfig
 	readonly fetch: typeof fetch
+	readonly validateUpstream?: (urls: readonly string[]) => string | null
 }
 
 interface JsonRpcEnvelope {
@@ -45,10 +46,15 @@ function parseJsonRpcBody(body: unknown): JsonRpcEnvelope | null {
 
 export async function handleStorageNodeProxy(
 	request: Request,
-	{ config, fetch }: StorageNodeProxyDependencies,
+	{ config, fetch, validateUpstream }: StorageNodeProxyDependencies,
 ): Promise<Response> {
 	if (request.method !== "POST") {
 		return jsonError(405, "Storage Node proxy accepts POST only")
+	}
+
+	const upstreamBlocker = validateUpstream?.(config.upstreamUrls) ?? null
+	if (upstreamBlocker) {
+		return jsonError(502, upstreamBlocker)
 	}
 
 	const nodeIndex = parseNodeIndex(new URL(request.url).pathname, config.routePrefix, config.upstreamUrls.length)
@@ -77,13 +83,29 @@ export async function handleStorageNodeProxy(
 	}
 
 	const upstream = config.upstreamUrls[nodeIndex]
-	const upstreamResponse = await fetch(upstream, {
-		body: JSON.stringify(body),
-		headers: {
-			"Content-Type": "application/json",
-		},
-		method: "POST",
-	})
+	let upstreamResponse: Response
+	try {
+		upstreamResponse = await fetch(upstream, {
+			body: JSON.stringify(body),
+			headers: {
+				"Content-Type": "application/json",
+			},
+			method: "POST",
+		})
+	} catch (cause) {
+		const detail = cause instanceof Error ? cause.message : "unknown error"
+		return jsonError(502, `Storage Node upstream request failed for ${upstream}: ${detail}`)
+	}
+
+	if (upstreamResponse.status === 403) {
+		const blockedBody = await upstreamResponse.clone().text()
+		if (blockedBody.includes("1003")) {
+			return jsonError(
+				502,
+				`Cloudflare blocked direct IP access to ${upstream}. Configure STORAGE_NODE_UPSTREAM_URLS with DNS-only hostname URLs.`,
+			)
+		}
+	}
 
 	return new Response(upstreamResponse.body, {
 		headers: {

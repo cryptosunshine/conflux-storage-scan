@@ -1,14 +1,12 @@
-import {
-	STORAGE_NODE_PROXY_ALLOWED_METHODS,
-	STORAGE_NODE_PROXY_ROUTE_PREFIX,
-	STORAGE_NODE_UPSTREAM_URLS,
-} from "../storage/config"
+import { STORAGE_NODE_PROXY_ALLOWED_METHODS, STORAGE_NODE_PROXY_ROUTE_PREFIX } from "../storage/config"
 import { handleStorageNodeProxy } from "./handler"
+import { describeDirectIpUpstreamBlocker, parseStorageNodeWorkerUpstreamUrls } from "./upstream"
 
 export interface StorageNodeProxyWorkerEnv {
 	readonly ASSETS: {
 		fetch(request: Request): Promise<Response>
 	}
+	readonly STORAGE_NODE_UPSTREAM_URLS?: string
 }
 
 export default {
@@ -19,9 +17,10 @@ export default {
 				config: {
 					allowedMethods: STORAGE_NODE_PROXY_ALLOWED_METHODS,
 					routePrefix: STORAGE_NODE_PROXY_ROUTE_PREFIX,
-					upstreamUrls: STORAGE_NODE_UPSTREAM_URLS,
+					upstreamUrls: parseStorageNodeWorkerUpstreamUrls(env.STORAGE_NODE_UPSTREAM_URLS),
 				},
 				fetch,
+				validateUpstream: describeDirectIpUpstreamBlocker,
 			})
 		}
 		return env.ASSETS.fetch(request)

@@ -6,6 +6,8 @@ import {
 } from "../storage/config"
 import { handleStorageNodeProxy } from "./handler"
 
+import { describeDirectIpUpstreamBlocker } from "./upstream"
+
 const config = {
 	allowedMethods: STORAGE_NODE_PROXY_ALLOWED_METHODS,
 	routePrefix: STORAGE_NODE_PROXY_ROUTE_PREFIX,
@@ -97,6 +99,22 @@ describe("handleStorageNodeProxy", () => {
 		)
 
 		expect(response.status).toBe(400)
+		expect(fetch).not.toHaveBeenCalled()
+	})
+
+	it("blocks direct IP upstream URLs before Cloudflare subrequests fail with 1003", async () => {
+		const fetch = vi.fn()
+
+		const response = await handleStorageNodeProxy(jsonRpcRequest("zgs_getStatus"), {
+			config,
+			fetch,
+			validateUpstream: describeDirectIpUpstreamBlocker,
+		})
+
+		expect(response.status).toBe(502)
+		await expect(response.json()).resolves.toEqual({
+			error: expect.stringMatching(/cannot fetch direct IP/i),
+		})
 		expect(fetch).not.toHaveBeenCalled()
 	})
 })
