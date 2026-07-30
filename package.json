@@ -22,7 +22,8 @@
 		"harness:validate": "node scripts/validate-agent-harness.mjs",
 		"harness:probe": "tsx scripts/harness/probe.ts",
 		"harness:capture": "tsx scripts/harness/capture.ts",
-		"harness:storage-probe": "tsx scripts/harness/storage-node-probe.ts"
+		"harness:storage-probe": "tsx scripts/harness/storage-node-probe.ts",
+		"deploy:cloudflare": "pnpm build && wrangler deploy"
 	},
 	"dependencies": {
 		"@0gfoundation/0g-storage-ts-sdk": "1.2.10",

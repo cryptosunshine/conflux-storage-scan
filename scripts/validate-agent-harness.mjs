@@ -70,4 +70,15 @@ for (const file of requiredFiles) {
 	}
 }
 
+const wranglerConfig = await readFile("wrangler.jsonc", "utf8")
+for (const rule of [
+	'"main": "src/storage-node-proxy/worker.ts"',
+	'"run_worker_first": ["/api/storage-node/*"]',
+	'"binding": "ASSETS"',
+]) {
+	if (!wranglerConfig.includes(rule)) {
+		throw new Error(`wrangler.jsonc is missing required deployment rule: ${rule}`)
+	}
+}
+
 console.log(`Validated ${requiredFiles.length} agent harness files`)
