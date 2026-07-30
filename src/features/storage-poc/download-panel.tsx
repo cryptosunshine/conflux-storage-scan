@@ -39,33 +39,35 @@ export function DownloadPanel({ busy, errorCode, onDownload, onTarget, result, t
 					<p>{t("download.description")}</p>
 				</div>
 			</header>
-			<div className="storage-download-input">
-				<label htmlFor="storage-page-download-target">{t("download.inputLabel")}</label>
-				<input
-					aria-describedby="storage-page-download-hint"
-					aria-errormessage={errorCode === "INVALID_ARGUMENT" ? "storage-page-error" : undefined}
-					aria-invalid={errorCode === "INVALID_ARGUMENT"}
-					autoComplete="off"
-					disabled={busy}
-					id="storage-page-download-target"
-					inputMode="text"
-					name="storageDownloadTarget"
-					onChange={(event) => onTarget(event.target.value)}
-					placeholder="485 or 0x…"
-					spellCheck={false}
-					type="text"
-					value={target}
-				/>
-				<small id="storage-page-download-hint">{t("download.inputHint")}</small>
+			<div className="storage-workspace__panel-body">
+				<div className="storage-download-input">
+					<label htmlFor="storage-page-download-target">{t("download.inputLabel")}</label>
+					<input
+						aria-describedby="storage-page-download-hint"
+						aria-errormessage={errorCode === "INVALID_ARGUMENT" ? "storage-page-error" : undefined}
+						aria-invalid={errorCode === "INVALID_ARGUMENT"}
+						autoComplete="off"
+						disabled={busy}
+						id="storage-page-download-target"
+						inputMode="text"
+						name="storageDownloadTarget"
+						onChange={(event) => onTarget(event.target.value)}
+						placeholder="485 or 0x…"
+						spellCheck={false}
+						type="text"
+						value={target}
+					/>
+					<small id="storage-page-download-hint">{t("download.inputHint")}</small>
+				</div>
+				<button
+					className="primary-button storage-page__primary-action"
+					disabled={busy || target.trim() === ""}
+					onClick={onDownload}
+					type="button"
+				>
+					{t("download.action")}
+				</button>
 			</div>
-			<button
-				className="primary-button storage-page__primary-action"
-				disabled={busy || target.trim() === ""}
-				onClick={onDownload}
-				type="button"
-			>
-				{t("download.action")}
-			</button>
 			{result ? (
 				<div className="storage-page__download-result" role="status">
 					<div className="storage-page__success-title">

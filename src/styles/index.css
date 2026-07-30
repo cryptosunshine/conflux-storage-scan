@@ -1215,13 +1215,14 @@ a:hover {
 
 .storage-workspace__panels {
 	display: grid;
-	align-items: start;
+	align-items: stretch;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .storage-workspace__panel {
 	display: flex;
 	min-width: 0;
+	height: 100%;
 	flex-direction: column;
 	padding: 1.25rem;
 }
@@ -1262,6 +1263,13 @@ a:hover {
 	color: var(--color-text-muted);
 	font-size: 0.75rem;
 	line-height: 1.45;
+}
+
+.storage-workspace__panel-body {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	min-height: 0;
 }
 
 .storage-node-row {
