@@ -1,9 +1,12 @@
 import type { Address, Hex } from "viem"
 
 export type StoragePocErrorCode =
+	| "DOWNLOAD_FAILED"
+	| "DOWNLOAD_NOT_FOUND"
 	| "EMPTY_FILE"
 	| "FILE_TOO_LARGE"
 	| "HTTP_ERROR"
+	| "INTEGRITY_MISMATCH"
 	| "INVALID_ARGUMENT"
 	| "MALFORMED_RESPONSE"
 	| "NETWORK_ERROR"
