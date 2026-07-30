@@ -28,16 +28,15 @@ describe("StoragePage", () => {
 			storagePocRuntime: createStoragePocFixtureRuntime(),
 		})
 
-		expect(screen.getByRole("heading", { name: "Direct Storage Node POC" })).toBeInTheDocument()
-		expect(screen.getByText("Local HTTP POC")).toBeInTheDocument()
-		expect(screen.getByText("0 CFX", { exact: true })).toBeInTheDocument()
-		expect(screen.getByText(/network gas is separate/i)).toBeInTheDocument()
+		expect(screen.getByRole("heading", { name: "Upload resources" })).toBeInTheDocument()
+		expect(screen.getAllByText("0 CFX", { exact: true }).length).toBeGreaterThan(0)
+		expect(screen.getByText(/network gas is shown separately/i)).toBeInTheDocument()
 		expect(screen.getByText(/file name and type are public/i)).toBeInTheDocument()
 		expect(screen.getByLabelText("TxSeq or Merkle Root")).toBeEnabled()
 
 		await waitFor(() => {
-			expect(screen.getByText("Healthy full node")).toBeInTheDocument()
-			expect(screen.getByRole("button", { name: "Check nodes" })).toBeEnabled()
+			expect(screen.getByText("Available")).toBeInTheDocument()
+			expect(screen.getByRole("button", { name: "Refresh status" })).toBeEnabled()
 		})
 	})
 
@@ -91,7 +90,7 @@ describe("StoragePage", () => {
 		await user.upload(screen.getByLabelText("Choose file"), file)
 		await screen.findByText("Merkle Root ready")
 		await user.type(screen.getByLabelText("TxSeq or Merkle Root"), prepared.root)
-		await user.click(screen.getByRole("button", { name: "Download and verify" }))
+		await user.click(screen.getByRole("button", { name: "Download resource" }))
 
 		expect(await screen.findByText(/Downloaded file: t\.png/)).toBeInTheDocument()
 		expect(download).toHaveBeenCalledWith(
@@ -136,7 +135,7 @@ describe("StoragePage", () => {
 			storagePocRuntime: runtime,
 		})
 		await user.type(screen.getByLabelText("TxSeq or Merkle Root"), "486")
-		await user.click(screen.getByRole("button", { name: "Download and verify" }))
+		await user.click(screen.getByRole("button", { name: "Download resource" }))
 
 		expect(await screen.findByText(/Downloaded file: t\.png/)).toBeInTheDocument()
 		expect(getSubmission).toHaveBeenCalledWith(486n)
@@ -201,12 +200,12 @@ describe("StoragePage", () => {
 		})
 		await user.upload(screen.getByLabelText("Choose file"), file)
 		const resume = await screen.findByRole("button", {
-			name: "Resume direct upload",
+			name: "Continue upload",
 		})
 		await user.click(resume)
 
 		expect(await screen.findByText("Merkle Root verified")).toBeInTheDocument()
-		expect(screen.getByRole("link", { name: "Save verified file" })).toHaveAttribute("href", "blob:verified")
+		expect(screen.getByRole("link", { name: "Save file" })).toHaveAttribute("href", "blob:verified")
 		expect(submitStorageFile).not.toHaveBeenCalled()
 		expect(await runtime.sessions.getLatest()).toMatchObject({
 			phase: "completed",
@@ -241,7 +240,7 @@ describe("StoragePage", () => {
 			storagePocRuntime: runtime,
 		})
 		await screen.findByRole("button", {
-			name: "Resume direct upload",
+			name: "Continue upload",
 		})
 
 		await user.upload(

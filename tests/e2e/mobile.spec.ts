@@ -31,7 +31,7 @@ test("mobile primary navigation fits without its own scrollbars", async ({ page 
 		throw new Error("Primary navigation geometry is unavailable")
 	}
 
-	for (const name of ["Overview", "Submissions", "My Submissions", "Storage POC"]) {
+	for (const name of ["Overview", "Submissions", "My Submissions", "Upload"]) {
 		const linkBox = await navigation.getByRole("link", { exact: true, name }).boundingBox()
 		expect(linkBox).not.toBeNull()
 		expect(linkBox?.x).toBeGreaterThanOrEqual(navigationBox.x)
@@ -97,7 +97,7 @@ test("tablet width preserves primary route navigation", async ({ page }) => {
 test("mobile storage POC stacks operations without horizontal overflow", async ({ page }) => {
 	await page.goto("/storage")
 
-	await expect(page.getByRole("heading", { name: "Direct Storage Node POC" })).toBeVisible()
+	await expect(page.getByRole("heading", { name: "Upload resources" })).toBeVisible()
 	const upload = page.getByRole("region", { name: "Prepare & upload" })
 	const download = page.getByRole("region", { name: "Download & verify" })
 	await expect(upload).toBeVisible()

@@ -99,7 +99,7 @@ describe("RouteMetadata", () => {
 		)
 		await expectMetadata("/history", "My Submissions — Conflux Storage Scan", description)
 		await expectMetadata("/analytics", "Storage Analytics — Conflux Storage Scan", description)
-		await expectMetadata("/storage", "Direct Storage — Conflux Storage Scan", description)
+		await expectMetadata("/storage", "Upload Resources — Conflux Storage Scan", description)
 	})
 
 	it("updates route metadata when the language changes", async () => {
@@ -111,7 +111,7 @@ describe("RouteMetadata", () => {
 		)
 		await expectMetadata(
 			"/storage",
-			"存储直连 POC — Conflux Storage Scan",
+			"上传资源 — Conflux Storage Scan",
 			"浏览从 Conflux eSpace 测试网索引的 FixedPriceFlow 存储提交。",
 		)
 	})

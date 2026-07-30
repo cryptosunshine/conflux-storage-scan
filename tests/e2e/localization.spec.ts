@@ -65,8 +65,8 @@ test("localizes document metadata for explorer routes without live RPC", async (
 	await expect(page).toHaveTitle("存储分析 — Conflux Storage Scan")
 
 	await page.goto("/storage")
-	await expect(page).toHaveTitle("存储直连 POC — Conflux Storage Scan")
-	await expect(page.getByRole("heading", { name: "存储节点直连 POC" })).toBeVisible()
+	await expect(page).toHaveTitle("上传资源 — Conflux Storage Scan")
+	await expect(page.getByRole("heading", { name: "上传资源" })).toBeVisible()
 
 	await page.goto("/unsupported")
 	await expect(page).toHaveTitle("浏览器页面 — Conflux Storage Scan")
@@ -237,6 +237,6 @@ test("keeps public explorer routes usable in Simplified Chinese", async ({ page 
 	await expect(page.getByText("连接钱包后可按当前账户筛选公开 FixedPriceFlow 索引。")).toBeVisible()
 
 	await page.goto("/storage")
-	await expect(page.getByRole("heading", { name: "存储节点直连 POC" })).toBeVisible()
+	await expect(page.getByRole("heading", { name: "上传资源" })).toBeVisible()
 	await expect(page.getByText("0 CFX", { exact: true })).toBeVisible()
 })

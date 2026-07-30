@@ -1,5 +1,5 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit"
-import { CheckCircle2, FileUp } from "lucide-react"
+import { CheckCircle2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { formatBytes } from "../../components/format"
 import type { PreparedStorageFile } from "../../storage/sdk/prepare-file"
@@ -46,34 +46,34 @@ export function UploadPanel({
 		errorCode === "INVALID_FILE_METADATA"
 
 	return (
-		<section aria-labelledby="storage-upload-title" className="storage-poc__operation">
-			<header className="storage-poc__operation-heading">
-				<span aria-hidden="true">
-					<FileUp size={18} />
+		<div className="storage-workspace__panel storage-workspace__panel--upload">
+			<header className="storage-workspace__panel-heading">
+				<span aria-hidden="true" className="storage-workspace__panel-step">
+					1
 				</span>
 				<div>
-					<h2 id="storage-upload-title">{t("upload.title")}</h2>
+					<h3 id="storage-upload-title">{t("upload.title")}</h3>
 					<p>{t("upload.description")}</p>
 				</div>
 			</header>
 
 			<div className="storage-file-input">
-				<label htmlFor="storage-poc-file">{t("upload.choose")}</label>
+				<label htmlFor="storage-page-file">{t("upload.choose")}</label>
 				<input
-					aria-describedby="storage-poc-file-hint"
-					aria-errormessage={fileInvalid ? "storage-poc-error" : undefined}
+					aria-describedby="storage-page-file-hint"
+					aria-errormessage={fileInvalid ? "storage-page-error" : undefined}
 					aria-invalid={fileInvalid}
 					disabled={busy || preparing}
-					id="storage-poc-file"
+					id="storage-page-file"
 					name="storageFile"
 					onChange={(event) => onFile(event.target.files?.[0])}
 					type="file"
 				/>
-				<small id="storage-poc-file-hint">{t("upload.fileHint")}</small>
+				<small id="storage-page-file-hint">{t("upload.fileHint")}</small>
 			</div>
 
 			{file ? (
-				<p className="storage-poc__selected">
+				<p className="storage-page__selected">
 					{t("upload.selected", {
 						name: file.name,
 						size: formatBytes(BigInt(file.size), locale),
@@ -82,8 +82,8 @@ export function UploadPanel({
 			) : null}
 
 			{prepared ? (
-				<div className="storage-poc__prepared" role="status">
-					<div className="storage-poc__success-title">
+				<div className="storage-page__prepared" role="status">
+					<div className="storage-page__success-title">
 						<CheckCircle2 aria-hidden="true" size={17} />
 						<strong>{t("status.ready")}</strong>
 					</div>
@@ -108,7 +108,7 @@ export function UploadPanel({
 				</div>
 			) : null}
 
-			<div className="storage-poc__fee">
+			<div className="storage-page__fee">
 				<div>
 					<span>{t("upload.fee")}</span>
 					<strong translate="no">0 CFX</strong>
@@ -117,7 +117,7 @@ export function UploadPanel({
 			</div>
 
 			{uploadProgress ? (
-				<div className="storage-poc__progress" role="status">
+				<div className="storage-page__progress" role="status">
 					<progress max={uploadProgress.totalSegments} value={uploadProgress.confirmedSegments} />
 					<span>
 						{t("upload.progress", {
@@ -129,7 +129,7 @@ export function UploadPanel({
 			) : null}
 
 			{status ? (
-				<p aria-live="polite" className="storage-poc__phase" role="status">
+				<p aria-live="polite" className="storage-page__phase" role="status">
 					{status}
 				</p>
 			) : null}
@@ -137,14 +137,14 @@ export function UploadPanel({
 			{prepared && !connected && !resumesSubmittedSession ? (
 				<ConnectButton.Custom>
 					{({ openConnectModal }) => (
-						<button className="primary-button storage-poc__primary-action" onClick={openConnectModal} type="button">
+						<button className="primary-button storage-page__primary-action" onClick={openConnectModal} type="button">
 							{t("upload.connect")}
 						</button>
 					)}
 				</ConnectButton.Custom>
 			) : (
 				<button
-					className="primary-button storage-poc__primary-action"
+					className="primary-button storage-page__primary-action"
 					disabled={!prepared || busy || preparing}
 					onClick={onSubmit}
 					type="button"
@@ -152,6 +152,6 @@ export function UploadPanel({
 					{resumesSubmittedSession ? t("upload.resume") : wrongNetwork ? t("upload.switchNetwork") : t("upload.action")}
 				</button>
 			)}
-		</section>
+		</div>
 	)
 }

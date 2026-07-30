@@ -9,11 +9,11 @@ test("prepares and verifies files without contacting live Storage Nodes", async 
 	})
 
 	await page.goto("/storage")
-	await expect(page.getByRole("heading", { name: "Direct Storage Node POC" })).toBeVisible()
-	await expect(page.getByText("Local HTTP POC")).toBeVisible()
-	await expect(page.getByText("Healthy full node")).toBeVisible()
+	await expect(page.getByRole("heading", { name: "Upload resources" })).toBeVisible()
+	await expect(page.getByText("Node 0 · 47.84.225.228")).toBeVisible()
+	await expect(page.getByText("Available")).toBeVisible()
 	await expect(page.getByText("0 CFX", { exact: true })).toBeVisible()
-	await expect(page.getByText(/network gas is separate/i)).toBeVisible()
+	await expect(page.getByText(/network gas is shown separately/i)).toBeVisible()
 
 	await page.getByLabel("Choose file").setInputFiles({
 		buffer: Buffer.from([0]),
@@ -24,16 +24,16 @@ test("prepares and verifies files without contacting live Storage Nodes", async 
 	await expect(page.getByRole("button", { name: "Connect wallet to continue" })).toBeVisible()
 
 	await page.getByLabel("TxSeq or Merkle Root").fill("485")
-	await page.getByRole("button", { name: "Download and verify" }).click()
+	await page.getByRole("button", { name: "Download resource" }).click()
 	await expect(page.getByText("Merkle Root verified")).toBeVisible()
-	await expect(page.getByRole("link", { name: "Save verified file" })).toHaveAttribute("download", "storage-485.bin")
+	await expect(page.getByRole("link", { name: "Save file" })).toHaveAttribute("download", "storage-485.bin")
 	expect(directNodeRequests).toEqual([])
 })
 
 test("invalid download input is announced without a wallet", async ({ page }) => {
 	await page.goto("/storage")
 	await page.getByLabel("TxSeq or Merkle Root").fill("not-a-sequence")
-	await page.getByRole("button", { name: "Download and verify" }).click()
+	await page.getByRole("button", { name: "Download resource" }).click()
 
 	await expect(page.getByRole("alert")).toContainText("Enter a valid TxSeq or 32-byte Merkle Root")
 })

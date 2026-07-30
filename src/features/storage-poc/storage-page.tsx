@@ -1,4 +1,3 @@
-import { AlertTriangle } from "lucide-react"
 import { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 import { DownloadPanel } from "./download-panel"
@@ -26,9 +25,6 @@ export function StoragePage() {
 	const { t } = useTranslation("storagePoc")
 	const storage = useStoragePoc()
 	const errorRef = useRef<HTMLDivElement>(null)
-	const usesProxy = globalThis.location?.protocol === "https:"
-	const warningTitle = usesProxy ? t("warning.titleProxy") : t("warning.titleDirect")
-	const warningDescription = usesProxy ? t("warning.descriptionProxy") : t("warning.descriptionDirect")
 	useEffect(() => {
 		if (storage.error) {
 			errorRef.current?.focus()
@@ -50,25 +46,22 @@ export function StoragePage() {
 	}
 
 	return (
-		<section aria-labelledby="storage-poc-title" className="page-section storage-poc">
-			<header className="page-heading storage-poc__page-heading">
+		<section aria-labelledby="storage-page-title" className="page-section storage-page">
+			<header className="page-heading storage-page__hero">
 				<div>
 					<p className="eyebrow">{t("page.eyebrow")}</p>
-					<h1 id="storage-poc-title">{t("page.title")}</h1>
+					<h1 id="storage-page-title">{t("page.title")}</h1>
+					<p className="storage-page__lead">{t("page.description")}</p>
 				</div>
-				<p>{t("page.description")}</p>
+				<div className="storage-page__fee-badge">
+					<span>{t("page.feeLabel")}</span>
+					<strong translate="no">0 CFX</strong>
+					<p>{t("page.feeNote")}</p>
+				</div>
 			</header>
 
-			<div className="storage-poc__warning" role="note">
-				<AlertTriangle aria-hidden="true" size={18} />
-				<div>
-					<strong>{warningTitle}</strong>
-					<p>{warningDescription}</p>
-				</div>
-			</div>
-
 			{storage.error ? (
-				<div className="storage-poc__error" id="storage-poc-error" ref={errorRef} role="alert" tabIndex={-1}>
+				<div className="storage-page__error" id="storage-page-error" ref={errorRef} role="alert" tabIndex={-1}>
 					<strong>{errorMessage(storage.error, t)}</strong>
 					{storage.error.code ? <code>{storage.error.code}</code> : null}
 				</div>
@@ -80,30 +73,38 @@ export function StoragePage() {
 				onCheck={() => void storage.checkNodes()}
 			/>
 
-			<div className="storage-poc__operations">
-				<UploadPanel
-					busy={storage.busy}
-					chainId={storage.chainId}
-					connected={storage.account.isConnected}
-					errorCode={storage.error?.code}
-					file={storage.file}
-					onFile={(file) => void storage.selectFile(file)}
-					onSubmit={() => void storage.submitOrResume()}
-					prepared={storage.prepared}
-					preparing={storage.preparing}
-					session={storage.session}
-					status={status}
-					uploadProgress={storage.uploadProgress}
-				/>
-				<DownloadPanel
-					busy={storage.busy}
-					errorCode={storage.error?.code}
-					onDownload={() => void storage.download()}
-					onTarget={storage.setDownloadTarget}
-					result={storage.downloadResult}
-					target={storage.downloadTarget}
-				/>
-			</div>
+			<section aria-labelledby="storage-workspace-title" className="storage-workspace">
+				<header className="storage-workspace__header">
+					<div>
+						<h2 id="storage-workspace-title">{t("workspace.title")}</h2>
+						<p>{t("workspace.description")}</p>
+					</div>
+				</header>
+				<div className="storage-workspace__panels">
+					<UploadPanel
+						busy={storage.busy}
+						chainId={storage.chainId}
+						connected={storage.account.isConnected}
+						errorCode={storage.error?.code}
+						file={storage.file}
+						onFile={(file) => void storage.selectFile(file)}
+						onSubmit={() => void storage.submitOrResume()}
+						prepared={storage.prepared}
+						preparing={storage.preparing}
+						session={storage.session}
+						status={status}
+						uploadProgress={storage.uploadProgress}
+					/>
+					<DownloadPanel
+						busy={storage.busy}
+						errorCode={storage.error?.code}
+						onDownload={() => void storage.download()}
+						onTarget={storage.setDownloadTarget}
+						result={storage.downloadResult}
+						target={storage.downloadTarget}
+					/>
+				</div>
+			</section>
 		</section>
 	)
 }
