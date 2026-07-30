@@ -72,9 +72,33 @@ describe("downloadAndVerifyStorageFile", () => {
 			txSeq: 485,
 			verified: true,
 		})
-		expect(result.file.name).toBe("storage-485.bin")
+		expect(result.file.name).toBe("source.bin")
 		expect(new Uint8Array(await result.file.arrayBuffer())).toEqual(bytes)
 		expect(node.downloadSegmentByTxSeq).toHaveBeenCalledWith(485, 0, 1)
+	})
+
+	it("preserves the verified original file name and media type", async () => {
+		const bytes = Uint8Array.of(0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a)
+		const originalFile = new File([blobPart(bytes)], "t.png", {
+			type: "image/png",
+		})
+		const prepared = await prepareStorageFile(originalFile, zeroAddress)
+		const padded = new Uint8Array(256)
+		padded.set(bytes)
+		const node = client({
+			info: fileInfo(prepared.root, bytes.length, 486),
+			segments: new Map([["486:0:1", encodeBase64(padded)]]),
+		})
+
+		const result = await downloadAndVerifyStorageFile({
+			client: node,
+			originalFile,
+			target: { txSeq: 486 },
+		})
+
+		expect(result.file.name).toBe("t.png")
+		expect(result.file.type).toBe("image/png")
+		expect(result.bytesEqual).toBe(true)
 	})
 
 	it("downloads multiple Segments by Root with exact Chunk ranges", async () => {

@@ -92,8 +92,8 @@ export async function downloadAndVerifyStorageFile({
 	if (downloaded.size !== info.tx.size) {
 		throw new StoragePocError("DOWNLOAD_FAILED", "Storage Node returned fewer bytes than FileInfo declares")
 	}
-	const file = new File([downloaded], `storage-${info.tx.seq}.bin`, {
-		type: "application/octet-stream",
+	const file = new File([downloaded], originalFile?.name ?? `storage-${info.tx.seq}.bin`, {
+		type: originalFile?.type || "application/octet-stream",
 	})
 	const prepared = await prepareStorageFile(file, zeroAddress)
 	if (prepared.root.toLowerCase() !== info.tx.dataMerkleRoot.toLowerCase()) {

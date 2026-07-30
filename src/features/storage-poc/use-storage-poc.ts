@@ -4,7 +4,7 @@ import { useAccount, useChainId, usePublicClient, useSwitchChain, useWalletClien
 import { useStoragePocRuntime } from "../../app/providers"
 import { CONFLUX_ESPACE_TESTNET_CHAIN_ID } from "../../chain/config"
 import { submitStorageFile } from "../../storage/contract/submit-storage"
-import type { StorageDownloadResult } from "../../storage/download/download-file"
+import type { StorageDownloadResult, StorageDownloadTarget } from "../../storage/download/download-file"
 import type { StorageNodeHealth } from "../../storage/node/node-pool"
 import type { PreparedStorageFile } from "../../storage/sdk/prepare-file"
 import {
@@ -36,7 +36,7 @@ function toUiError(error: unknown): StoragePocUiError {
 	}
 }
 
-function parseDownloadTarget(value: string) {
+function parseDownloadTarget(value: string): StorageDownloadTarget {
 	const normalized = value.trim()
 	if (UNSIGNED_DECIMAL.test(normalized)) {
 		const txSeq = Number(normalized)
@@ -335,11 +335,23 @@ export function useStoragePoc() {
 		setDownloadResult(undefined)
 		try {
 			const target = parseDownloadTarget(downloadTarget)
+			const preparedRoot = prepared?.root
+			const matchingOriginalFile =
+				file && preparedRoot
+					? "root" in target
+						? preparedRoot.toLowerCase() === target.root.toLowerCase()
+							? file
+							: undefined
+						: session?.txSeq === target.txSeq && session.root?.toLowerCase() === preparedRoot.toLowerCase()
+							? file
+							: undefined
+					: undefined
 			const chainHead = await getChainHead()
 			const selected = await runtime.selectNode(chainHead, "txSeq" in target ? target.txSeq : undefined)
 			setDownloadResult(
 				await runtime.download({
 					client: selected.client,
+					...(matchingOriginalFile === undefined ? {} : { originalFile: matchingOriginalFile }),
 					target,
 				}),
 			)
@@ -349,7 +361,7 @@ export function useStoragePoc() {
 			flowInFlight.current = false
 			setBusy(false)
 		}
-	}, [busy, downloadTarget, getChainHead, runtime])
+	}, [busy, downloadTarget, file, getChainHead, prepared?.root, runtime, session?.root, session?.txSeq])
 
 	return {
 		account,

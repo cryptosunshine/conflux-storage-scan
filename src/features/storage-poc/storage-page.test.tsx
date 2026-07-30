@@ -58,6 +58,47 @@ describe("StoragePage", () => {
 		expect(screen.queryByText(zeroAddress)).not.toBeInTheDocument()
 	})
 
+	it("restores the selected file name after downloading its verified Root", async () => {
+		const user = userEvent.setup()
+		const runtime = createStoragePocFixtureRuntime()
+		const file = new File([Uint8Array.of(0x89, 0x50, 0x4e, 0x47)], "t.png", {
+			type: "image/png",
+		})
+		const prepared = await runtime.prepareFile(file, zeroAddress)
+		const download = vi.spyOn(runtime, "download").mockImplementation(async (input) => {
+			const downloaded = input.originalFile
+				? new File([await input.originalFile.arrayBuffer()], input.originalFile.name, {
+						type: input.originalFile.type,
+					})
+				: new File([await file.arrayBuffer()], "storage-486.bin", {
+						type: "application/octet-stream",
+					})
+			return {
+				...(input.originalFile ? { bytesEqual: true } : {}),
+				file: downloaded,
+				root: prepared.root,
+				txSeq: 486,
+				verified: true,
+			}
+		})
+
+		await renderWithDataSource(<StoragePage />, dataSource(), {
+			storagePocRuntime: runtime,
+		})
+		await user.upload(screen.getByLabelText("Choose file"), file)
+		await screen.findByText("Merkle Root ready")
+		await user.type(screen.getByLabelText("TxSeq or Merkle Root"), prepared.root)
+		await user.click(screen.getByRole("button", { name: "Download and verify" }))
+
+		expect(await screen.findByText(/Downloaded file: t\.png/)).toBeInTheDocument()
+		expect(download).toHaveBeenCalledWith(
+			expect.objectContaining({
+				originalFile: file,
+				target: { root: prepared.root },
+			}),
+		)
+	})
+
 	it("distinguishes empty and over-limit files", async () => {
 		const user = userEvent.setup()
 		await renderWithDataSource(<StoragePage />, dataSource(), {
