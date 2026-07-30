@@ -3,8 +3,11 @@
 	"name": "conflux-storage-scan",
 	"compatibility_date": "2026-07-28",
 	"main": "src/storage-node-proxy/worker.ts",
-	// Cloudflare Workers cannot fetch direct IP addresses. Set STORAGE_NODE_UPSTREAM_URLS
-	// in the dashboard to a JSON array of hostname URLs backed by DNS-only A records.
+	// Cloudflare Workers cannot fetch direct IP addresses. Upstream hostnames must use
+	// DNS-only A records on a zone in the same Cloudflare account.
+	"vars": {
+		"STORAGE_NODE_UPSTREAM_URLS": "[\"http://zgs-node-0.codekb.dev:5678\",\"http://zgs-node-1.codekb.dev:5678\"]"
+	},
 	"assets": {
 		"directory": "./dist",
 		"binding": "ASSETS",

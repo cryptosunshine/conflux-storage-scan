@@ -75,6 +75,8 @@ for (const rule of [
 	'"main": "src/storage-node-proxy/worker.ts"',
 	'"run_worker_first": ["/api/storage-node/*"]',
 	'"binding": "ASSETS"',
+	'"STORAGE_NODE_UPSTREAM_URLS"',
+	"zgs-node-0.codekb.dev",
 ]) {
 	if (!wranglerConfig.includes(rule)) {
 		throw new Error(`wrangler.jsonc is missing required deployment rule: ${rule}`)
