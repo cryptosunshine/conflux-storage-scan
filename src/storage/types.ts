@@ -1,12 +1,15 @@
 import type { Address, Hex } from "viem"
 
 export type StoragePocErrorCode =
+	| "EMPTY_FILE"
+	| "FILE_TOO_LARGE"
 	| "HTTP_ERROR"
 	| "INVALID_ARGUMENT"
 	| "MALFORMED_RESPONSE"
 	| "NETWORK_ERROR"
 	| "NO_HEALTHY_NODE"
 	| "RPC_ERROR"
+	| "SDK_ERROR"
 	| "TIMEOUT"
 
 export class StoragePocError extends Error {

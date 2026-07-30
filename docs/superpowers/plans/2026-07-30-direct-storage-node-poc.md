@@ -468,7 +468,7 @@ Tests must assert:
 - `tags` is `0x`;
 - submitter is normalized;
 - `262145 B` produces two padded Segments;
-- the last Segment is trimmed to the logical byte length before Base64 encoding;
+- the last Segment keeps its final 256-byte Chunk padding but removes unused whole Chunks before Base64 encoding;
 - each generated proof validates against the file Root.
 
 - [ ] **Step 3: Run the test and observe RED**
