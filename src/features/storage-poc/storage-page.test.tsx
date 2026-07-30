@@ -7,6 +7,8 @@ import { STORAGE_POC_MAX_FILE_BYTES } from "../../storage/config"
 import { submitStorageFile } from "../../storage/contract/submit-storage"
 import { encodeStorageFileMetadata } from "../../storage/metadata/file-metadata"
 import { createStoragePocFixtureRuntime } from "../../storage/runtime-fixture"
+import { StoragePocError } from "../../storage/types"
+import * as confirmUploadModule from "../../storage/upload/confirm-upload-on-nodes"
 import { renderWithDataSource } from "../../test/render"
 import { StoragePage } from "./storage-page"
 
@@ -165,7 +167,7 @@ describe("StoragePage", () => {
 		expect(await screen.findByRole("alert")).toHaveTextContent("File must be 100 MiB or smaller")
 	})
 
-	it("shows contract-confirmed guidance when a submitted session is recovered", async () => {
+	it("shows continue upload for a recovered submitted session", async () => {
 		const user = userEvent.setup()
 		const runtime = createStoragePocFixtureRuntime()
 		const file = new File([Uint8Array.of(0)], "recovery.bin")
@@ -193,12 +195,11 @@ describe("StoragePage", () => {
 		})
 		await user.upload(screen.getByLabelText("Choose file"), file)
 
-		expect(await screen.findByText("On-chain submission complete")).toBeInTheDocument()
-		expect(screen.getByText(/TxSeq 485 is recorded on FixedPriceFlow/)).toBeInTheDocument()
+		expect(screen.queryByText("On-chain submission complete")).not.toBeInTheDocument()
 		expect(screen.getByRole("button", { name: "Continue upload" })).toBeEnabled()
 	})
 
-	it("hides the upload pending notice after a verified download for the same TxSeq", async () => {
+	it("clears pending upload notices after a verified download for the same TxSeq", async () => {
 		const user = userEvent.setup()
 		const runtime = createStoragePocFixtureRuntime()
 		const file = new File([Uint8Array.of(0x63)], "CHANGES.txt", {
@@ -235,14 +236,14 @@ describe("StoragePage", () => {
 			storagePocRuntime: runtime,
 		})
 		await user.upload(screen.getByLabelText("Choose file"), file)
-		expect(await screen.findByText("On-chain submission complete")).toBeInTheDocument()
+		expect(screen.queryByText("On-chain submission complete")).not.toBeInTheDocument()
 
 		await user.type(screen.getByLabelText("TxSeq or Merkle Root"), "490")
 		await user.click(screen.getByRole("button", { name: "Download resource" }))
 
 		expect(await screen.findByText("Merkle Root verified")).toBeInTheDocument()
 		expect(screen.queryByText(/TxSeq 490 is recorded on FixedPriceFlow/)).not.toBeInTheDocument()
-		expect(screen.getAllByText("Upload successful").length).toBeGreaterThan(0)
+		expect(await screen.findByText("Upload confirmed · retrieve with Merkle Root or TxSeq 490")).toBeInTheDocument()
 		expect(await runtime.sessions.getLatest()).toMatchObject({
 			phase: "completed",
 			txSeq: 490,
@@ -289,7 +290,7 @@ describe("StoragePage", () => {
 		await user.click(resume)
 
 		expect(await screen.findByText("Merkle Root verified")).toBeInTheDocument()
-		expect(screen.getAllByText("Upload successful").length).toBeGreaterThan(0)
+		expect(await screen.findByText("Upload confirmed · retrieve with Merkle Root or TxSeq 485")).toBeInTheDocument()
 		expect(screen.getByLabelText("TxSeq or Merkle Root")).toHaveValue("485")
 		expect(screen.getByRole("link", { name: "Save file" })).toHaveAttribute("href", "blob:verified")
 		expect(submitStorageFile).not.toHaveBeenCalled()
@@ -298,6 +299,91 @@ describe("StoragePage", () => {
 			txHash: zeroHash,
 			txSeq: 485,
 		})
+	})
+
+	it("confirms an upload after segment RPC failure without showing segment rejection copy", async () => {
+		const user = userEvent.setup()
+		const runtime = createStoragePocFixtureRuntime()
+		const file = new File([Uint8Array.of(0x63)], "rpc-failure.bin", {
+			type: "application/octet-stream",
+		})
+		const prepared = await runtime.prepareFile(file, zeroAddress)
+		vi.spyOn(runtime, "upload").mockRejectedValue(
+			new StoragePocError("UPLOAD_FAILED", "Storage Node rejected Segment 0", {
+				cause: new Error("malformed upload result"),
+			}),
+		)
+		await runtime.sessions.put({
+			account: zeroAddress,
+			confirmedSegmentIndexes: [],
+			createdAt: 1,
+			fileName: file.name,
+			fileSize: file.size,
+			id: "recovery-session",
+			identity: prepared.identity,
+			phase: "recoverable-error",
+			root: prepared.root,
+			schemaVersion: 1,
+			totalSegments: prepared.segmentCount,
+			txHash: zeroHash,
+			txSeq: 491,
+			updatedAt: 2,
+		})
+
+		await renderWithDataSource(<StoragePage />, dataSource(), {
+			storagePocRuntime: runtime,
+		})
+		await user.upload(screen.getByLabelText("Choose file"), file)
+		await user.click(screen.getByRole("button", { name: "Continue upload" }))
+
+		expect(await screen.findByText("Upload confirmed · retrieve with Merkle Root or TxSeq 491")).toBeInTheDocument()
+		expect(screen.queryByText(/rejected segment/i)).not.toBeInTheDocument()
+		expect(await runtime.sessions.getLatest()).toMatchObject({
+			phase: "completed",
+			txSeq: 491,
+		})
+	})
+
+	it("shows a friendly message when upload confirmation times out", async () => {
+		const user = userEvent.setup()
+		const runtime = createStoragePocFixtureRuntime()
+		const file = new File([Uint8Array.of(0x64)], "pending.bin", {
+			type: "application/octet-stream",
+		})
+		const prepared = await runtime.prepareFile(file, zeroAddress)
+		vi.spyOn(runtime, "upload").mockRejectedValue(
+			new StoragePocError("UPLOAD_FAILED", "Storage Node rejected Segment 0"),
+		)
+		vi.spyOn(confirmUploadModule, "confirmUploadOnHealthyNodes").mockRejectedValue(
+			new StoragePocError("UPLOAD_NOT_CONFIRMED", "Storage Node did not confirm TxSeq 492 before the timeout"),
+		)
+		await runtime.sessions.put({
+			account: zeroAddress,
+			confirmedSegmentIndexes: [],
+			createdAt: 1,
+			fileName: file.name,
+			fileSize: file.size,
+			id: "recovery-session",
+			identity: prepared.identity,
+			phase: "recoverable-error",
+			root: prepared.root,
+			schemaVersion: 1,
+			totalSegments: prepared.segmentCount,
+			txHash: zeroHash,
+			txSeq: 492,
+			updatedAt: 2,
+		})
+
+		await renderWithDataSource(<StoragePage />, dataSource(), {
+			storagePocRuntime: runtime,
+		})
+		await user.upload(screen.getByLabelText("Choose file"), file)
+		await user.click(screen.getByRole("button", { name: "Continue upload" }))
+
+		expect(
+			await screen.findByText(/The Storage Node has not confirmed the upload yet|存储节点尚未确认写入/),
+		).toBeInTheDocument()
+		expect(screen.queryByText(/rejected segment/i)).not.toBeInTheDocument()
 	})
 
 	it("starts a new upload after choosing a different file than the recovered session", async () => {

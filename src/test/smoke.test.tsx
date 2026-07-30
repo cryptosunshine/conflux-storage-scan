@@ -5,7 +5,7 @@ import { AppProviders } from "../app/providers"
 import { createFixtureDataSource } from "../data/fixture-data-source"
 
 describe("App", () => {
-	it("renders the official brand and compact read-only footer controls", async () => {
+	it("renders the official brand and compact footer controls", async () => {
 		const dataSource = createFixtureDataSource({
 			allocatedSectorCount: 0n,
 			contractSubmissionCount: 0n,
@@ -24,14 +24,13 @@ describe("App", () => {
 		expect(within(brand).getByText("Conflux Storage Scan")).toHaveAttribute("translate", "no")
 
 		const footer = screen.getByRole("contentinfo")
-		expect(footer).toHaveTextContent("Read-only explorer for FixedPriceFlow storage submissions.")
 		expect(within(footer).getByText("Conflux Storage Scan")).toHaveAttribute("translate", "no")
 		expect(within(footer).queryByRole("link")).not.toBeInTheDocument()
 
-		const readOnly = within(footer).getByText("Read-only", { exact: true })
+		const network = within(footer).getByText("eSpace Testnet", { exact: true })
 		const language = within(footer).getByRole("combobox", { name: "Language" })
 		const controls = footer.querySelector(".app-footer__controls")
-		expect(controls).toContainElement(readOnly)
+		expect(controls).toContainElement(network)
 		expect(controls).toContainElement(language)
 	})
 })

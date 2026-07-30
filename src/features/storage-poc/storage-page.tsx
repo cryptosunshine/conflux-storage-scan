@@ -1,15 +1,10 @@
-import { CheckCircle2 } from "lucide-react"
 import { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 import { DownloadPanel } from "./download-panel"
 import { NodeHealthPanel } from "./node-health-panel"
+import { StorageToast } from "./storage-toast"
 import { UploadPanel } from "./upload-panel"
 import { type StoragePocUiError, useStoragePoc } from "./use-storage-poc"
-
-function uploadFailedSegment(message: string): string | undefined {
-	const match = /Segment (\d+)/.exec(message)
-	return match?.[1]
-}
 
 function errorMessage(error: StoragePocUiError, t: (key: string, options?: Record<string, unknown>) => string): string {
 	if (error.code === "EMPTY_FILE") {
@@ -24,13 +19,8 @@ function errorMessage(error: StoragePocUiError, t: (key: string, options?: Recor
 	if (error.code === "INVALID_ARGUMENT") {
 		return t("errors.invalidTarget")
 	}
-	if (error.code === "UPLOAD_FAILED") {
-		const segment = uploadFailedSegment(error.message) ?? "0"
-		const base = t("errors.uploadFailed", { segment })
-		if (error.detail) {
-			return `${base} ${t("errors.uploadFailedDetail", { detail: error.detail })}`
-		}
-		return base
+	if (error.code === "UPLOAD_NOT_CONFIRMED") {
+		return t("errors.uploadNotConfirmed")
 	}
 	if (error.code === "NO_HEALTHY_NODE") {
 		return t("errors.noHealthyNode")
@@ -39,20 +29,6 @@ function errorMessage(error: StoragePocUiError, t: (key: string, options?: Recor
 		return t("errors.nodeSyncTimeout")
 	}
 	return error.message || t("errors.unknown")
-}
-
-function errorHint(
-	error: StoragePocUiError,
-	t: (key: string, options?: Record<string, unknown>) => string,
-	txSeq?: number,
-): string | undefined {
-	if (
-		txSeq !== undefined &&
-		(error.code === "UPLOAD_FAILED" || error.code === "NO_HEALTHY_NODE" || error.code === "NODE_SYNC_TIMEOUT")
-	) {
-		return t("errors.contractConfirmedRetry", { txSeq })
-	}
-	return undefined
 }
 
 export function StoragePage() {
@@ -76,13 +52,20 @@ export function StoragePage() {
 			uploadStatus = t("status.uploading")
 		} else if (storage.session?.phase === "downloading-for-verification") {
 			uploadStatus = t("status.downloading")
+		} else if (storage.confirmingUpload) {
+			uploadStatus = t("status.confirming")
 		} else {
 			uploadStatus = t("upload.processing")
 		}
 	}
 
+	const successToastMessage =
+		storage.successToast === undefined ? undefined : t("toast.uploadSuccess", { txSeq: storage.successToast.txSeq })
+
 	return (
 		<section aria-labelledby="storage-page-title" className="page-section storage-page">
+			<StorageToast message={successToastMessage} onDismiss={storage.clearSuccessToast} />
+
 			<header className="page-heading storage-page__hero">
 				<div>
 					<p className="eyebrow">{t("page.eyebrow")}</p>
@@ -98,37 +81,7 @@ export function StoragePage() {
 
 			{storage.error ? (
 				<div className="storage-page__error" id="storage-page-error" ref={errorRef} role="alert" tabIndex={-1}>
-					<div>
-						<strong>{errorMessage(storage.error, t)}</strong>
-						{errorHint(storage.error, t, storage.session?.txSeq) ? (
-							<p>{errorHint(storage.error, t, storage.session?.txSeq)}</p>
-						) : null}
-					</div>
-				</div>
-			) : null}
-
-			{storage.session?.phase === "completed" && storage.session.txSeq !== undefined && storage.prepared ? (
-				<div className="storage-page__success" role="status">
-					<div className="storage-page__success-title">
-						<CheckCircle2 aria-hidden="true" size={18} />
-						<strong>{t("success.title")}</strong>
-					</div>
-					<p>{t("success.description")}</p>
-					<dl>
-						<div>
-							<dt>{t("success.txSeq")}</dt>
-							<dd translate="no">{storage.session.txSeq}</dd>
-						</div>
-						<div>
-							<dt>{t("success.root")}</dt>
-							<dd>
-								<code title={storage.prepared.root} translate="no">
-									{storage.prepared.root}
-								</code>
-							</dd>
-						</div>
-					</dl>
-					<p className="storage-page__success-hint">{t("success.hint")}</p>
+					<strong>{errorMessage(storage.error, t)}</strong>
 				</div>
 			) : null}
 
@@ -149,7 +102,6 @@ export function StoragePage() {
 					<UploadPanel
 						chainId={storage.chainId}
 						connected={storage.account.isConnected}
-						downloadResult={storage.downloadResult}
 						errorCode={storage.error?.code}
 						file={storage.file}
 						onFile={(file) => void storage.selectFile(file)}

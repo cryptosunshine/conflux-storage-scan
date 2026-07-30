@@ -1210,6 +1210,52 @@ a:hover {
 	font-size: 0.85rem;
 }
 
+.storage-toast {
+	position: fixed;
+	z-index: 40;
+	top: 1rem;
+	right: 1rem;
+	display: flex;
+	max-width: min(22rem, calc(100vw - 2rem));
+	align-items: center;
+	gap: 0.55rem;
+	padding: 0.75rem 0.85rem;
+	border: 1px solid color-mix(in srgb, var(--color-primary) 45%, var(--color-border));
+	border-radius: 0.7rem;
+	background: var(--color-surface);
+	box-shadow: var(--shadow-popover);
+	color: var(--color-heading);
+	font-size: 0.82rem;
+	line-height: 1.4;
+}
+
+.storage-toast svg:first-child {
+	flex: 0 0 auto;
+	color: var(--color-primary);
+}
+
+.storage-toast span {
+	flex: 1 1 auto;
+}
+
+.storage-toast__dismiss {
+	display: inline-flex;
+	flex: 0 0 auto;
+	align-items: center;
+	justify-content: center;
+	padding: 0.15rem;
+	border: 0;
+	border-radius: 0.35rem;
+	color: var(--color-text-muted);
+	background: transparent;
+	cursor: pointer;
+}
+
+.storage-toast__dismiss:hover {
+	color: var(--color-heading);
+	background: var(--color-surface-subtle);
+}
+
 .storage-page__error p {
 	margin: 0.35rem 0 0;
 	color: var(--color-text-muted);
@@ -1403,15 +1449,8 @@ a:hover {
 }
 
 .storage-node-row__meta strong,
-.storage-node-row__meta code,
-.storage-node-row__meta .storage-node-row__hostname {
+.storage-node-row__meta code {
 	display: block;
-}
-
-.storage-node-row__hostname {
-	margin-top: 0.15rem;
-	color: var(--color-text-muted);
-	font-size: 0.68rem;
 }
 
 .storage-node-row strong {

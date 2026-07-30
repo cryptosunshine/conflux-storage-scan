@@ -164,4 +164,25 @@ describe("Storage Node pool", () => {
 			code: "NO_HEALTHY_NODE",
 		})
 	})
+
+	it("includes a synced node for upload when TxSeq indexing is still pending", async () => {
+		const healthy = await selectHealthyStorageNodes({
+			chainHead: 258_467_910n,
+			clients: [
+				fakeNode({
+					logSyncHeight: 258_316_358n,
+					nextTxSeq: 484,
+					url: "http://47.84.225.228:5678",
+				}),
+				fakeNode({
+					logSyncHeight: 258_467_864n,
+					nextTxSeq: 492,
+					url: "http://47.84.224.253:5678",
+				}),
+			],
+		})
+
+		expect(healthy).toHaveLength(1)
+		expect(healthy[0]?.client.url).toBe("http://47.84.224.253:5678")
+	})
 })

@@ -2,7 +2,6 @@ import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { CheckCircle2, Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { formatBytes } from "../../components/format"
-import type { StorageDownloadResult } from "../../storage/download/download-file"
 import type { PreparedStorageFile } from "../../storage/sdk/prepare-file"
 import type { StorageUploadSession } from "../../storage/session/upload-session"
 import type { StorageUploadProgress } from "../../storage/upload/upload-segments"
@@ -10,7 +9,6 @@ import type { StorageUploadProgress } from "../../storage/upload/upload-segments
 export interface UploadPanelProps {
 	readonly chainId: number
 	readonly connected: boolean
-	readonly downloadResult?: StorageDownloadResult
 	readonly errorCode?: string
 	readonly file?: File
 	readonly onFile: (file?: File) => void
@@ -26,7 +24,6 @@ export interface UploadPanelProps {
 export function UploadPanel({
 	chainId,
 	connected,
-	downloadResult,
 	errorCode,
 	file,
 	onFile,
@@ -43,14 +40,6 @@ export function UploadPanel({
 	const resumesSubmittedSession =
 		session?.txHash !== undefined && session.txSeq !== undefined && session.phase !== "completed"
 	const uploadCompleted = session?.phase === "completed"
-	const resourceVerifiedOnNode =
-		uploadCompleted ||
-		(downloadResult?.verified === true && session?.txSeq !== undefined && downloadResult.txSeq === session.txSeq)
-	const showUploadPendingNotice =
-		session?.phase === "recoverable-error" &&
-		session.txHash !== undefined &&
-		session.txSeq !== undefined &&
-		!resourceVerifiedOnNode
 	const wrongNetwork = connected && chainId !== 71
 	const fileInvalid =
 		errorCode === "EMPTY_FILE" ||
@@ -146,32 +135,6 @@ export function UploadPanel({
 								total: uploadProgress.totalSegments,
 							})}
 						</span>
-					</div>
-				) : null}
-
-				{uploadCompleted ? (
-					<div className="storage-page__prepared storage-page__prepared--completed" role="status">
-						<div className="storage-page__success-title">
-							<CheckCircle2 aria-hidden="true" size={17} />
-							<strong>{t("success.title")}</strong>
-						</div>
-						{session?.txSeq !== undefined ? (
-							<p>
-								{t("success.txSeq")}: <span translate="no">{session.txSeq}</span>
-							</p>
-						) : null}
-					</div>
-				) : null}
-
-				{showUploadPendingNotice ? (
-					<div className="storage-page__contract-notice storage-page__contract-notice--warning" role="status">
-						<strong>{t("upload.contractConfirmedTitle")}</strong>
-						<p>
-							{t("upload.contractConfirmedBody", {
-								txSeq: session.txSeq,
-							})}
-						</p>
-						<p>{t("upload.contractConfirmedRetry")}</p>
 					</div>
 				) : null}
 

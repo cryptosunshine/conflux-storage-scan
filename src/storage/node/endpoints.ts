@@ -17,7 +17,7 @@ export function resolveStorageNodeEndpoint(clientUrl: string): StorageNodeEndpoi
 		return STORAGE_NODE_ENDPOINTS[Number(proxyMatch[1])] ?? null
 	}
 
-	const upstreamIndex = STORAGE_NODE_UPSTREAM_URLS.findIndex((url) => url === clientUrl)
+	const upstreamIndex = STORAGE_NODE_UPSTREAM_URLS.indexOf(clientUrl as (typeof STORAGE_NODE_UPSTREAM_URLS)[number])
 	if (upstreamIndex >= 0) {
 		return STORAGE_NODE_ENDPOINTS[upstreamIndex] ?? null
 	}

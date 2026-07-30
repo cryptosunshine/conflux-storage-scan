@@ -88,7 +88,7 @@ describe("RouteMetadata", () => {
 	})
 
 	it("derives English metadata from local route state", async () => {
-		const description = "Explore FixedPriceFlow storage submissions indexed from Conflux eSpace Testnet."
+		const description = "Explore FixedPriceFlow storage submissions on Conflux eSpace Testnet."
 		await expectMetadata("/", "Conflux Storage Explorer — Conflux Storage Scan", description)
 		await expectMetadata("/submissions", "Storage Submissions — Conflux Storage Scan", description)
 		await expectMetadata("/submission/484", "Submission #484 — Conflux Storage Scan", description)
@@ -107,12 +107,12 @@ describe("RouteMetadata", () => {
 		await expectMetadata(
 			"/submission/484",
 			"提交 #484 — Conflux Storage Scan",
-			"浏览从 Conflux eSpace 测试网索引的 FixedPriceFlow 存储提交。",
+			"浏览 Conflux eSpace 测试网上的 FixedPriceFlow 存储提交。",
 		)
 		await expectMetadata(
 			"/storage",
 			"上传资源 — Conflux Storage Scan",
-			"浏览从 Conflux eSpace 测试网索引的 FixedPriceFlow 存储提交。",
+			"浏览 Conflux eSpace 测试网上的 FixedPriceFlow 存储提交。",
 		)
 	})
 

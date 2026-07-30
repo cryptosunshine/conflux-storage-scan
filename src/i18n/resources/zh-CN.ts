@@ -84,12 +84,11 @@ export const chineseResources = {
 			copiedTitle: "已复制",
 		},
 		footer: {
-			description: "FixedPriceFlow 存储提交的只读浏览器。",
 			language: "语言",
-			readOnly: "只读",
+			network: "eSpace 测试网",
 		},
 		metadata: {
-			description: "浏览从 Conflux eSpace 测试网索引的 FixedPriceFlow 存储提交。",
+			description: "浏览 Conflux eSpace 测试网上的 FixedPriceFlow 存储提交。",
 			title: {
 				address: "地址 {{address}} — Conflux Storage Scan",
 				analytics: "存储分析 — Conflux Storage Scan",
@@ -310,10 +309,7 @@ export const chineseResources = {
 			nodeSyncTimeout: "存储节点尚未同步到该 TxSeq，请稍后点击「继续上传」重试。",
 			oversized: "文件大小不能超过 100 MiB。",
 			unknown: "无法完成资源操作。",
-			uploadFailed: "存储节点拒绝了第 {{segment}} 个分段的上传。",
-			uploadFailedDetail: "节点返回：{{detail}}",
-			contractConfirmedRetry:
-				"链上 TxSeq {{txSeq}} 已写入合约，但资源尚未上传到存储节点。请确认节点可用后点击「继续上传」，无需再次签名。",
+			uploadNotConfirmed: "存储节点尚未确认写入，请稍后点击「继续上传」重试，或使用 Merkle Root 查询是否已可下载。",
 		},
 		nodes: {
 			action: "刷新状态",
@@ -336,11 +332,12 @@ export const chineseResources = {
 			title: "上传资源",
 		},
 		success: {
-			description: "资源已写入存储节点，并通过 Merkle Root 完整性校验。",
-			hint: "右侧「取回资源」已填入 TxSeq，可随时再次下载。",
-			root: "Merkle Root",
 			title: "上传成功",
 			txSeq: "TxSeq",
+		},
+		toast: {
+			dismiss: "关闭提示",
+			uploadSuccess: "上传成功，可通过 Merkle Root 或 TxSeq {{txSeq}} 下载",
 		},
 		status: {
 			completed: "上传及完整性校验已完成。",
@@ -349,6 +346,7 @@ export const chineseResources = {
 			ready: "Merkle Root 已就绪",
 			recovered: "检测到未完成的上传。请重新选择原文件，无需再次发起交易。",
 			submitting: "正在等待钱包确认及交易回执…",
+			confirming: "正在确认存储节点写入…",
 			uploading: "正在上传文件分段…",
 			waiting: "正在等待存储节点索引 TxSeq {{txSeq}}…",
 		},
@@ -356,9 +354,6 @@ export const chineseResources = {
 			action: "提交并上传",
 			choose: "选择文件",
 			connect: "连接钱包后继续",
-			contractConfirmedBody: "TxSeq {{txSeq}} 已写入 FixedPriceFlow 合约，但资源尚未成功上传到存储节点。",
-			contractConfirmedRetry: "请确认存储节点可用后，点击「继续上传」完成资源写入，无需再次签名。",
-			contractConfirmedTitle: "链上提交已完成",
 			description: "单个非空文件，最大 100 MiB。上传完成前，文件仅保留在当前浏览器。",
 			fee: "存储费用",
 			fileHint: "不加密 · 文件名和类型公开 · 最大 100 MiB",

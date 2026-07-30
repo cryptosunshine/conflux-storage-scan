@@ -54,11 +54,6 @@ export function NodeHealthPanel({ checking, health, onCheck }: NodeHealthPanelPr
 										: route}
 								</strong>
 								<code translate="no">{route}</code>
-								{endpoint ? (
-									<span className="storage-node-row__hostname" translate="no">
-										{endpoint.hostname}
-									</span>
-								) : null}
 							</div>
 							<div className="storage-node-row__status">
 								<strong>

@@ -82,12 +82,11 @@ export const englishResources = {
 			copiedTitle: "Copied",
 		},
 		footer: {
-			description: "Read-only explorer for FixedPriceFlow storage submissions.",
 			language: "Language",
-			readOnly: "Read-only",
+			network: "eSpace Testnet",
 		},
 		metadata: {
-			description: "Explore FixedPriceFlow storage submissions indexed from Conflux eSpace Testnet.",
+			description: "Explore FixedPriceFlow storage submissions on Conflux eSpace Testnet.",
 			title: {
 				address: "Address {{address}} — Conflux Storage Scan",
 				analytics: "Storage Analytics — Conflux Storage Scan",
@@ -309,10 +308,8 @@ export const englishResources = {
 			nodeSyncTimeout: "The Storage Node has not indexed this TxSeq yet. Try Continue upload again shortly.",
 			oversized: "File must be 100 MiB or smaller.",
 			unknown: "The resource operation could not be completed.",
-			uploadFailed: "The Storage Node rejected segment {{segment}}.",
-			uploadFailedDetail: "Node response: {{detail}}",
-			contractConfirmedRetry:
-				"TxSeq {{txSeq}} is on-chain, but the resource has not been uploaded to a Storage Node yet. Refresh node status and click Continue upload without signing again.",
+			uploadNotConfirmed:
+				"The Storage Node has not confirmed the upload yet. Try Continue upload again shortly, or query by Merkle Root to check availability.",
 		},
 		nodes: {
 			action: "Refresh status",
@@ -335,11 +332,12 @@ export const englishResources = {
 			title: "Upload resources",
 		},
 		success: {
-			description: "The resource is stored on the Storage Node and passed Merkle Root verification.",
-			hint: "TxSeq is filled in Retrieve resource on the right for future downloads.",
-			root: "Merkle Root",
 			title: "Upload successful",
 			txSeq: "TxSeq",
+		},
+		toast: {
+			dismiss: "Dismiss notification",
+			uploadSuccess: "Upload confirmed · retrieve with Merkle Root or TxSeq {{txSeq}}",
 		},
 		status: {
 			completed: "Upload and integrity verification completed.",
@@ -348,6 +346,7 @@ export const englishResources = {
 			ready: "Merkle Root ready",
 			recovered: "An unfinished upload was found. Reselect the original file to continue without another transaction.",
 			submitting: "Waiting for the wallet and transaction receipt…",
+			confirming: "Confirming the upload on Storage Nodes…",
 			uploading: "Uploading file segments…",
 			waiting: "Waiting for the Storage Node to index TxSeq {{txSeq}}…",
 		},
@@ -355,11 +354,6 @@ export const englishResources = {
 			action: "Submit & upload",
 			choose: "Choose file",
 			connect: "Connect wallet to continue",
-			contractConfirmedBody:
-				"TxSeq {{txSeq}} is recorded on FixedPriceFlow, but the resource has not been uploaded to a Storage Node yet.",
-			contractConfirmedRetry:
-				"Confirm a node is available, then click Continue upload to finish the write without signing again.",
-			contractConfirmedTitle: "On-chain submission complete",
 			description: "One non-empty file, up to 100 MiB. File bytes remain in this browser until upload completes.",
 			fee: "Storage fee",
 			fileHint: "No encryption · file name and type are public · 100 MiB maximum",

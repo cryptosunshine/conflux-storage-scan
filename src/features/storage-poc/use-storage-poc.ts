@@ -14,6 +14,7 @@ import {
 	type StorageUploadSessionAction,
 } from "../../storage/session/upload-session"
 import { StoragePocError } from "../../storage/types"
+import { confirmUploadOnHealthyNodes } from "../../storage/upload/confirm-upload-on-nodes"
 import type { StorageUploadProgress } from "../../storage/upload/upload-segments"
 import { uploadViaHealthyNodes } from "../../storage/upload/upload-via-healthy-nodes"
 
@@ -83,6 +84,8 @@ export function useStoragePoc() {
 	const [uploadProgress, setUploadProgress] = useState<StorageUploadProgress>()
 	const [downloadTarget, setDownloadTarget] = useState("")
 	const [downloadResult, setDownloadResult] = useState<StorageDownloadResult>()
+	const [successToast, setSuccessToast] = useState<{ readonly root: string; readonly txSeq: number }>()
+	const [confirmingUpload, setConfirmingUpload] = useState(false)
 	const prepareSequence = useRef(0)
 	const uploadInFlight = useRef(false)
 	const downloadInFlight = useRef(false)
@@ -217,30 +220,59 @@ export function useStoragePoc() {
 			}
 			await checkNodes(txSeq)
 			const chainHead = await getChainHead()
-			const healthyNodes = await runtime.selectHealthyNodes(chainHead, txSeq)
-			const selected = await uploadViaHealthyNodes({
-				nodes: healthyNodes,
-				onNodeReady: async (node) => {
-					working = await persistTransition(working, {
-						nodeUrl: node.client.url,
-						type: "node-synchronized",
+			const healthyNodes = await runtime.selectHealthyNodes(chainHead)
+			let selected: Awaited<ReturnType<typeof uploadViaHealthyNodes>>
+			try {
+				selected = await uploadViaHealthyNodes({
+					nodes: healthyNodes,
+					onNodeReady: async (node) => {
+						working = await persistTransition(working, {
+							nodeUrl: node.client.url,
+							type: "node-synchronized",
+						})
+					},
+					onProgress: (progress) => {
+						setUploadProgress(progress)
+						const confirmedSegmentIndexes = Array.from({ length: progress.confirmedSegments }, (_, index) => index)
+						working = reduceStorageUploadSession(working, {
+							confirmedSegmentIndexes,
+							type: "upload-progress",
+						})
+						setSession(working)
+						void runtime.sessions.put(working)
+					},
+					prepared: preparedFile,
+					txSeq,
+					upload: runtime.upload,
+					waitForFile: runtime.waitForFile,
+				})
+			} catch {
+				setConfirmingUpload(true)
+				try {
+					selected = await confirmUploadOnHealthyNodes({
+						expectedRoot: preparedFile.root,
+						expectedSegments: preparedFile.segmentCount,
+						expectedSize: preparedFile.source.size,
+						nodes: healthyNodes,
+						txSeq,
 					})
-				},
-				onProgress: (progress) => {
-					setUploadProgress(progress)
-					const confirmedSegmentIndexes = Array.from({ length: progress.confirmedSegments }, (_, index) => index)
-					working = reduceStorageUploadSession(working, {
-						confirmedSegmentIndexes,
-						type: "upload-progress",
-					})
-					setSession(working)
-					void runtime.sessions.put(working)
-				},
-				prepared: preparedFile,
-				txSeq,
-				upload: runtime.upload,
-				waitForFile: runtime.waitForFile,
-			})
+					if (working.phase === "waiting-node-sync") {
+						working = await persistTransition(working, {
+							nodeUrl: selected.client.url,
+							type: "node-synchronized",
+						})
+					} else if (working.nodeUrl !== selected.client.url) {
+						working = {
+							...working,
+							nodeUrl: selected.client.url,
+							updatedAt: Date.now(),
+						}
+						setSession(working)
+					}
+				} finally {
+					setConfirmingUpload(false)
+				}
+			}
 			await runtime.sessions.put(working)
 			working = await persistTransition(working, {
 				type: "node-verified",
@@ -257,7 +289,8 @@ export function useStoragePoc() {
 			setDownloadTarget(String(txSeq))
 			setError(undefined)
 			await persistTransition(working, { type: "completed" })
-			await checkNodes(txSeq)
+			setSuccessToast({ root: preparedFile.root, txSeq })
+			await checkNodes()
 		},
 		[checkNodes, getChainHead, persistTransition, runtime],
 	)
@@ -403,6 +436,7 @@ export function useStoragePoc() {
 			) {
 				setSession(await persistTransition(session, { type: "verified-externally" }))
 				setError(undefined)
+				setSuccessToast({ root: result.root, txSeq: result.txSeq })
 				if (session.txSeq !== undefined) {
 					setDownloadTarget(String(session.txSeq))
 				}
@@ -426,6 +460,7 @@ export function useStoragePoc() {
 
 	return {
 		account,
+		confirmingUpload,
 		downloadBusy,
 		uploadBusy,
 		checkNodes,
@@ -443,6 +478,8 @@ export function useStoragePoc() {
 		session,
 		setDownloadTarget,
 		submitOrResume,
+		successToast,
+		clearSuccessToast: () => setSuccessToast(undefined),
 		uploadProgress,
 	}
 }
