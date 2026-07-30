@@ -5,6 +5,7 @@ export type StoragePocErrorCode =
 	| "INVALID_ARGUMENT"
 	| "MALFORMED_RESPONSE"
 	| "NETWORK_ERROR"
+	| "NO_HEALTHY_NODE"
 	| "RPC_ERROR"
 	| "TIMEOUT"
 
