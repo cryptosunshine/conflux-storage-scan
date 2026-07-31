@@ -10,6 +10,7 @@ test("prepares and verifies files without contacting live Storage Nodes", async 
 
 	await page.goto("/storage")
 	await expect(page.getByRole("heading", { name: "Upload resources" })).toBeVisible()
+	await expect(page.getByText("/api/storage-node/0")).toBeVisible()
 	await expect(page.getByText("Available")).toBeVisible()
 	await expect(page.getByText("0 CFX", { exact: true })).toBeVisible()
 	await expect(page.getByText(/network gas is shown separately/i)).toBeVisible()

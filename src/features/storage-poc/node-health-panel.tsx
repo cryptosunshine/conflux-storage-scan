@@ -11,6 +11,10 @@ export interface NodeHealthPanelProps {
 
 export function NodeHealthPanel({ checking, health, onCheck }: NodeHealthPanelProps) {
 	const { t } = useTranslation("storagePoc")
+	const pageProtocol =
+		typeof globalThis.location === "object" && globalThis.location !== null && "protocol" in globalThis.location
+			? String(globalThis.location.protocol)
+			: "http:"
 
 	return (
 		<section aria-labelledby="storage-node-health-title" className="storage-page__node-section">
@@ -29,7 +33,7 @@ export function NodeHealthPanel({ checking, health, onCheck }: NodeHealthPanelPr
 				{checking && !health ? <p className="storage-page__muted">{t("nodes.checking")}</p> : null}
 				{health?.map((node) => {
 					const endpoint = resolveStorageNodeEndpoint(node.client.url)
-					const route = resolveStorageNodeRoute(node.client.url)
+					const route = resolveStorageNodeRoute(node.client.url, pageProtocol)
 					return (
 						<div className="storage-node-row" key={node.client.url}>
 							<span

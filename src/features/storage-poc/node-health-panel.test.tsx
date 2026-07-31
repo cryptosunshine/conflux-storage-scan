@@ -30,13 +30,11 @@ function health(url: string, healthy: boolean): StorageNodeHealth {
 }
 
 describe("NodeHealthPanel", () => {
-	it("shows node index, hostname, and gateway route for the configured endpoint", () => {
-		render(
-			<NodeHealthPanel checking={false} health={[health("https://0gdevnet.confluxrpc.org", true)]} onCheck={vi.fn()} />,
-		)
+	it("shows node index, hostname, and same-origin proxy route", () => {
+		render(<NodeHealthPanel checking={false} health={[health("/api/storage-node/0", true)]} onCheck={vi.fn()} />)
 
 		expect(screen.getByText("Node 0 · 0gdevnet.confluxrpc.org")).toBeInTheDocument()
-		expect(screen.getByText("https://0gdevnet.confluxrpc.org")).toBeInTheDocument()
+		expect(screen.getByText("/api/storage-node/0")).toBeInTheDocument()
 		expect(screen.getByText("Available")).toBeInTheDocument()
 	})
 })
