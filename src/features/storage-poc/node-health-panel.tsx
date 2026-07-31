@@ -1,6 +1,6 @@
 import { RefreshCw, Server } from "lucide-react"
 import { useTranslation } from "react-i18next"
-import { resolveStorageNodeEndpoint, resolveStorageNodeRoute } from "../../storage/node/endpoints"
+import { resolveStorageNodeDisplayHostname } from "../../storage/node/endpoints"
 import type { StorageNodeHealth } from "../../storage/node/node-pool"
 
 export interface NodeHealthPanelProps {
@@ -11,10 +11,6 @@ export interface NodeHealthPanelProps {
 
 export function NodeHealthPanel({ checking, health, onCheck }: NodeHealthPanelProps) {
 	const { t } = useTranslation("storagePoc")
-	const pageProtocol =
-		typeof globalThis.location === "object" && globalThis.location !== null && "protocol" in globalThis.location
-			? String(globalThis.location.protocol)
-			: "http:"
 
 	return (
 		<section aria-labelledby="storage-node-health-title" className="storage-page__node-section">
@@ -32,8 +28,7 @@ export function NodeHealthPanel({ checking, health, onCheck }: NodeHealthPanelPr
 			<div aria-live="polite" className="storage-page__node-list" role="status">
 				{checking && !health ? <p className="storage-page__muted">{t("nodes.checking")}</p> : null}
 				{health?.map((node) => {
-					const endpoint = resolveStorageNodeEndpoint(node.client.url)
-					const route = resolveStorageNodeRoute(node.client.url, pageProtocol)
+					const hostname = resolveStorageNodeDisplayHostname(node.client.url)
 					return (
 						<div className="storage-node-row" key={node.client.url}>
 							<span
@@ -45,15 +40,7 @@ export function NodeHealthPanel({ checking, health, onCheck }: NodeHealthPanelPr
 								<Server size={16} />
 							</span>
 							<div className="storage-node-row__meta">
-								<strong>
-									{endpoint
-										? t("nodes.endpointLabel", {
-												index: endpoint.index,
-												ip: endpoint.ip,
-											})
-										: route}
-								</strong>
-								<code translate="no">{route}</code>
+								<strong translate="no">{hostname}</strong>
 							</div>
 							<div className="storage-node-row__status">
 								<strong>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { resolveStorageNodeEndpoint, resolveStorageNodeRoute } from "./endpoints"
+import { resolveStorageNodeDisplayHostname, resolveStorageNodeEndpoint, resolveStorageNodeRoute } from "./endpoints"
 
 describe("resolveStorageNodeEndpoint", () => {
 	it("maps proxy routes and upstream URLs to display metadata", () => {
@@ -13,6 +13,13 @@ describe("resolveStorageNodeEndpoint", () => {
 			index: 0,
 			ip: "0gdevnet.confluxrpc.org",
 		})
+	})
+})
+
+describe("resolveStorageNodeDisplayHostname", () => {
+	it("shows upstream hostnames for proxy-backed clients", () => {
+		expect(resolveStorageNodeDisplayHostname("/api/storage-node/0")).toBe("0gdevnet.confluxrpc.org")
+		expect(resolveStorageNodeDisplayHostname("https://0gdevnet.confluxrpc.org")).toBe("0gdevnet.confluxrpc.org")
 	})
 })
 

@@ -40,6 +40,19 @@ export function resolveStorageNodeEndpoint(clientUrl: string): StorageNodeEndpoi
 	return null
 }
 
+export function resolveStorageNodeDisplayHostname(clientUrl: string): string {
+	const endpoint = resolveStorageNodeEndpoint(clientUrl)
+	if (endpoint) {
+		return endpoint.hostname
+	}
+
+	try {
+		return new URL(clientUrl).hostname
+	} catch {
+		return clientUrl
+	}
+}
+
 export function resolveStorageNodeRoute(clientUrl: string, protocol = readPageProtocol()): string {
 	if (clientUrl.startsWith("/")) {
 		return clientUrl
