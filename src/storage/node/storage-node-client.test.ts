@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest"
 import type { StorageSegmentWithProof } from "../types"
 import { HttpStorageNodeClient, StorageNodeRpcError } from "./storage-node-client"
 
-const nodeUrl = "http://47.84.224.253:5678"
+const nodeUrl = "https://0gdevnet.confluxrpc.org"
 
 function jsonRpcResponse(result: unknown): Response {
 	return Response.json({ id: 1, jsonrpc: "2.0", result })

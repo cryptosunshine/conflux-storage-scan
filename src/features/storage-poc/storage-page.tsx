@@ -28,6 +28,15 @@ function errorMessage(error: StoragePocUiError, t: (key: string, options?: Recor
 	if (error.code === "NODE_SYNC_TIMEOUT") {
 		return t("errors.nodeSyncTimeout")
 	}
+	if (error.code === "WALLET_REJECTED") {
+		return t("errors.walletRejected")
+	}
+	if (error.code === "WRONG_WALLET_CHAIN") {
+		return t("errors.wrongWalletChain")
+	}
+	if (error.code === "TRANSACTION_REVERTED") {
+		return t("errors.transactionReverted")
+	}
 	return error.message || t("errors.unknown")
 }
 

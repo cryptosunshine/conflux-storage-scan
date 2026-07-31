@@ -166,6 +166,19 @@ describe("submitStorageFile", () => {
 		})
 	})
 
+	it("maps viem user rejection messages without an EIP-1193 code", async () => {
+		await expect(
+			submitStorageFile({
+				account,
+				prepared: preparedFile(),
+				publicClient: publicClient() as never,
+				walletClient: walletClient(71, new Error("User rejected the request.")) as never,
+			}),
+		).rejects.toMatchObject({
+			code: "WALLET_REJECTED",
+		})
+	})
+
 	it("rejects reverted receipts and receipts without the matching identity", async () => {
 		await expect(
 			submitStorageFile({

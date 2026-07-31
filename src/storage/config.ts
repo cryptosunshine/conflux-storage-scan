@@ -10,28 +10,11 @@ export const STORAGE_NODE_MAX_BLOCK_LAG = 512n
 export const STORAGE_UPLOAD_CONCURRENCY = 2
 export const STORAGE_UPLOAD_MAX_ATTEMPTS = 3
 
-export const STORAGE_NODE_UPSTREAM_URLS = ["http://47.84.225.228:5678", "http://47.84.224.253:5678"] as const
-export const STORAGE_NODE_PROXY_ROUTE_PREFIX = "/api/storage-node" as const
-export const STORAGE_NODE_PROXY_ALLOWED_METHODS = new Set([
-	"zgs_downloadSegmentByTxSeq",
-	"zgs_getFileInfo",
-	"zgs_getFileInfoByTxSeq",
-	"zgs_getShardConfig",
-	"zgs_getStatus",
-	"zgs_uploadSegmentsByTxSeq",
-])
+export const STORAGE_NODE_UPSTREAM_URLS = ["https://0gdevnet.confluxrpc.org"] as const
 
 /** @deprecated Use {@link STORAGE_NODE_UPSTREAM_URLS} for server-side probes. */
 export const CONFLUX_STORAGE_NODE_URLS = STORAGE_NODE_UPSTREAM_URLS
 
-export function resolveStorageNodeClientUrls(protocol = readPageProtocol()): readonly string[] {
-	if (protocol === "https:") {
-		return STORAGE_NODE_UPSTREAM_URLS.map((_, index) => `${STORAGE_NODE_PROXY_ROUTE_PREFIX}/${index}`)
-	}
+export function resolveStorageNodeClientUrls(): readonly string[] {
 	return STORAGE_NODE_UPSTREAM_URLS
-}
-
-function readPageProtocol(): string {
-	const maybeLocation = (globalThis as { location?: { protocol?: string } }).location
-	return maybeLocation?.protocol ?? "http:"
 }

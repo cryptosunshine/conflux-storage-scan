@@ -71,13 +71,7 @@ for (const file of requiredFiles) {
 }
 
 const wranglerConfig = await readFile("wrangler.jsonc", "utf8")
-for (const rule of [
-	'"main": "src/storage-node-proxy/worker.ts"',
-	'"run_worker_first": ["/api/storage-node/*"]',
-	'"binding": "ASSETS"',
-	'"STORAGE_NODE_UPSTREAM_URLS"',
-	"zgs-node-0.codekb.dev",
-]) {
+for (const rule of ['"not_found_handling": "single-page-application"', '"directory": "./dist"']) {
 	if (!wranglerConfig.includes(rule)) {
 		throw new Error(`wrangler.jsonc is missing required deployment rule: ${rule}`)
 	}

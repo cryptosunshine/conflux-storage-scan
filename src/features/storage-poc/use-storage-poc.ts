@@ -35,6 +35,17 @@ function toUiError(error: unknown): StoragePocUiError {
 			message: error.message,
 		}
 	}
+	if (
+		error instanceof Error &&
+		/user rejected|rejected the request|request rejected|transaction was rejected|denied transaction/i.test(
+			error.message,
+		)
+	) {
+		return {
+			code: "WALLET_REJECTED",
+			message: error.message,
+		}
+	}
 	return {
 		message: error instanceof Error ? error.message : "The direct storage operation could not be completed",
 	}

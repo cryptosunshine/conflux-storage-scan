@@ -2,22 +2,17 @@ import { describe, expect, it } from "vitest"
 import { resolveStorageNodeEndpoint, resolveStorageNodeRoute } from "./endpoints"
 
 describe("resolveStorageNodeEndpoint", () => {
-	it("maps proxy routes and direct upstream URLs to pinned node metadata", () => {
-		expect(resolveStorageNodeEndpoint("/api/storage-node/0")).toEqual({
-			hostname: "zgs-node-0.codekb.dev",
+	it("maps the configured storage gateway URL to display metadata", () => {
+		expect(resolveStorageNodeEndpoint("https://0gdevnet.confluxrpc.org")).toEqual({
+			hostname: "0gdevnet.confluxrpc.org",
 			index: 0,
-			ip: "47.84.225.228",
-		})
-		expect(resolveStorageNodeEndpoint("http://47.84.224.253:5678")).toEqual({
-			hostname: "zgs-node-1.codekb.dev",
-			index: 1,
-			ip: "47.84.224.253",
+			ip: "0gdevnet.confluxrpc.org",
 		})
 	})
 })
 
 describe("resolveStorageNodeRoute", () => {
-	it("keeps proxy routes visible on HTTPS pages", () => {
-		expect(resolveStorageNodeRoute("/api/storage-node/1", "https:")).toBe("/api/storage-node/1")
+	it("returns the client URL unchanged", () => {
+		expect(resolveStorageNodeRoute("https://0gdevnet.confluxrpc.org")).toBe("https://0gdevnet.confluxrpc.org")
 	})
 })

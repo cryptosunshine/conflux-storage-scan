@@ -1197,8 +1197,12 @@ a:hover {
 	align-items: flex-start;
 	justify-content: space-between;
 	gap: 0.8rem;
+	min-width: 0;
+	max-width: 100%;
 	margin-bottom: 1rem;
 	padding: 0.9rem 1rem;
+	overflow-wrap: anywhere;
+	word-break: break-word;
 	border: 1px solid color-mix(in srgb, var(--color-warning) 62%, var(--color-border));
 	border-left: 3px solid var(--color-warning);
 	border-radius: 0.7rem;
@@ -1206,8 +1210,13 @@ a:hover {
 }
 
 .storage-page__error strong {
+	flex: 1 1 auto;
+	min-width: 0;
 	color: var(--color-heading);
 	font-size: 0.85rem;
+	line-height: 1.45;
+	overflow-wrap: anywhere;
+	word-break: break-word;
 }
 
 .storage-toast {

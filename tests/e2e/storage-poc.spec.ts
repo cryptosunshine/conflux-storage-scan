@@ -3,14 +3,13 @@ import { expect, test } from "@playwright/test"
 test("prepares and verifies files without contacting live Storage Nodes", async ({ page }) => {
 	const directNodeRequests: string[] = []
 	page.on("request", (request) => {
-		if (/47\.84\.(?:225\.228|224\.253):5678/.test(request.url())) {
+		if (/0gdevnet\.confluxrpc\.org|47\.84\.(?:225\.228|224\.253):5678/.test(request.url())) {
 			directNodeRequests.push(request.url())
 		}
 	})
 
 	await page.goto("/storage")
 	await expect(page.getByRole("heading", { name: "Upload resources" })).toBeVisible()
-	await expect(page.getByText("Node 0 · 47.84.225.228")).toBeVisible()
 	await expect(page.getByText("Available")).toBeVisible()
 	await expect(page.getByText("0 CFX", { exact: true })).toBeVisible()
 	await expect(page.getByText(/network gas is shown separately/i)).toBeVisible()

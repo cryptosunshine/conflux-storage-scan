@@ -52,10 +52,18 @@ export interface SubmittedStorageFile {
 }
 
 function isUserRejection(error: unknown): boolean {
-	if (typeof error !== "object" || error === null || !("code" in error)) {
-		return false
+	if (typeof error === "object" && error !== null && "code" in error) {
+		const code = (error as { readonly code?: unknown }).code
+		if (code === 4001 || code === "ACTION_REJECTED") {
+			return true
+		}
 	}
-	return (error as { readonly code?: unknown }).code === 4001
+	if (error instanceof Error) {
+		return /user rejected|rejected the request|request rejected|transaction was rejected|denied transaction/i.test(
+			error.message,
+		)
+	}
+	return false
 }
 
 export async function submitStorageFile({

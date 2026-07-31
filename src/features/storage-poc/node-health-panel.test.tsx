@@ -30,20 +30,13 @@ function health(url: string, healthy: boolean): StorageNodeHealth {
 }
 
 describe("NodeHealthPanel", () => {
-	it("shows node index, IP, and proxy route for each configured endpoint", () => {
+	it("shows node index, hostname, and gateway route for the configured endpoint", () => {
 		render(
-			<NodeHealthPanel
-				checking={false}
-				health={[health("/api/storage-node/0", false), health("/api/storage-node/1", true)]}
-				onCheck={vi.fn()}
-			/>,
+			<NodeHealthPanel checking={false} health={[health("https://0gdevnet.confluxrpc.org", true)]} onCheck={vi.fn()} />,
 		)
 
-		expect(screen.getByText("Node 0 · 47.84.225.228")).toBeInTheDocument()
-		expect(screen.getByText("Node 1 · 47.84.224.253")).toBeInTheDocument()
-		expect(screen.getByText("/api/storage-node/0")).toBeInTheDocument()
-		expect(screen.getByText("/api/storage-node/1")).toBeInTheDocument()
-		expect(screen.getByText("Unavailable: lagging")).toBeInTheDocument()
+		expect(screen.getByText("Node 0 · 0gdevnet.confluxrpc.org")).toBeInTheDocument()
+		expect(screen.getByText("https://0gdevnet.confluxrpc.org")).toBeInTheDocument()
 		expect(screen.getByText("Available")).toBeInTheDocument()
 	})
 })

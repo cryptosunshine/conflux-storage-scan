@@ -310,10 +310,13 @@ export const englishResources = {
 			unknown: "The resource operation could not be completed.",
 			uploadNotConfirmed:
 				"The Storage Node has not confirmed the upload yet. Try Continue upload again shortly, or query by Merkle Root to check availability.",
+			walletRejected: "Wallet confirmation was cancelled. No on-chain submission was sent.",
+			wrongWalletChain: "Switch your wallet to eSpace Testnet and try again.",
+			transactionReverted: "The on-chain submission failed and the transaction reverted.",
 		},
 		nodes: {
 			action: "Refresh status",
-			checking: "Checking both storage nodes…",
+			checking: "Checking storage node…",
 			description: "Chain config, sync height, and readiness are checked before upload or retrieval.",
 			endpointLabel: "Node {{index}} · {{ip}}",
 			eyebrow: "Node network",
